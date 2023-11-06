@@ -1,17 +1,9 @@
 import { Tabs } from "expo-router";
-import { ComponentProps } from "react";
 import { useColorScheme } from "react-native";
 
-import IonIcons from "@expo/vector-icons/Ionicons";
+import { IonIcon } from "../../components/icons/ion";
 
 import colors from "../../constants/colors";
-
-function TabBarIcon(props: {
-  name: ComponentProps<typeof IonIcons>["name"];
-  color: string;
-}) {
-  return <IonIcons size={30} style={{ marginBottom: -3 }} {...props} />;
-}
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
@@ -37,11 +29,9 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Home",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "home" : "home-outline"}
-              color={color}
-            />
+            <IonIcon name={focused ? "home" : "home-outline"} color={color} />
           ),
         }}
       />
@@ -50,7 +40,7 @@ export default function TabsLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
+            <IonIcon
               name={focused ? "settings" : "settings-outline"}
               color={color}
             />

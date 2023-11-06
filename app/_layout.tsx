@@ -13,6 +13,8 @@ import {
 import { useColorScheme } from "react-native";
 import { Stack, SplashScreen } from "expo-router";
 import { useEffect } from "react";
+import { BLEContextProvider } from "../context/ble-context";
+import { StatusBar } from "expo-status-bar";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,9 +50,11 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(root)" options={{ headerShown: false }} />
-      </Stack>
+      <BLEContextProvider>
+        <Stack>
+          <Stack.Screen name="(root)" options={{ headerShown: false }} />
+        </Stack>
+      </BLEContextProvider>
     </ThemeProvider>
   );
 }

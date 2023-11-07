@@ -24,7 +24,7 @@ export default function Home() {
       <PibleScanner />
       <View
         style={{
-          flex: 5,
+          flex: 4,
           backgroundColor: "#fff",
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,

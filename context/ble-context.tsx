@@ -1,15 +1,31 @@
+import { Buffer } from "buffer";
+import * as LocalAuthentication from "expo-local-authentication";
 import { FC, ReactNode, createContext, useContext, useState } from "react";
 import { PermissionsAndroid } from "react-native";
+import AES from "react-native-aes-crypto";
 import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
 
-const scanDuration = 4000;
+import { generateNonce } from "../lib/utils";
+
+const scanDuration = 5000;
 const scanInterval = 10000;
 const scanLimit = 3;
 
+export enum ScanState {
+  scanning,
+  connecting,
+  paused,
+  stopped,
+}
+
 interface BLEContextProps {
-  state: State;
+  manager: BleManager;
+  bluetoothState: State;
+  scanState: ScanState;
   devices: Device[];
+  connect: (device: Device) => void;
   startAutoScan: () => void;
+  stopScan: () => void;
   // startScan: () => void;
 }
 
@@ -19,19 +35,21 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [btState, setBtState] = useState<State>(State.Unknown);
+  const [scanState, setScanState] = useState<ScanState>(ScanState.stopped);
   const [devices, setDevices] = useState<Device[]>([]);
 
   const manager = new BleManager();
   let scanCount = 0;
   let interval: NodeJS.Timeout | null = null;
+  let timeout: NodeJS.Timeout | null = null;
 
   manager.onStateChange((state) => {
     setBtState(state);
   }, true);
 
   const startAutoScan = async () => {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+    const scanPermission = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
       {
         title:
           "This feature needs location permission to scan for BLE devices.",
@@ -43,10 +61,27 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
       }
     );
 
-    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+    const connectPermission = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+      {
+        title:
+          "This feature needs location permission to connect to BLE devices.",
+        message:
+          "This feature needs location permission to connect to BLE devices.",
+        buttonNeutral: "Ask me later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      }
+    );
+
+    if (
+      scanPermission !== PermissionsAndroid.RESULTS.GRANTED ||
+      connectPermission !== PermissionsAndroid.RESULTS.GRANTED
+    ) {
       return;
     }
 
+    scanCount = 0;
     startScan();
     interval = setInterval(() => {
       if (scanCount >= scanLimit) {
@@ -58,6 +93,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
       startScan();
 
       setTimeout(() => {
+        setScanState(ScanState.paused);
         manager.stopDeviceScan();
         scanCount++;
       }, scanDuration);
@@ -65,6 +101,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   };
 
   const startScan = () => {
+    setScanState(ScanState.scanning);
     manager.startDeviceScan(
       ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
       { scanMode: ScanMode.LowLatency },
@@ -99,14 +136,69 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     );
   };
 
+  const stopScan = () => {
+    cancelInterval();
+  };
+
   const cancelInterval = () => {
     clearInterval(interval);
+    clearTimeout(timeout);
+    setScanState(ScanState.stopped);
+  };
+
+  const connect = async (device: Device) => {
+    await device.connect({
+      timeout: 5000,
+      autoConnect: true,
+    });
+
+    if (await device.isConnected()) {
+      const authResult = await LocalAuthentication.authenticateAsync();
+      if (!authResult.success) {
+        return;
+      }
+
+      await device.discoverAllServicesAndCharacteristics();
+
+      const crypt = await encryptData();
+      await device.writeCharacteristicWithResponseForService(
+        "4655318c-0b41-4725-9c64-44f9fb6098a2",
+        "4d493467-5cd5-4a9c-8389-2e569f68bb10",
+        Buffer.from(crypt).toString("base64"),
+        "access-attempt"
+      );
+
+      await device.cancelConnection();
+    }
+  };
+
+  const encryptData = async () => {
+    const nonce = Buffer.from(generateNonce(16)).toString("base64");
+    const uid = "oXBMtmcv2RSoTfuBwiJMNNAtHFK2";
+    const passcode = "112C83";
+    const expiration = new Date().getTime() + 15 * 1000;
+    const concat = `${nonce}:${uid}:${passcode}:${expiration}`;
+
+    const crypt = Buffer.from(
+      await AES.encrypt(
+        concat,
+        Buffer.from("ACCESS_K6zsLWe.4eDnA40x.do4mg*A2").toString("hex"),
+        Buffer.from("csIPrO/aCCeSS.==").toString("hex"),
+        "aes-256-cbc"
+      )
+    ).toString("base64");
+
+    return crypt;
   };
 
   const providerValue = {
-    state: btState,
+    manager,
+    bluetoothState: btState,
+    scanState,
     devices: [...devices],
+    connect,
     startAutoScan: startAutoScan,
+    stopScan,
   };
 
   return (

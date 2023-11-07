@@ -1,19 +1,29 @@
 import { FC } from "react";
 import { Pressable, StyleSheet, Text, useColorScheme } from "react-native";
 import { Device } from "react-native-ble-plx";
+
+import { IonIcon } from "../icons/ion";
+import { useBLE } from "../../context/ble-context";
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
-import { IonIcon } from "../icons/ion";
 
 interface Props {
   device: Device;
 }
 
 export const PibleItem: FC<Props> = ({ device }) => {
+  const { connect } = useBLE();
   const colorScheme = useColorScheme();
 
+  const connectToDevice = async () => {
+    await connect(device);
+  };
+
   return (
-    <Pressable style={[styles.container, { backgroundColor: "#fff" }]}>
+    <Pressable
+      style={[styles.container, { backgroundColor: "#fff" }]}
+      onPress={connectToDevice}
+    >
       <IonIcon
         name="lock-closed"
         size={20}

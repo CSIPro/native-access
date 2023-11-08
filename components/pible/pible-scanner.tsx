@@ -96,6 +96,12 @@ export const PibleScanner = () => {
           `${item.id}-${item.localName}-${item.rssi}-${index}`
         }
         renderItem={({ item }) => <PibleItem device={item} />}
+        contentContainerStyle={{ flexGrow: 1 }}
+        ListEmptyComponent={
+          <View style={[styles.emptyList, { flex: 1 }]}>
+            <Text style={[styles.stateLabel]}>no rooms available</Text>
+          </View>
+        }
       />
       <View style={[styles.row]}>
         <View style={[styles.scanStateContainer]}>
@@ -160,6 +166,10 @@ const styles = StyleSheet.create({
     height: "100%",
     maxHeight: 32,
     aspectRatio: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyList: {
     alignItems: "center",
     justifyContent: "center",
   },

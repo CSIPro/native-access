@@ -7,9 +7,7 @@ import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
 
 import { generateNonce } from "../lib/utils";
 
-const scanDuration = 5000;
-const scanInterval = 10000;
-const scanLimit = 3;
+const scanDuration = 20000;
 
 export enum ScanState {
   scanning,
@@ -39,9 +37,6 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   const [devices, setDevices] = useState<Device[]>([]);
 
   const manager = new BleManager();
-  let scanCount = 0;
-  let interval: NodeJS.Timeout | null = null;
-  let timeout: NodeJS.Timeout | null = null;
 
   manager.onStateChange((state) => {
     setBtState(state);
@@ -81,33 +76,21 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
       return;
     }
 
-    scanCount = 0;
+    setDevices([]);
     startScan();
-    interval = setInterval(() => {
-      if (scanCount >= scanLimit) {
-        cancelInterval();
-        return;
-      }
-
-      setDevices([]);
-      startScan();
-
-      setTimeout(() => {
-        setScanState(ScanState.paused);
-        manager.stopDeviceScan();
-        scanCount++;
-      }, scanDuration);
-    }, scanInterval);
   };
 
   const startScan = () => {
     setScanState(ScanState.scanning);
     manager.startDeviceScan(
       ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
-      { scanMode: ScanMode.LowLatency },
+      { scanMode: ScanMode.Balanced },
       (error, device) => {
         if (error) {
-          console.log(error);
+          if (error.name === "BleError") {
+            setScanState(ScanState.stopped);
+          }
+
           return;
         }
 
@@ -137,39 +120,62 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   };
 
   const stopScan = () => {
-    cancelInterval();
-  };
-
-  const cancelInterval = () => {
-    clearInterval(interval);
-    clearTimeout(timeout);
+    manager.stopDeviceScan();
+    setTimeout(() => setDevices([]), 5000);
     setScanState(ScanState.stopped);
   };
 
-  const connect = async (device: Device) => {
-    await device.connect({
-      timeout: 5000,
-      autoConnect: true,
-    });
+  const connect = (device: Device) => {
+    setScanState(ScanState.connecting);
 
-    if (await device.isConnected()) {
-      const authResult = await LocalAuthentication.authenticateAsync();
-      if (!authResult.success) {
-        return;
-      }
+    LocalAuthentication.authenticateAsync()
+      .then((authResult) => {
+        if (!authResult.success) {
+          throw new Error("Authentication failed.");
+        }
 
-      await device.discoverAllServicesAndCharacteristics();
-
-      const crypt = await encryptData();
-      await device.writeCharacteristicWithResponseForService(
-        "4655318c-0b41-4725-9c64-44f9fb6098a2",
-        "4d493467-5cd5-4a9c-8389-2e569f68bb10",
-        Buffer.from(crypt).toString("base64"),
-        "access-attempt"
-      );
-
-      await device.cancelConnection();
-    }
+        manager
+          .connectToDevice(device.id, {
+            autoConnect: true,
+            timeout: 5000,
+          })
+          .then((connectedDevice) => {
+            return connectedDevice.discoverAllServicesAndCharacteristics();
+          })
+          .then((connectedDevice) => {
+            encryptData()
+              .then((crypt) => {
+                connectedDevice
+                  .writeCharacteristicWithResponseForService(
+                    "4655318c-0b41-4725-9c64-44f9fb6098a2",
+                    "4d493467-5cd5-4a9c-8389-2e569f68bb10",
+                    Buffer.from(crypt).toString("base64"),
+                    "access-attempt"
+                  )
+                  .then((_) => {
+                    connectedDevice.cancelConnection();
+                    stopScan();
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    startAutoScan();
+                  });
+              })
+              .catch((error) => {
+                console.log(error);
+                startAutoScan();
+              });
+          })
+          .catch((error) => {
+            console.log(error);
+            startAutoScan();
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+        setScanState(ScanState.stopped);
+        throw error;
+      });
   };
 
   const encryptData = async () => {

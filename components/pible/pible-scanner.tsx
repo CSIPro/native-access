@@ -1,3 +1,7 @@
+import Constants from "expo-constants";
+import IonIcons from "@expo/vector-icons/Ionicons";
+
+import { FC, useEffect } from "react";
 import {
   useColorScheme,
   StyleSheet,
@@ -7,13 +11,11 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import IonIcons from "@expo/vector-icons/Ionicons";
 
 import { ScanState, useBLE } from "../../context/ble-context";
 import colors from "../../constants/colors";
 import { State } from "react-native-ble-plx";
 import fonts from "../../constants/fonts";
-import { ComponentProps, FC, useEffect } from "react";
 import { PibleItem } from "./pible-item";
 import { IonIcon } from "../icons/ion";
 

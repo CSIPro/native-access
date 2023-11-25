@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import IonIcons from "@expo/vector-icons/Ionicons";
 
 import { FC, useEffect } from "react";

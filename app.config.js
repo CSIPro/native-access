@@ -15,8 +15,10 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+      googleServicesFile: process.env.GOOGLE_SERVICES_PLIST,
     },
     android: {
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#7145d6",
@@ -33,6 +35,7 @@ export default {
     },
     plugins: [
       "expo-router",
+      "@react-native-google-signin/google-signin",
       [
         "react-native-ble-plx",
         {

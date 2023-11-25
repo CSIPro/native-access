@@ -53,6 +53,7 @@ function RootLayoutNav() {
       <BLEContextProvider>
         <Stack>
           <Stack.Screen name="(root)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         </Stack>
       </BLEContextProvider>
     </ThemeProvider>

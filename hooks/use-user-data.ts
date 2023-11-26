@@ -1,11 +1,12 @@
 import { Timestamp, doc } from "firebase/firestore";
-import { useDocumentData } from "react-firebase-hooks/firestore";
 
 import { z } from "zod";
 
-import { firebaseAuth, firestore } from "../lib/firebase-config";
+import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
-const userRoomRoleSchema = z.object({
+import { useRoomContext } from "../context/room-context";
+
+export const userRoomRoleSchema = z.object({
   id: z.string(),
   key: z.string(),
   accessGranted: z.boolean().default(false),
@@ -14,7 +15,8 @@ const userRoomRoleSchema = z.object({
 
 export type UserRoomRole = z.infer<typeof userRoomRoleSchema>;
 
-const userSchema = z.object({
+export const userSchema = z.object({
+  id: z.string(),
   csiId: z.number(),
   name: z.string(),
   passcode: z.string(),
@@ -22,28 +24,171 @@ const userSchema = z.object({
   createdAt: z.custom<Timestamp>(),
   dateOfBirth: z.custom<Timestamp>(),
   isRoot: z.boolean().optional().default(false),
-  role: userRoomRoleSchema,
+  role: userRoomRoleSchema.optional(),
 });
 
 export type AccessUser = z.infer<typeof userSchema>;
 
 export const useUserData = () => {
-  const user = firebaseAuth.currentUser;
-  const userDoc = doc(firestore, "users", `${user?.uid}a` || "undefined");
-  const userRolesDoc = doc(
+  const user = useUser();
+  const firestore = useFirestore();
+  const userDoc = doc(firestore, "users", `${user.data?.uid}` || "undefined");
+  const userRoleDoc = doc(
     firestore,
     "user_roles",
-    `${user?.uid}a` || "undefined"
+    `${user.data?.uid}` || "undefined"
   );
 
-  const [userData, userLoading, userError] = useDocumentData(userDoc);
-  const [roles, rolesLoading, rolesError] = useDocumentData(userRolesDoc);
+  const { status: userRoomRoleStatus, data: userRoomRoleData } = useUserRole();
+  const { status: userStatus, data: userData } = useFirestoreDocData(userDoc, {
+    idField: "id",
+  });
+
+  const { status: userRoleStatus, data: userRoleData } = useFirestoreDocData(
+    userRoleDoc,
+    {
+      idField: "id",
+    }
+  );
+
+  if (
+    userStatus === "loading" ||
+    userRoleStatus === "loading" ||
+    userRoomRoleStatus === "loading"
+  ) {
+    return { status: "loading", data: null };
+  }
+
+  if (
+    userStatus === "error" ||
+    userRoleStatus === "error" ||
+    userRoomRoleStatus === "error"
+  ) {
+    return { status: "error", data: null };
+  }
+
+  const mergedData = {
+    ...userData,
+    isRoot: userRoleData?.isRoot || false,
+    role: userRoomRoleData,
+  } as AccessUser;
 
   return {
-    user: userData
-      ? userSchema.parse({ ...userData, role: userRoomRoleSchema.parse(roles) })
-      : undefined,
-    loading: userLoading || rolesLoading,
-    error: userError || rolesError,
+    status: userStatus,
+    data: mergedData,
+  };
+};
+
+export const useUserDataWithId = (uid: string) => {
+  const firestore = useFirestore();
+  const userQuery = doc(firestore, "users", uid);
+  const userRoleQuery = doc(firestore, "user_roles", uid);
+
+  const { status: userRoomRoleStatus, data: userRoomRoleData } = useUserRole();
+  const { status: userStatus, data: userData } = useFirestoreDocData(
+    userQuery,
+    {
+      idField: "id",
+    }
+  );
+
+  const { status: userRoleStatus, data: userRoleData } = useFirestoreDocData(
+    userRoleQuery,
+    {
+      idField: "id",
+    }
+  );
+
+  if (
+    userStatus === "loading" ||
+    userRoleStatus === "loading" ||
+    userRoomRoleStatus === "loading"
+  ) {
+    return { status: "loading", data: null };
+  }
+
+  if (
+    userStatus === "error" ||
+    userRoleStatus === "error" ||
+    userRoomRoleStatus === "error"
+  ) {
+    return { status: "error", data: null };
+  }
+
+  const mergedData = {
+    ...userData,
+    isRoot: userRoleData?.isRoot || false,
+    role: userRoomRoleData,
+  } as z.infer<typeof userSchema>;
+
+  return {
+    status: userStatus,
+    data: mergedData,
+  };
+};
+
+export const useUserRole = () => {
+  const { selectedRoom } = useRoomContext();
+  const user = useUser();
+  const firestore = useFirestore();
+  const userRoleQuery = doc(
+    firestore,
+    "user_roles",
+    user.data?.uid || "invalid",
+    "room_roles",
+    selectedRoom || "invalid"
+  );
+
+  const { status: userRoleStatus, data: userRoleData } = useFirestoreDocData(
+    userRoleQuery,
+    {
+      idField: "id",
+    }
+  );
+
+  if (userRoleStatus === "loading") {
+    return { status: "loading", data: null };
+  }
+
+  if (userRoleStatus === "error") {
+    return { status: "error", data: null };
+  }
+
+  return {
+    status: userRoleStatus,
+    data: userRoleData as z.infer<typeof userRoomRoleSchema>,
+  };
+};
+
+export const useUserRoleWithId = (uid: string) => {
+  const { selectedRoom } = useRoomContext();
+  const firestore = useFirestore();
+  const userRoleDoc = doc(
+    firestore,
+    "user_roles",
+    uid,
+    "room_roles",
+    selectedRoom || "invalid"
+  );
+
+  const { status: userRoleStatus, data: userRoleData } = useFirestoreDocData(
+    userRoleDoc,
+    {
+      idField: "id",
+    }
+  );
+
+  if (userRoleStatus === "loading") {
+    return { status: "loading", data: null };
+  }
+
+  if (userRoleStatus === "error") {
+    return { status: "error", data: null };
+  }
+
+  return {
+    status: userRoleStatus,
+    doc: userRoleDoc,
+    data: userRoleData as z.infer<typeof userRoomRoleSchema>,
   };
 };

@@ -1,11 +1,10 @@
 import { FC, ReactNode, createContext, useContext } from "react";
 
-import { AccessUser, useUserData } from "../hooks/use-user-data";
+import { AccessUser, useUserData, userSchema } from "../hooks/use-user-data";
 
 interface UserContextProps {
+  status: "loading" | "error" | "success" | string;
   user?: AccessUser;
-  loading: boolean;
-  error?: Error | null;
 }
 
 const UserContext = createContext<UserContextProps | null>(null);
@@ -13,34 +12,45 @@ const UserContext = createContext<UserContextProps | null>(null);
 export const UserContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { user, loading, error } = useUserData();
+  const { status, data } = useUserData();
 
-  if (loading) {
+  if (status === "loading") {
     return (
-      <UserContext.Provider value={{ loading }}>
+      <UserContext.Provider value={{ status: "loading" }}>
         {children}
       </UserContext.Provider>
     );
   }
 
-  if (error) {
+  if (status === "error") {
     return (
-      <UserContext.Provider value={{ user: null, loading, error }}>
+      <UserContext.Provider value={{ status: "error" }}>
         {children}
       </UserContext.Provider>
     );
   }
 
-  const value = {
-    user,
-    loading,
-    error,
+  if (!data) {
+    return (
+      <UserContext.Provider value={{ status: "error" }}>
+        {children}
+      </UserContext.Provider>
+    );
+  }
+
+  const providerValue = {
+    status,
+    user: userSchema.parse(data),
   };
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={providerValue}>
+      {children}
+    </UserContext.Provider>
+  );
 };
 
-export const useUser = () => {
+export const useUserContext = () => {
   const context = useContext(UserContext);
 
   if (!context) {

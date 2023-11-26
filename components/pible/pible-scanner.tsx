@@ -35,15 +35,13 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 
   const colorScheme = useColorScheme();
 
-  const color = colors[colorScheme ?? "light"].bluetooth;
+  const color = colors[colorScheme ?? "light"].tint;
 
   const icon =
     state === ScanState.stopped ? (
-      <IonIcon name="refresh" color={color} size={16} />
-    ) : state === ScanState.paused ? (
       <IonIcon name="play" color={color} size={16} />
     ) : (
-      <IonIcon name="pause" color={color} size={16} />
+      <IonIcon name="stop" color={color} size={16} />
     );
 
   const handlePress = () => {
@@ -67,10 +65,10 @@ export const PibleScanner = () => {
 
   const btState =
     bleCtx?.bluetoothState === State.PoweredOn
-      ? "on"
+      ? "ON"
       : bleCtx?.bluetoothState === State.PoweredOff
-      ? "off"
-      : "error";
+      ? "OFF"
+      : "ERROR";
 
   useEffect(() => {
     bleCtx?.startAutoScan();
@@ -84,7 +82,7 @@ export const PibleScanner = () => {
       ]}
     >
       <View style={[styles.row]}>
-        <Text style={[styles.label]}>nearby rooms</Text>
+        <Text style={[styles.label]}>Nearby Rooms</Text>
         <View style={[styles.scanStateContainer]}>
           <IonIcons name="bluetooth" size={12} color="#fff" />
           <Text style={[styles.stateLabel]}>{btState}</Text>
@@ -129,6 +127,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
+    maxHeight: 200,
   },
   label: {
     fontFamily: fonts.poppinsRegular,
@@ -136,8 +135,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   stateLabel: {
-    textTransform: "lowercase",
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppinsMedium,
     fontSize: 14,
     color: "#fff",
   },

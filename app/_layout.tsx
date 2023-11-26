@@ -14,8 +14,15 @@ import { useColorScheme } from "react-native";
 import { Stack, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { BLEContextProvider } from "../context/ble-context";
-import { StatusBar } from "expo-status-bar";
 import { UserContextProvider } from "../context/user-context";
+import {
+  AuthProvider,
+  FirebaseAppProvider,
+  FirestoreProvider,
+} from "reactfire";
+import { firebaseApp, firebaseAuth, firestore } from "../lib/firebase-config";
+import { RoleProvider } from "../context/role-context";
+import { RoomProvider } from "../context/room-context";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,14 +58,30 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <BLEContextProvider>
-        <UserContextProvider>
-          <Stack>
-            <Stack.Screen name="(root)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          </Stack>
-        </UserContextProvider>
-      </BLEContextProvider>
+      <FirebaseAppProvider firebaseApp={firebaseApp}>
+        <AuthProvider sdk={firebaseAuth}>
+          <FirestoreProvider sdk={firestore}>
+            <BLEContextProvider>
+              <RoomProvider>
+                <RoleProvider>
+                  <UserContextProvider>
+                    <Stack>
+                      <Stack.Screen
+                        name="(root)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(auth)"
+                        options={{ headerShown: false }}
+                      />
+                    </Stack>
+                  </UserContextProvider>
+                </RoleProvider>
+              </RoomProvider>
+            </BLEContextProvider>
+          </FirestoreProvider>
+        </AuthProvider>
+      </FirebaseAppProvider>
     </ThemeProvider>
   );
 }

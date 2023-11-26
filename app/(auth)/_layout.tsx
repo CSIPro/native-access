@@ -4,36 +4,35 @@ import { useEffect } from "react";
 
 import { ActivityIndicator, Text, View, useColorScheme } from "react-native";
 
-import { useAuthState } from "react-firebase-hooks/auth";
-
 import { CustomSafeArea } from "../../components/custom-safe-area/custom-safe-area";
 import { IonIcon } from "../../components/icons/ion";
 
-import { firebaseAuth } from "../../lib/firebase-config";
 import colors from "../../constants/colors";
-import { useUser } from "../../context/user-context";
+import { useUserContext } from "../../context/user-context";
+import { firebaseAuth } from "../../lib/firebase-config";
+import { useSigninCheck } from "reactfire";
 
 export default function AuthLayout() {
   const colorScheme = useColorScheme();
 
-  const [user, loading, error] = useAuthState(firebaseAuth);
   const {
-    user: userData,
-    loading: userDataLoading,
-    error: userDataError,
-  } = useUser();
+    status: checkStatus,
+    data: checkData,
+    error: checkError,
+  } = useSigninCheck();
+  const { status: userStatus, user: userData } = useUserContext();
 
   useEffect(() => {
-    if (!loading && !userDataLoading) {
-      if (user && userData) {
+    if (checkStatus === "success" && userStatus === "success") {
+      if (checkData.signedIn && userData) {
         router.replace("(root)");
-      } else if (user && !userData) {
+      } else if (checkData.signedIn && !userData) {
         router.replace("(auth)/sign-up");
       }
     }
-  }, [user, userData, loading, userDataLoading]);
+  }, [checkData, userData, checkStatus, userStatus]);
 
-  if (loading || userDataLoading) {
+  if (checkStatus === "loading" || userStatus === "loading") {
     return (
       <CustomSafeArea>
         <View
@@ -50,7 +49,7 @@ export default function AuthLayout() {
     );
   }
 
-  if (error || userDataError) {
+  if (checkError || !checkData.signedIn) {
     return (
       <CustomSafeArea>
         <View
@@ -62,7 +61,7 @@ export default function AuthLayout() {
           }}
         >
           <IonIcon name="alert-circle-outline" size={32} color="#fff" />
-          <Text style={{ color: "#fff" }}>{error.message}</Text>
+          <Text style={{ color: "#fff" }}>{checkError.message}</Text>
         </View>
       </CustomSafeArea>
     );

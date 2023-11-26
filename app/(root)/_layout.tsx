@@ -4,9 +4,12 @@ import { useColorScheme } from "react-native";
 import { IonIcon } from "../../components/icons/ion";
 
 import colors from "../../constants/colors";
+import { useRooms } from "../../hooks/use-rooms";
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
+
+  useRooms();
 
   return (
     <Tabs

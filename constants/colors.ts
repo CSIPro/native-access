@@ -6,6 +6,9 @@ export default {
     bluetooth: "#0080ff",
     tabDefault: "#ccc",
     currentTab: "#7145d6",
+    secondary: "#e91e63",
+    tintAccent: "#f58b00",
+    success: "#36827f",
   },
   dark: {
     text: "#fff",
@@ -14,5 +17,8 @@ export default {
     bluetooth: "#0080ff",
     tabDefault: "#ccc",
     currentTab: "#7145d6",
+    secondary: "#e91e63",
+    tintAccent: "#f58b00",
+    success: "#36827f",
   },
 };

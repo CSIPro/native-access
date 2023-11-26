@@ -1,6 +1,12 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
-import { Pressable, Text, View, useColorScheme } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 
@@ -14,12 +20,12 @@ import {
 } from "@react-native-google-signin/google-signin";
 
 GoogleSignin.configure({
-  webClientId: "1050055617140-39t9pnkben51i9dlsj472p6vug65p0sk.apps.googleusercontent.com",
+  webClientId:
+    "1050055617140-39t9pnkben51i9dlsj472p6vug65p0sk.apps.googleusercontent.com",
 });
 
 export default function SignIn() {
   const colorSchemeValue = useColorScheme();
-  console.log(firebaseAuth.currentUser);
 
   const colorScheme = colorSchemeValue ?? "light";
 

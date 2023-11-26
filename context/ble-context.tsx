@@ -7,7 +7,7 @@ import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
 
 import { generateNonce } from "../lib/utils";
 
-const scanDuration = 20000;
+const scanDuration = 10000;
 
 export enum ScanState {
   scanning,
@@ -37,6 +37,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   const [devices, setDevices] = useState<Device[]>([]);
 
   const manager = new BleManager();
+  let scanTimeout: NodeJS.Timeout;
 
   manager.onStateChange((state) => {
     setBtState(state);
@@ -117,12 +118,20 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
         });
       }
     );
+
+    scanTimeout = setTimeout(() => {
+      manager.stopDeviceScan();
+      setScanState(ScanState.stopped);
+    }, scanDuration);
   };
 
   const stopScan = () => {
     manager.stopDeviceScan();
-    setTimeout(() => setDevices([]), 5000);
-    setScanState(ScanState.stopped);
+    clearTimeout(scanTimeout);
+    setTimeout(() => {
+      setDevices([]);
+      setScanState(ScanState.stopped);
+    }, 5000);
   };
 
   const connect = (device: Device) => {
@@ -139,15 +148,15 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
         })
         .then((connectedDevice) => {
           LocalAuthentication.authenticateAsync()
-          .then((result) => {
+            .then((result) => {
               if (!result.success) {
                 throw new Error("Authentication failed.");
               }
-              
+
               encryptData()
-              .then((crypt) => {
-                connectedDevice
-                .writeCharacteristicWithResponseForService(
+                .then((crypt) => {
+                  connectedDevice
+                    .writeCharacteristicWithResponseForService(
                       "4655318c-0b41-4725-9c64-44f9fb6098a2",
                       "4d493467-5cd5-4a9c-8389-2e569f68bb10",
                       Buffer.from(crypt).toString("base64"),

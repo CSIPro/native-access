@@ -15,6 +15,7 @@ import { Stack, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { BLEContextProvider } from "../context/ble-context";
 import { StatusBar } from "expo-status-bar";
+import { UserContextProvider } from "../context/user-context";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -51,10 +52,12 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <BLEContextProvider>
-        <Stack>
-          <Stack.Screen name="(root)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        </Stack>
+        <UserContextProvider>
+          <Stack>
+            <Stack.Screen name="(root)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </UserContextProvider>
       </BLEContextProvider>
     </ThemeProvider>
   );

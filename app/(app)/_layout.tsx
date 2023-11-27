@@ -1,15 +1,51 @@
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
 
 import { IonIcon } from "../../components/icons/ion";
 
 import colors from "../../constants/colors";
-import { useRooms } from "../../hooks/use-rooms";
+import { useSigninCheck } from "reactfire";
+import { SplashScreen } from "../../components/splash/splash";
+import { useUserData } from "../../hooks/use-user-data";
 
 export default function TabsLayout() {
+  const {
+    status: checkStatus,
+    data: checkData,
+    error: checkError,
+  } = useSigninCheck();
+
+  if (checkStatus === "loading") {
+    return <SplashScreen loading message="Retrieving session..." />;
+  }
+
+  if (checkError) {
+    return <SplashScreen message={checkError.message} />;
+  }
+
+  if (!checkData.signedIn) {
+    return <Redirect href="/sign-in" />;
+  }
+
+  return <TabsLayoutNav />;
+}
+
+const TabsLayoutNav = () => {
   const colorScheme = useColorScheme();
 
-  useRooms();
+  const { status, data } = useUserData();
+
+  if (status === "loading") {
+    return <SplashScreen loading message="Retrieving user data..." />;
+  }
+
+  if (status === "error") {
+    return <SplashScreen message="Unable to fetch data from Firestore" />;
+  }
+
+  if (!data) {
+    return <Redirect href="/sign-up" />;
+  }
 
   return (
     <Tabs
@@ -52,4 +88,4 @@ export default function TabsLayout() {
       />
     </Tabs>
   );
-}
+};

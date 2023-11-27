@@ -1,5 +1,11 @@
 import { FC } from "react";
-import { Pressable, StyleSheet, Text, useColorScheme } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 import { Device } from "react-native-ble-plx";
 
 import { IonIcon } from "../icons/ion";
@@ -29,10 +35,11 @@ export const PibleItem: FC<Props> = ({ device }) => {
       ]}
       onPress={connectToDevice}
     >
-      <IonIcon
-        name="lock-closed"
-        size={20}
-        color={colors[colorScheme ?? "light"].tint}
+      <View
+        style={[
+          styles.containerHighlight,
+          { backgroundColor: colors[colorScheme].bluetooth },
+        ]}
       />
       <Text
         numberOfLines={1}
@@ -49,15 +56,23 @@ export const PibleItem: FC<Props> = ({ device }) => {
 
 const styles = StyleSheet.create({
   container: {
+    position: "relative",
     marginHorizontal: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 4,
-    height: 48,
+    borderRadius: 8,
     maxWidth: 180,
+    justifyContent: "center",
     alignItems: "center",
-    gap: 8,
-    flexDirection: "row",
+    gap: 4,
+    overflow: "hidden",
+  },
+  containerHighlight: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 8,
   },
   roomName: {
     fontSize: 20,

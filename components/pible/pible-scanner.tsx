@@ -98,7 +98,7 @@ export const PibleScanner = () => {
         contentContainerStyle={{ flexGrow: 1 }}
         ListEmptyComponent={
           <View style={[styles.emptyList, { flex: 1 }]}>
-            <Text style={[styles.stateLabel]}>no rooms available</Text>
+            <Text style={[styles.stateLabel]}>No rooms available</Text>
           </View>
         }
       />
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    maxHeight: 200,
+    maxHeight: 180,
   },
   label: {
     fontFamily: fonts.poppinsRegular,

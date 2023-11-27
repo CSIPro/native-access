@@ -1,8 +1,8 @@
 import { Text, View, useColorScheme } from "react-native";
 
-import { CustomSafeArea } from "../../components/custom-safe-area/custom-safe-area";
-import colors from "../../constants/colors";
-import fonts from "../../constants/fonts";
+import { CustomSafeArea } from "../components/custom-safe-area/custom-safe-area";
+import colors from "../constants/colors";
+import fonts from "../constants/fonts";
 
 export default function SignUp() {
   const colorSchemeValue = useColorScheme();

@@ -10,10 +10,10 @@ import {
 
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 
-import { CustomSafeArea } from "../../components/custom-safe-area/custom-safe-area";
+import { CustomSafeArea } from "../components/custom-safe-area/custom-safe-area";
 
-import colors from "../../constants/colors";
-import { firebaseAuth } from "../../lib/firebase-config";
+import colors from "../constants/colors";
+import { firebaseAuth } from "../lib/firebase-config";
 import {
   GoogleSigninButton,
   GoogleSignin,

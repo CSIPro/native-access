@@ -67,6 +67,10 @@ export const useUserData = () => {
     return { status: "error", data: null };
   }
 
+  if (!userData) {
+    return { status: "success", data: null };
+  }
+
   const mergedData = {
     ...userData,
     isRoot: userRoleData?.isRoot || false,

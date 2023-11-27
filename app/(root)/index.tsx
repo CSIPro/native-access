@@ -151,38 +151,6 @@ const BluetoothLogs = () => {
   );
 };
 
-const SuccessfulPersonalLogs = () => {
-  const colorScheme = useColorScheme();
-
-  const { logs } = useUserSuccessfulLogs();
-
-  return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].tint },
-          ]}
-        />
-        <IonIcon
-          name="checkmark-circle"
-          color={colors[colorScheme].tint}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
-            Entrances
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-};
-
 const UnknownLogs = () => {
   const colorScheme = useColorScheme();
 
@@ -242,6 +210,39 @@ const FailedLogs = () => {
     </View>
   );
 };
+
+const SuccessfulPersonalLogs = () => {
+  const colorScheme = useColorScheme();
+
+  const { logs } = useUserSuccessfulLogs();
+
+  return (
+    <View style={[styles.dataContainerShadow]}>
+      <View style={[styles.dataContainer]}>
+        <View
+          style={[
+            styles.dataContainerHighlight,
+            { backgroundColor: colors[colorScheme].success },
+          ]}
+        />
+        <IonIcon
+          name="checkmark-circle"
+          color={colors[colorScheme].success}
+          size={24}
+        />
+        <View style={[styles.dataTextContainer]}>
+          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+            {logs.length}
+          </Text>
+          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
+            Entrances
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 
 const BluetoothPersonalLogs = () => {
   const colorScheme = useColorScheme();

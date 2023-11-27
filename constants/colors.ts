@@ -8,7 +8,8 @@ export default {
     currentTab: "#7145d6",
     secondary: "#e91e63",
     tintAccent: "#f58b00",
-    success: "#36827f",
+    success: "#3bc72c",
+    black: "#222222",
   },
   dark: {
     text: "#fff",
@@ -19,6 +20,7 @@ export default {
     currentTab: "#7145d6",
     secondary: "#e91e63",
     tintAccent: "#f58b00",
-    success: "#36827f",
+    success: "#3bc72c",
+    black: "#222222",
   },
 };

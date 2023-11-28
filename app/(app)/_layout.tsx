@@ -75,6 +75,18 @@ const TabsLayoutNav = () => {
         }}
       />
       <Tabs.Screen
+        name="logs"
+        options={{
+          title: "Logs",
+          tabBarIcon: ({ color, focused }) => (
+            <IonIcon
+              name={focused ? "log-in" : "log-in-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",

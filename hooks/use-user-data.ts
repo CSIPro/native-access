@@ -83,7 +83,7 @@ export const useUserData = () => {
   };
 };
 
-export const useUserDataWithId = (uid: string) => {
+export const useUserDataWithId = (uid: string | undefined) => {
   const firestore = useFirestore();
   const userQuery = doc(firestore, "users", uid);
   const userRoleQuery = doc(firestore, "user_roles", uid);

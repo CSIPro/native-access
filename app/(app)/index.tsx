@@ -92,6 +92,8 @@ const SuccessfulLogs = () => {
 
   const { logs } = useSuccessfulLogs();
 
+  const palette = colors[colorScheme];
+
   return (
     <View style={styles.successShadow}>
       <View style={[styles.logsBubble]}>
@@ -99,7 +101,7 @@ const SuccessfulLogs = () => {
           style={[
             styles.successContainer,
             {
-              borderBlockEndColor: colors[colorScheme].tint,
+              borderBlockEndColor: palette.tint,
               borderBottomWidth: 3,
             },
           ]}
@@ -108,7 +110,7 @@ const SuccessfulLogs = () => {
             style={[
               styles.bubbleText,
               {
-                color: colors[colorScheme].text,
+                color: palette.black,
                 fontSize: 60,
                 fontFamily: fonts.poppinsLight,
               },
@@ -117,7 +119,7 @@ const SuccessfulLogs = () => {
             {logs.length}
           </Text>
           <Text
-            style={[styles.bubbleText, { color: colors[colorScheme].tint }]}
+            style={[styles.bubbleText, { color: palette.tint }]}
           >
             Entrances
           </Text>

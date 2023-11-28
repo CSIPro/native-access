@@ -54,6 +54,12 @@ export default {
         },
       ],
     ],
+    updates: {
+      url: "https://u.expo.dev/9ca4842f-91b6-4a15-8832-b5f4b1270f63",
+    },
+    runtimeVersion: {
+      policy: "appVersion",
+    },
     extra: {
       router: {
         origin: false,

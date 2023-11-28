@@ -16,6 +16,9 @@ export default {
     ios: {
       supportsTablet: true,
       googleServicesFile: process.env.GOOGLE_SERVICES_PLIST,
+      config: {
+        usesNonExemptEncryption: false,
+      },
     },
     android: {
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,

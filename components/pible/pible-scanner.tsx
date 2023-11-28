@@ -45,7 +45,7 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
     );
 
   const handlePress = () => {
-    if (state === ScanState.stopped || state === ScanState.paused) {
+    if (state === ScanState.stopped) {
       bleCtx?.startAutoScan();
     } else if (state === ScanState.scanning) {
       bleCtx?.stopScan();

@@ -1,7 +1,7 @@
 export default {
   light: {
     text: "#222222",
-    background: "#eee",
+    background: "#f7f7f7",
     tint: "#7145d6",
     bluetooth: "#0080ff",
     tabDefault: "#ccc",

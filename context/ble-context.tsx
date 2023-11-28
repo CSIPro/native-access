@@ -4,10 +4,16 @@ import { FC, ReactNode, createContext, useContext, useState } from "react";
 import { PermissionsAndroid } from "react-native";
 import AES from "react-native-aes-crypto";
 import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
+import Constants from "expo-constants";
 
-import { generateNonce } from "../lib/utils";
+import {
+  deleteAllFromStorage,
+  generateNonce,
+  getFromStorage,
+} from "../lib/utils";
+import { router } from "expo-router";
 
-const scanDuration = 10000;
+const scanDuration = 30000;
 
 export enum ScanState {
   scanning,
@@ -21,9 +27,11 @@ interface BLEContextProps {
   bluetoothState: State;
   scanState: ScanState;
   devices: Device[];
+  openModal: boolean;
   connect: (device: Device) => void;
   startAutoScan: () => void;
   stopScan: () => void;
+  closeModal: () => void;
   // startScan: () => void;
 }
 
@@ -32,6 +40,7 @@ const BLEContext = createContext<BLEContextProps | null>(null);
 export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const [openModal, setOpenModal] = useState(false);
   const [btState, setBtState] = useState<State>(State.Unknown);
   const [scanState, setScanState] = useState<ScanState>(ScanState.stopped);
   const [devices, setDevices] = useState<Device[]>([]);
@@ -134,7 +143,15 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     }, 5000);
   };
 
-  const connect = (device: Device) => {
+  const connect = async (device: Device) => {
+    // deleteAllFromStorage();
+    const passcode = await getFromStorage("PASSCODE");
+
+    if (!passcode) {
+      setOpenModal(true);
+      return;
+    }
+
     setScanState(ScanState.connecting);
 
     setTimeout(() => {
@@ -185,27 +202,29 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
           console.log(error);
           startAutoScan();
         });
-    }, 50);
+    }, 75);
   };
 
   const encryptData = async () => {
     const nonce = Buffer.from(generateNonce(16)).toString("base64");
-    const uid = "oXBMtmcv2RSoTfuBwiJMNNAtHFK2";
-    const passcode = "112C83";
+    const uid = await getFromStorage("FIREBASE_UID");
+    const passcode = await getFromStorage("PASSCODE");
     const expiration = new Date().getTime() + 15 * 1000;
     const concat = `${nonce}:${uid}:${passcode}:${expiration}`;
 
     const crypt = Buffer.from(
       await AES.encrypt(
         concat,
-        Buffer.from("ACCESS_K6zsLWe.4eDnA40x.do4mg*A2").toString("hex"),
-        Buffer.from("csIPrO/aCCeSS.==").toString("hex"),
+        Buffer.from(Constants.expoConfig.extra?.aesKey).toString("hex"),
+        Buffer.from(Constants.expoConfig.extra?.aesIv).toString("hex"),
         "aes-256-cbc"
       )
     ).toString("base64");
 
     return crypt;
   };
+
+  const closeModal = () => setOpenModal(false);
 
   const providerValue = {
     manager,
@@ -215,6 +234,8 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     connect,
     startAutoScan: startAutoScan,
     stopScan,
+    openModal,
+    closeModal,
   };
 
   return (

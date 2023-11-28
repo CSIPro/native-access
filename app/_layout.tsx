@@ -11,7 +11,7 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useColorScheme } from "react-native";
-import { SplashScreen, Slot } from "expo-router";
+import { SplashScreen, Slot, Stack } from "expo-router";
 import { useEffect } from "react";
 import { BLEContextProvider } from "../context/ble-context";
 import { UserContextProvider } from "../context/user-context";
@@ -65,7 +65,16 @@ function RootLayoutNav() {
               <RoomProvider>
                 <RoleProvider>
                   <UserContextProvider>
-                    <Slot />
+                    <Stack initialRouteName="(app)">
+                      <Stack.Screen
+                        name="sign-in"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(app)"
+                        options={{ headerShown: false }}
+                      />
+                    </Stack>
                   </UserContextProvider>
                 </RoleProvider>
               </RoomProvider>

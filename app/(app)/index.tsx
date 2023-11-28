@@ -1,4 +1,6 @@
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,16 +24,21 @@ import {
 } from "../../hooks/use-logs";
 import fonts from "../../constants/fonts";
 import { IonIcon } from "../../components/icons/ion";
+import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
+import { useState } from "react";
+import { useBLE } from "../../context/ble-context";
 
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
+  const { openModal, closeModal } = useBLE();
 
   return (
     <View
+      // behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{
         flex: 1,
-        backgroundColor: colors[colorScheme ?? "light"].tint,
+        backgroundColor: colors[colorScheme].tint,
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
         paddingLeft: insets.left,
@@ -75,6 +82,7 @@ export default function Home() {
           </View>
         </ScrollView>
       </View>
+      <PasscodePromptModal isOpen={openModal} onClose={closeModal} />
     </View>
   );
 }
@@ -242,7 +250,6 @@ const SuccessfulPersonalLogs = () => {
     </View>
   );
 };
-
 
 const BluetoothPersonalLogs = () => {
   const colorScheme = useColorScheme();

@@ -1,6 +1,7 @@
 import { FC, ReactNode, createContext, useContext } from "react";
 
 import { AccessUser, useUserData, userSchema } from "../hooks/use-user-data";
+import { saveToStorage } from "../lib/utils";
 
 interface UserContextProps {
   status: "loading" | "error" | "success" | string;
@@ -42,6 +43,8 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
     status,
     user: userSchema.parse(data),
   };
+
+  saveToStorage("FIREBASE_UID", providerValue.user.id);
 
   return (
     <UserContext.Provider value={providerValue}>

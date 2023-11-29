@@ -10,6 +10,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../../constants/colors";
 import { FC } from "react";
 import fonts from "../../constants/fonts";
+import { Image } from "expo-image";
+
+const accessLogo = require("../../assets/access-logo.svg");
 
 interface Props {
   loading?: boolean;
@@ -28,9 +31,7 @@ export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
         ]}
       >
         <View style={[styles.centered]}>
-          <Text style={[{ fontFamily: fonts.poppinsMedium, fontSize: 24 }]}>
-            NativeAccess
-          </Text>
+          <Image source={accessLogo} style={[styles.logo]} />
         </View>
         <View style={[styles.feedback]}>
           {loading && <ActivityIndicator size="large" color="#fff" />}
@@ -57,6 +58,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  logo: {
+    width: "70%",
+    aspectRatio: 1,
   },
   feedback: {
     alignItems: "center",

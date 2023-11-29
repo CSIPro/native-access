@@ -11,18 +11,15 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useColorScheme } from "react-native";
-import { SplashScreen, Slot, Stack } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { BLEContextProvider } from "../context/ble-context";
-import { UserContextProvider } from "../context/user-context";
 import {
   AuthProvider,
   FirebaseAppProvider,
   FirestoreProvider,
 } from "reactfire";
 import { firebaseApp, firebaseAuth, firestore } from "../lib/firebase-config";
-import { RoleProvider } from "../context/role-context";
-import { RoomProvider } from "../context/room-context";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -62,22 +59,10 @@ function RootLayoutNav() {
         <AuthProvider sdk={firebaseAuth}>
           <FirestoreProvider sdk={firestore}>
             <BLEContextProvider>
-              <RoomProvider>
-                <RoleProvider>
-                  <UserContextProvider>
-                    <Stack initialRouteName="(app)">
-                      <Stack.Screen
-                        name="sign-in"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(app)"
-                        options={{ headerShown: false }}
-                      />
-                    </Stack>
-                  </UserContextProvider>
-                </RoleProvider>
-              </RoomProvider>
+              <Stack initialRouteName="(app)">
+                <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+                <Stack.Screen name="(app)" options={{ headerShown: false }} />
+              </Stack>
             </BLEContextProvider>
           </FirestoreProvider>
         </AuthProvider>

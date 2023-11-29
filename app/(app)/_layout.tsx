@@ -7,6 +7,9 @@ import colors from "../../constants/colors";
 import { useSigninCheck } from "reactfire";
 import { SplashScreen } from "../../components/splash/splash";
 import { useUserData } from "../../hooks/use-user-data";
+import { RoomProvider } from "../../context/room-context";
+import { RoleProvider } from "../../context/role-context";
+import { UserContextProvider } from "../../context/user-context";
 
 export default function TabsLayout() {
   const {
@@ -19,7 +22,7 @@ export default function TabsLayout() {
     return <SplashScreen loading message="Retrieving session..." />;
   }
 
-  if (checkError) {
+  if (checkStatus === "error" && checkError) {
     return <SplashScreen message={checkError.message} />;
   }
 
@@ -27,7 +30,15 @@ export default function TabsLayout() {
     return <Redirect href="/sign-in" />;
   }
 
-  return <TabsLayoutNav />;
+  return (
+    <RoomProvider>
+      <RoleProvider>
+        <UserContextProvider>
+          <TabsLayoutNav />
+        </UserContextProvider>
+      </RoleProvider>
+    </RoomProvider>
+  );
 }
 
 const TabsLayoutNav = () => {

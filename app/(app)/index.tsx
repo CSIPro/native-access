@@ -27,6 +27,7 @@ import { IonIcon } from "../../components/icons/ion";
 import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
 import { useState } from "react";
 import { useBLE } from "../../context/ble-context";
+import { RoomPicker } from "../../components/room-picker/room-picker";
 
 export default function Home() {
   const insets = useSafeAreaInsets();
@@ -51,8 +52,8 @@ export default function Home() {
         style={{
           flex: 3,
           backgroundColor: "#fff",
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
         }}
       >
         <ScrollView
@@ -60,9 +61,10 @@ export default function Home() {
             width: "100%",
             alignItems: "center",
             padding: 8,
-            gap: 16,
+            gap: 8,
           }}
         >
+          <RoomPicker />
           <View style={{ alignItems: "center", gap: 4, width: "100%" }}>
             <Text style={styles.dashboardTitle}>Summary</Text>
             <SuccessfulLogs />
@@ -118,9 +120,7 @@ const SuccessfulLogs = () => {
           >
             {logs.length}
           </Text>
-          <Text
-            style={[styles.bubbleText, { color: palette.tint }]}
-          >
+          <Text style={[styles.bubbleText, { color: palette.tint }]}>
             Entrances
           </Text>
         </View>

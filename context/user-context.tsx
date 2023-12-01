@@ -1,11 +1,14 @@
 import { FC, ReactNode, createContext, useContext } from "react";
 
+import bcrypt from "react-native-bcrypt";
+
 import { AccessUser, useUserData, userSchema } from "../hooks/use-user-data";
 import { saveToStorage } from "../lib/utils";
 
 interface UserContextProps {
   status: "loading" | "error" | "success" | string;
   user?: AccessUser;
+  validatePasscode: (passcode: string) => Promise<boolean>;
 }
 
 const UserContext = createContext<UserContextProps | null>(null);
@@ -15,9 +18,22 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const { status, data } = useUserData();
 
+  const validatePasscode = async (passcode: string) => {
+    if (!data) {
+      throw new Error("No user data found");
+    }
+
+    passcode = passcode.toUpperCase();
+    const user = data as AccessUser;
+
+    const valid = await bcrypt.compareSync(passcode, user.passcode);
+
+    return valid;
+  };
+
   if (status === "loading") {
     return (
-      <UserContext.Provider value={{ status: "loading" }}>
+      <UserContext.Provider value={{ status: "loading", validatePasscode }}>
         {children}
       </UserContext.Provider>
     );
@@ -25,7 +41,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 
   if (status === "error") {
     return (
-      <UserContext.Provider value={{ status: "error" }}>
+      <UserContext.Provider value={{ status: "error", validatePasscode }}>
         {children}
       </UserContext.Provider>
     );
@@ -33,7 +49,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 
   if (!data) {
     return (
-      <UserContext.Provider value={{ status: "error" }}>
+      <UserContext.Provider value={{ status: "error", validatePasscode }}>
         {children}
       </UserContext.Provider>
     );
@@ -42,6 +58,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
   const providerValue = {
     status,
     user: userSchema.parse(data),
+    validatePasscode,
   };
 
   saveToStorage("FIREBASE_UID", providerValue.user.id);

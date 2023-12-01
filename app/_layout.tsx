@@ -19,9 +19,19 @@ import {
   FirebaseAppProvider,
   FirestoreProvider,
 } from "reactfire";
+import bcrypt from "react-native-bcrypt";
+import isaac from "isaac";
 import { firebaseApp, firebaseAuth, firestore } from "../lib/firebase-config";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient();
 
 SplashScreen.preventAutoHideAsync();
+
+bcrypt.setRandomFallback((len) => {
+  const buf = new Uint8Array(len);
+  return buf.map(() => Math.floor(isaac.random() * 256));
+});
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -59,10 +69,15 @@ function RootLayoutNav() {
         <AuthProvider sdk={firebaseAuth}>
           <FirestoreProvider sdk={firestore}>
             <BLEContextProvider>
-              <Stack initialRouteName="(app)">
-                <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-                <Stack.Screen name="(app)" options={{ headerShown: false }} />
-              </Stack>
+              <QueryClientProvider client={queryClient}>
+                <Stack initialRouteName="(app)">
+                  <Stack.Screen
+                    name="sign-in"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen name="(app)" options={{ headerShown: false }} />
+                </Stack>
+              </QueryClientProvider>
             </BLEContextProvider>
           </FirestoreProvider>
         </AuthProvider>

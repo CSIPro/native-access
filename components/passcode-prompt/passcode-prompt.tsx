@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
@@ -14,13 +15,11 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { saveToStorage } from "../../lib/utils";
 import { storageKeys } from "../../constants/storage-keys";
-import { FC, useState } from "react";
-import {
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalTitle,
-} from "../modal/modal";
+import { FC, useEffect, useState } from "react";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
+import { AccessUser, useUserData } from "../../hooks/use-user-data";
+import { useUserContext } from "../../context/user-context";
+import { useMutation, useQuery } from "react-query";
 
 const formSchema = z.object({
   passcode: z
@@ -40,10 +39,21 @@ interface ModalProps {
 }
 
 export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
+  const { validatePasscode } = useUserContext();
+  const {
+    mutateAsync,
+    data: mutationData,
+    isLoading,
+    isError,
+    error,
+  } = useMutation<boolean, Error, string>(validatePasscode);
+  const { status, data } = useUserData();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<FormValues>({
     defaultValues: {
       passcode: "",
@@ -53,9 +63,14 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
 
   const colorScheme = useColorScheme();
 
-  const submit = async (data: FormValues) => {
-    await saveToStorage("PASSCODE", data.passcode);
+  const submit = async (formData: FormValues) => {
+    const isValid = await mutateAsync(formData.passcode);
 
+    if (!isValid) return;
+
+    await saveToStorage("PASSCODE", formData.passcode.toUpperCase());
+
+    reset();
     onClose();
   };
 
@@ -63,41 +78,83 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Modal visible={isOpen} onClose={onClose}>
-      <ModalTitle>Enter your passcode</ModalTitle>
-      <ModalBody>
-        <Text style={[styles.prompt, { color: palette.text }]}>
-          Before attempting to connect, you need to provide your passcode
-        </Text>
-        <Controller
-          control={control}
-          name="passcode"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholder="Passcode"
-              placeholderTextColor={palette.text}
-              textContentType="password"
-              style={[
-                styles.input,
-                { color: palette.text, borderColor: palette.text },
-              ]}
+      {status === "loading" && (
+        <ModalBody>
+          <View
+            style={[
+              {
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 4,
+              },
+            ]}
+          >
+            <Text style={[styles.prompt]}>Retrieving user data...</Text>
+            <ActivityIndicator size="small" color={palette.tint} />
+          </View>
+        </ModalBody>
+      )}
+      {status === "error" && (
+        <ModalBody>
+          <Text style={[styles.prompt]}>Error loading user data</Text>
+        </ModalBody>
+      )}
+      {!!data && (
+        <View>
+          <ModalHeader>Enter your passcode</ModalHeader>
+          <ModalBody>
+            <Text style={[styles.prompt, { color: "#222222" }]}>
+              Before attempting to connect, you need to provide your passcode.
+              Case insensitive.
+            </Text>
+            <Controller
+              control={control}
+              name="passcode"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="Passcode"
+                  placeholderTextColor={"#222222"}
+                  textContentType="password"
+                  secureTextEntry={true}
+                  style={[
+                    styles.input,
+                    { color: "#222222", borderColor: "#222222" },
+                  ]}
+                />
+              )}
             />
-          )}
-        />
-      </ModalBody>
-      <ModalFooter>
-        <Pressable
-          onPress={handleSubmit(submit)}
-          style={[
-            styles.submitButton,
-            { backgroundColor: palette.tint, alignSelf: "center" },
-          ]}
-        >
-          <Text style={[styles.buttonText]}>Submit</Text>
-        </Pressable>
-      </ModalFooter>
+            {errors.passcode && (
+              <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
+                {errors.passcode.message}
+              </Text>
+            )}
+            {isError && (
+              <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
+                {error?.message}
+              </Text>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Pressable
+              onPress={handleSubmit(submit)}
+              style={[
+                styles.submitButton,
+                { backgroundColor: palette.tint, alignSelf: "center" },
+              ]}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={[styles.buttonText]}>Submit</Text>
+              )}
+            </Pressable>
+          </ModalFooter>
+        </View>
+      )}
     </Modal>
   );
 };

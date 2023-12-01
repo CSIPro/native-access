@@ -75,11 +75,11 @@ export const useUserData = () => {
     ...userData,
     isRoot: userRoleData?.isRoot || false,
     role: userRoomRoleData,
-  } as AccessUser;
+  };
 
   return {
     status: userStatus,
-    data: mergedData,
+    data: mergedData as AccessUser,
   };
 };
 

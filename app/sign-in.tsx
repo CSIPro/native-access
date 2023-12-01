@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     gap: 32,
   },
   header: {
+    alignItems: "center",
     gap: 24,
   },
   logo: {

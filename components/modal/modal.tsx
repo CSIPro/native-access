@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   useColorScheme,
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import fonts from "../../constants/fonts";
@@ -28,36 +29,27 @@ export const Modal: FC<Props> = ({ visible, onClose, children }) => {
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
-      style={[styles.modal]}
+      onOrientationChange={onClose}
     >
-      <View
-        style={[{ flex: 1, alignItems: "center", justifyContent: "center" }]}
-      >
-        <View
-          style={[styles.container, { backgroundColor: palette.background }]}
-        >
-          {children}
-        </View>
+      <Pressable onPress={onClose} style={[styles.backdrop]}>
+        <View />
+      </Pressable>
+      <View style={[styles.modal]}>
+        <View style={[styles.container]}>{children}</View>
       </View>
     </NativeModal>
     // </SafeAreaView>
   );
 };
 
-export const ModalTitle: FC<{ children: ReactNode }> = ({ children }) => {
+export const ModalHeader: FC<{ children: ReactNode }> = ({ children }) => {
   const colorScheme = useColorScheme();
 
   const palette = colors[colorScheme];
 
   return (
-    <View
-      style={[
-        {
-          padding: 8,
-        },
-      ]}
-    >
-      <Text style={[styles.modalTitle, { color: palette.text }]}>
+    <View style={[styles.modalHeader]}>
+      <Text style={[styles.modalTitle, { color: palette.black }]}>
         {children}
       </Text>
     </View>
@@ -88,12 +80,14 @@ export const ModalFooter: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.24)",
+  },
   container: {
-    justifyContent: "center",
-    alignItems: "center",
+    width: "80%",
     borderRadius: 8,
-    minWidth: "50%",
-    maxWidth: "90%",
+    backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOffset: {
       width: 2,
@@ -104,8 +98,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   modal: {
-    flex: 1,
-    width: "100%",
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -114,8 +111,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#222222",
   },
+  modalHeader: {
+    padding: 8,
+    width: "100%",
+    borderBottomColor: "#e1e1e1",
+    borderBottomWidth: 1,
+  },
   modalBody: {
     padding: 8,
-    gap: 4,
+    gap: 8,
+    width: "100%",
   },
 });

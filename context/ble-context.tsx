@@ -144,7 +144,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   };
 
   const connect = async (device: Device) => {
-    // deleteAllFromStorage();
+    deleteAllFromStorage();
     const passcode = await getFromStorage("PASSCODE");
 
     if (!passcode) {

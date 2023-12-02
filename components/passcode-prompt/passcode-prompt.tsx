@@ -39,14 +39,16 @@ interface ModalProps {
 }
 
 export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
-  const { validatePasscode } = useUserContext();
+  const { submitPasscode } = useUserContext();
   const {
     mutateAsync,
     data: mutationData,
     isLoading,
     isError,
     error,
-  } = useMutation<boolean, Error, string>(validatePasscode);
+  } = useMutation<boolean, Error, string>(submitPasscode, {
+    onError: (error) => console.log(error),
+  });
   const { status, data } = useUserData();
 
   const {
@@ -64,12 +66,17 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const colorScheme = useColorScheme();
 
   const submit = async (formData: FormValues) => {
-    const isValid = await mutateAsync(formData.passcode);
+    if (isLoading) return;
 
-    if (!isValid) return;
+    const valid = await mutateAsync(formData.passcode);
 
-    await saveToStorage("PASSCODE", formData.passcode.toUpperCase());
+    if (valid) {
+      await saveToStorage("PASSCODE", formData.passcode);
+      closeModal();
+    }
+  };
 
+  const closeModal = () => {
     reset();
     onClose();
   };
@@ -77,84 +84,89 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const palette = colors[colorScheme];
 
   return (
-    <Modal visible={isOpen} onClose={onClose}>
-      {status === "loading" && (
-        <ModalBody>
-          <View
-            style={[
-              {
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 4,
-              },
-            ]}
-          >
-            <Text style={[styles.prompt]}>Retrieving user data...</Text>
-            <ActivityIndicator size="small" color={palette.tint} />
-          </View>
-        </ModalBody>
-      )}
-      {status === "error" && (
-        <ModalBody>
-          <Text style={[styles.prompt]}>Error loading user data</Text>
-        </ModalBody>
-      )}
-      {!!data && (
-        <View>
-          <ModalHeader>Enter your passcode</ModalHeader>
+    <Modal visible={isOpen} onClose={closeModal}>
+      <View>
+        <ModalHeader>Enter your passcode</ModalHeader>
+        {status === "loading" && (
           <ModalBody>
-            <Text style={[styles.prompt, { color: "#222222" }]}>
-              Before attempting to connect, you need to provide your passcode.
-              Case insensitive.
-            </Text>
-            <Controller
-              control={control}
-              name="passcode"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder="Passcode"
-                  placeholderTextColor={"#222222"}
-                  textContentType="password"
-                  secureTextEntry={true}
-                  style={[
-                    styles.input,
-                    { color: "#222222", borderColor: "#222222" },
-                  ]}
-                />
-              )}
-            />
-            {errors.passcode && (
-              <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
-                {errors.passcode.message}
-              </Text>
-            )}
-            {isError && (
-              <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
-                {error?.message}
-              </Text>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Pressable
-              onPress={handleSubmit(submit)}
+            <View
               style={[
-                styles.submitButton,
-                { backgroundColor: palette.tint, alignSelf: "center" },
+                {
+                  width: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 4,
+                },
               ]}
             >
-              {isLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={[styles.buttonText]}>Submit</Text>
+              <Text style={[styles.prompt]}>Retrieving user data...</Text>
+              <ActivityIndicator size="small" color={palette.tint} />
+            </View>
+          </ModalBody>
+        )}
+        {status === "error" && (
+          <ModalBody>
+            <Text style={[styles.prompt]}>Error loading user data</Text>
+          </ModalBody>
+        )}
+        {!!data && (
+          <View>
+            <ModalBody>
+              <Text style={[styles.prompt, { color: "#222222" }]}>
+                Before attempting to connect, you need to provide your passcode.
+                Case insensitive.
+              </Text>
+              <Controller
+                control={control}
+                name="passcode"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder="Passcode"
+                    placeholderTextColor={"#222222"}
+                    textContentType="password"
+                    secureTextEntry={true}
+                    style={[
+                      styles.input,
+                      { color: "#222222", borderColor: "#222222" },
+                    ]}
+                  />
+                )}
+              />
+              {errors.passcode && (
+                <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
+                  {errors.passcode.message}
+                </Text>
               )}
-            </Pressable>
-          </ModalFooter>
-        </View>
-      )}
+              <View>
+                {isError && (
+                  <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
+                    {error?.message}
+                  </Text>
+                )}
+              </View>
+            </ModalBody>
+            <ModalFooter>
+              <Pressable
+                disabled={isLoading}
+                onPress={handleSubmit(submit)}
+                style={[
+                  styles.submitButton,
+                  { backgroundColor: palette.tint, alignSelf: "center" },
+                ]}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={[styles.buttonText]}>Submit</Text>
+                )}
+              </Pressable>
+            </ModalFooter>
+          </View>
+        )}
+      </View>
     </Modal>
   );
 };

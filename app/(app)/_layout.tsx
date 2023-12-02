@@ -1,15 +1,17 @@
 import { Redirect, Tabs } from "expo-router";
-import { useColorScheme } from "react-native";
+import { View, useColorScheme } from "react-native";
 
 import { IonIcon } from "../../components/icons/ion";
 
 import colors from "../../constants/colors";
-import { useSigninCheck } from "reactfire";
+import { useSigninCheck, useUser } from "reactfire";
 import { SplashScreen } from "../../components/splash/splash";
 import { useUserData } from "../../hooks/use-user-data";
 import { RoomProvider } from "../../context/room-context";
 import { RoleProvider } from "../../context/role-context";
 import { UserContextProvider } from "../../context/user-context";
+import { Image } from "expo-image";
+import fonts from "../../constants/fonts";
 
 export default function TabsLayout() {
   const {
@@ -44,14 +46,19 @@ export default function TabsLayout() {
 const TabsLayoutNav = () => {
   const colorScheme = useColorScheme();
 
+  const { status: authUserStatus, data: authUserData } = useUser();
   const { status, data } = useUserData();
 
-  if (status === "loading") {
+  if (status === "loading" || authUserStatus === "loading") {
     return <SplashScreen loading message="Retrieving user data..." />;
   }
 
-  if (status === "error") {
+  if (status === "error" || authUserStatus === "error") {
     return <SplashScreen message="Unable to fetch data from Firestore" />;
+  }
+
+  if (!authUserData) {
+    return <Redirect href="/sign-in" />;
   }
 
   if (!data) {
@@ -67,11 +74,12 @@ const TabsLayoutNav = () => {
           paddingVertical: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: "Poppins_400Regular",
+          fontFamily: fonts.poppinsRegular,
+          fontSize: 12,
         },
         headerTitleStyle: {
-          fontFamily: "Poppins_500Medium",
-          color: colors[colorScheme ?? "light"].tint,
+          fontFamily: fonts.poppinsMedium,
+          color: colors[colorScheme].tint,
         },
       }}
     >
@@ -102,10 +110,30 @@ const TabsLayoutNav = () => {
         options={{
           title: "Settings",
           tabBarIcon: ({ color, focused }) => (
-            <IonIcon
-              name={focused ? "settings" : "settings-outline"}
-              color={color}
-            />
+            // <IonIcon
+            //   name={focused ? "settings" : "settings-outline"}
+            //   color={color}
+            // />
+            <View
+              style={[
+                {
+                  width: 32,
+                  aspectRatio: 1,
+                  borderRadius: 100,
+                  overflow: "hidden",
+                  borderWidth: 2,
+                  borderColor: "transparent",
+                },
+                focused && {
+                  borderColor: colors[colorScheme ?? "light"].tint,
+                },
+              ]}
+            >
+              <Image
+                source={authUserData.photoURL}
+                style={[{ height: "100%", width: "100%" }]}
+              />
+            </View>
           ),
         }}
       />

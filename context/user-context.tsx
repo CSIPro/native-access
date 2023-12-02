@@ -1,6 +1,6 @@
 import { FC, ReactNode, createContext, useContext } from "react";
 
-import bcrypt from "react-native-bcrypt";
+import bcrypt from "bcryptjs";
 
 import { AccessUser, useUserData, userSchema } from "../hooks/use-user-data";
 import { saveToStorage } from "../lib/utils";
@@ -8,7 +8,7 @@ import { saveToStorage } from "../lib/utils";
 interface UserContextProps {
   status: "loading" | "error" | "success" | string;
   user?: AccessUser;
-  validatePasscode: (passcode: string) => Promise<boolean>;
+  submitPasscode: (passcode: string) => Promise<boolean>;
 }
 
 const UserContext = createContext<UserContextProps | null>(null);
@@ -18,7 +18,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const { status, data } = useUserData();
 
-  const validatePasscode = async (passcode: string) => {
+  const submitPasscode = async (passcode: string) => {
     if (!data) {
       throw new Error("No user data found");
     }
@@ -26,14 +26,27 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
     passcode = passcode.toUpperCase();
     const user = data as AccessUser;
 
-    const valid = await bcrypt.compareSync(passcode, user.passcode);
+    return new Promise<boolean>((resolve, reject) => {
+      bcrypt.compare(passcode, user.passcode, (err: Error, res: boolean) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+        }
 
-    return valid;
+        if (res === true) {
+          resolve(res);
+        } else {
+          reject(new Error("Incorrect passcode"));
+        }
+      });
+    });
   };
 
   if (status === "loading") {
     return (
-      <UserContext.Provider value={{ status: "loading", validatePasscode }}>
+      <UserContext.Provider
+        value={{ status: "loading", submitPasscode: submitPasscode }}
+      >
         {children}
       </UserContext.Provider>
     );
@@ -41,7 +54,9 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 
   if (status === "error") {
     return (
-      <UserContext.Provider value={{ status: "error", validatePasscode }}>
+      <UserContext.Provider
+        value={{ status: "error", submitPasscode: submitPasscode }}
+      >
         {children}
       </UserContext.Provider>
     );
@@ -49,7 +64,9 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 
   if (!data) {
     return (
-      <UserContext.Provider value={{ status: "error", validatePasscode }}>
+      <UserContext.Provider
+        value={{ status: "error", submitPasscode: submitPasscode }}
+      >
         {children}
       </UserContext.Provider>
     );
@@ -58,7 +75,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
   const providerValue = {
     status,
     user: userSchema.parse(data),
-    validatePasscode,
+    submitPasscode,
   };
 
   saveToStorage("FIREBASE_UID", providerValue.user.id);

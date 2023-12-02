@@ -18,11 +18,16 @@ interface Props {
 }
 
 export const PibleItem: FC<Props> = ({ device }) => {
-  const { connect, scanState } = useBLE();
+  const { startAutoScan, connect, scanState } = useBLE();
   const colorScheme = useColorScheme();
 
-  const connectToDevice = async () => {
-    await connect(device);
+  const connectToDevice = () => {
+    if (scanState === ScanState.stopped) {
+      startAutoScan();
+      return;
+    }
+
+    connect(device);
   };
 
   const isStopped = scanState === ScanState.stopped;

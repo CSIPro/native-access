@@ -3,6 +3,7 @@ import { Text, View, useColorScheme } from "react-native";
 import { CustomSafeArea } from "../components/custom-safe-area/custom-safe-area";
 import colors from "../constants/colors";
 import fonts from "../constants/fonts";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUp() {
   const colorSchemeValue = useColorScheme();
@@ -10,7 +11,7 @@ export default function SignUp() {
   const colorScheme = colorSchemeValue ?? "light";
 
   return (
-    <CustomSafeArea>
+    <SafeAreaView>
       <View style={{ flex: 1, backgroundColor: colors[colorScheme].tint }}>
         <Text
           style={{
@@ -21,6 +22,6 @@ export default function SignUp() {
           Sign Up screen
         </Text>
       </View>
-    </CustomSafeArea>
+    </SafeAreaView>
   );
 }

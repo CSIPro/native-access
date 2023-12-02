@@ -6,12 +6,7 @@ import AES from "react-native-aes-crypto";
 import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
 import Constants from "expo-constants";
 
-import {
-  deleteAllFromStorage,
-  generateNonce,
-  getFromStorage,
-} from "../lib/utils";
-import { router } from "expo-router";
+import { generateNonce, getFromStorage } from "../lib/utils";
 
 const scanDuration = 30000;
 
@@ -144,7 +139,6 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   };
 
   const connect = async (device: Device) => {
-    deleteAllFromStorage();
     const passcode = await getFromStorage("PASSCODE");
 
     if (!passcode) {

@@ -149,6 +149,9 @@ const SuccessfulLogs = () => {
               backgroundColor: isLight
                 ? colors.default.white[100]
                 : colors.default.black[300],
+              borderColor: isLight
+                ? colors.default.gray[100]
+                : colors.default.black[100],
               borderBlockEndColor: palette.tint,
               borderBottomWidth: 3,
             },
@@ -470,7 +473,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: -28,
     borderWidth: 2,
-    borderColor: "#e5e5e5",
   },
   successShadow: {
     backgroundColor: "transparent",

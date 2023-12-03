@@ -1,10 +1,10 @@
-import { Link } from "expo-router";
-
 import { Pressable, Text, View, useColorScheme } from "react-native";
+import { useAuth } from "reactfire";
+
+import { ProfileCard } from "../../components/profile-card/profile-card";
 
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
-import { useAuth } from "reactfire";
 
 export default function Settings() {
   const auth = useAuth();
@@ -16,13 +16,14 @@ export default function Settings() {
     <View
       style={{
         flex: 1,
+        padding: 8,
         gap: 8,
         backgroundColor: isLight
           ? colors.default.white[100]
           : colors.default.black[400],
       }}
     >
-      <Link href="(auth)">Go to auth</Link>
+      <ProfileCard />
       <Pressable
         onPress={() => auth.signOut()}
         style={[{ padding: 8, backgroundColor: "#7145d6" }]}

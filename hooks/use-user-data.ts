@@ -72,7 +72,7 @@ export const useUserData = () => {
   }
 
   const mergedData = {
-    ...userData,
+    ...(userData as Omit<AccessUser, "role" | "isRoot">),
     isRoot: userRoleData?.isRoot || false,
     role: userRoomRoleData,
   };

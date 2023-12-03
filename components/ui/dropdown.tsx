@@ -1,7 +1,6 @@
 import { FC, useState } from "react";
 import {
   FlatList,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import { z } from "zod";
 import fonts from "../../constants/fonts";
 import colors from "../../constants/colors";
 import { IonIcon } from "../icons/ion";
+import { Modal, ModalBody, ModalHeader } from "../modal/modal";
 
 const itemSchema = z.object({
   label: z.string(),
@@ -34,80 +34,83 @@ export const Dropdown: FC<Props> = ({ items, value, onChange }) => {
   const colorScheme = useColorScheme();
 
   const palette = colors[colorScheme];
+  const isLight = colorScheme === "light";
 
   return (
-    <View style={[styles.wrapper, { borderColor: palette.tint }]}>
+    <View
+      style={[
+        styles.wrapper,
+        {
+          borderColor: colors.default.tint[400],
+          backgroundColor: isLight ? "transparent" : colors.default.tint[400],
+        },
+      ]}
+    >
       <Pressable onPress={() => setOpen(true)} style={[styles.dropdown]}>
         <Text
           numberOfLines={1}
           style={[
             styles.dropdownLabel,
-            { fontFamily: fonts.poppinsMedium, color: palette.tint },
+            {
+              fontFamily: fonts.poppinsMedium,
+              color: isLight
+                ? colors.default.tint[400]
+                : colors.default.white[100],
+            },
           ]}
         >
           {items.find((item) => item.value === value)?.label ?? "Select"}
         </Text>
-        <IonIcon name="chevron-down" color={palette.tint} size={16} />
+        <IonIcon
+          name="chevron-down"
+          color={isLight ? colors.default.tint[400] : colors.default.white[100]}
+          size={16}
+        />
       </Pressable>
 
-      <Modal
-        visible={open}
-        transparent={true}
-        animationType="slide"
-        onOrientationChange={() => setOpen(false)}
-        onRequestClose={() => setOpen(false)}
-      >
-        <Pressable onPress={() => setOpen(false)} style={[styles.backdrop]}>
-          <View />
-        </Pressable>
-        <View style={[styles.modal]}>
-          <View style={[styles.modalContainer]}>
-            <View style={[styles.modalHeader]}>
-              <Text
+      <Modal visible={open} onClose={() => setOpen(false)}>
+        <ModalHeader>Select a room</ModalHeader>
+        <ModalBody>
+          <FlatList
+            data={items}
+            keyExtractor={(item) => item.key ?? item.value}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => {
+                  onChange(item.value);
+                  setOpen(false);
+                }}
                 style={[
-                  styles.dropdownLabel,
-                  { fontFamily: fonts.poppinsMedium },
+                  styles.dropdownItem,
+                  value === item.value && {
+                    backgroundColor: colors.default.tint.translucid[200],
+                  },
                 ]}
               >
-                Select a room
-              </Text>
-            </View>
-            <View style={[styles.modalBody]}>
-              <FlatList
-                data={items}
-                keyExtractor={(item) => item.key ?? item.value}
-                renderItem={({ item }) => (
-                  <Pressable
-                    onPress={() => {
-                      onChange(item.value);
-                      setOpen(false);
-                    }}
-                    style={[
-                      styles.dropdownItem,
-                      value === item.value && {
-                        backgroundColor: palette.tintTranslucid,
-                      },
-                    ]}
-                  >
-                    <Text
-                      numberOfLines={1}
-                      style={[
-                        styles.dropdownLabel,
-                        value === item.value && {
-                          fontFamily: fonts.poppinsMedium,
-                          color: palette.tint,
-                        },
-                      ]}
-                    >
-                      {item.label ?? "wat"}
-                    </Text>
-                  </Pressable>
-                )}
-                contentContainerStyle={[styles.list]}
-              />
-            </View>
-          </View>
-        </View>
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.dropdownLabel,
+                    {
+                      color: isLight
+                        ? colors.default.black[400]
+                        : colors.default.white[200],
+                    },
+                    value === item.value && {
+                      fontFamily: fonts.poppinsMedium,
+                      color: isLight
+                        ? colors.default.tint[400]
+                        : colors.default.tint[100],
+                    },
+                  ]}
+                >
+                  {item.label ?? "Unknown"}
+                </Text>
+              </Pressable>
+            )}
+            contentContainerStyle={[styles.list]}
+          />
+        </ModalBody>
       </Modal>
     </View>
   );

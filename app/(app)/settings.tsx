@@ -8,12 +8,18 @@ import { useAuth } from "reactfire";
 
 export default function Settings() {
   const auth = useAuth();
+  const colorScheme = useColorScheme();
+
+  const isLight = colorScheme === "light";
 
   return (
     <View
       style={{
         flex: 1,
         gap: 8,
+        backgroundColor: isLight
+          ? colors.default.white[100]
+          : colors.default.black[400],
       }}
     >
       <Link href="(auth)">Go to auth</Link>

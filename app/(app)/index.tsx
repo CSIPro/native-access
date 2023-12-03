@@ -28,18 +28,24 @@ import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-p
 import { useState } from "react";
 import { useBLE } from "../../context/ble-context";
 import { RoomPicker } from "../../components/room-picker/room-picker";
+import { DashboardItem } from "../../components/ui/dashboard/item";
+import { StatusBar } from "expo-status-bar";
 
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const { openModal, closeModal } = useBLE();
 
+  const palette = colors[colorScheme];
+
+  const isLight = colorScheme === "light";
+
   return (
     <View
       // behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{
         flex: 1,
-        backgroundColor: colors[colorScheme].tint,
+        backgroundColor: palette.tint,
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
         paddingLeft: insets.left,
@@ -51,7 +57,10 @@ export default function Home() {
       <View
         style={{
           flex: 3,
-          backgroundColor: "#fff",
+          backgroundColor:
+            colorScheme === "light"
+              ? colors.default.white[100]
+              : colors.default.black[400],
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
         }}
@@ -66,7 +75,18 @@ export default function Home() {
         >
           <RoomPicker />
           <View style={{ alignItems: "center", gap: 4, width: "100%" }}>
-            <Text style={styles.dashboardTitle}>Summary</Text>
+            <Text
+              style={[
+                styles.dashboardTitle,
+                {
+                  color: isLight
+                    ? colors.default.black[400]
+                    : colors.default.white[100],
+                },
+              ]}
+            >
+              Summary
+            </Text>
             <SuccessfulLogs />
           </View>
           <View style={styles.dashboardRow}>
@@ -75,7 +95,18 @@ export default function Home() {
             <UnknownLogs />
           </View>
           <View style={{ alignItems: "center", gap: 4, width: "100%" }}>
-            <Text style={styles.dashboardTitle}>Personal</Text>
+            <Text
+              style={[
+                styles.dashboardTitle,
+                {
+                  color: isLight
+                    ? colors.default.black[400]
+                    : colors.default.white[100],
+                },
+              ]}
+            >
+              Personal
+            </Text>
             <View style={[styles.dashboardRow, { width: "100%" }]}>
               <BluetoothPersonalLogs />
               <FailedPersonalLogs />
@@ -85,6 +116,7 @@ export default function Home() {
         </ScrollView>
       </View>
       <PasscodePromptModal isOpen={openModal} onClose={closeModal} />
+      <StatusBar style="light" />
     </View>
   );
 }
@@ -96,13 +128,27 @@ const SuccessfulLogs = () => {
 
   const palette = colors[colorScheme];
 
+  const isLight = colorScheme === "light";
+
   return (
     <View style={styles.successShadow}>
-      <View style={[styles.logsBubble]}>
+      <View
+        style={[
+          styles.logsBubble,
+          {
+            backgroundColor: isLight
+              ? colors.default.white[100]
+              : colors.default.black[300],
+          },
+        ]}
+      >
         <View
           style={[
             styles.successContainer,
             {
+              backgroundColor: isLight
+                ? colors.default.white[100]
+                : colors.default.black[300],
               borderBlockEndColor: palette.tint,
               borderBottomWidth: 3,
             },
@@ -112,7 +158,9 @@ const SuccessfulLogs = () => {
             style={[
               styles.bubbleText,
               {
-                color: palette.black,
+                color: isLight
+                  ? colors.default.black[400]
+                  : colors.default.white[100],
                 fontSize: 60,
                 fontFamily: fonts.poppinsLight,
               },
@@ -120,7 +168,17 @@ const SuccessfulLogs = () => {
           >
             {logs.length}
           </Text>
-          <Text style={[styles.bubbleText, { color: palette.tint }]}>
+          <Text
+            style={[
+              styles.bubbleText,
+              {
+                color: isLight
+                  ? colors.default.tint[400]
+                  : colors.default.white[600],
+                fontSize: 16,
+              },
+            ]}
+          >
             Entrances
           </Text>
         </View>
@@ -130,189 +188,263 @@ const SuccessfulLogs = () => {
 };
 
 const BluetoothLogs = () => {
-  const colorScheme = useColorScheme();
-
   const { logs } = useBluetoothLogs();
 
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].bluetooth },
-          ]}
-        />
-        <IonIcon
-          name="bluetooth"
-          color={colors[colorScheme].bluetooth}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
-            Bluetooth
-          </Text>
-        </View>
-      </View>
-    </View>
+    <DashboardItem
+      icon="bluetooth"
+      primaryColor={colors.default.bluetooth[400]}
+      title="Bluetooth"
+      logs={logs}
+    />
   );
+
+  // return (
+  //   <View style={[styles.dataContainerShadow]}>
+  //     <View
+  //       style={[
+  //         styles.dataContainer,
+  //         {
+  //           backgroundColor:
+  //             colorScheme === "light"
+  //               ? colors.default.white[100]
+  //               : colors.default.black[300],
+  //         },
+  //       ]}
+  //     >
+  //       <View
+  //         style={[
+  //           styles.dataContainerHighlight,
+  //           { backgroundColor: colors[colorScheme].bluetooth },
+  //         ]}
+  //       />
+  //       <IonIcon
+  //         name="bluetooth"
+  //         color={colors[colorScheme].bluetooth}
+  //         size={24}
+  //       />
+  //       <View style={[styles.dataTextContainer]}>
+  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+  //           {logs.length}
+  //         </Text>
+  //         <Text
+  //           style={[
+  //             styles.bubbleText,
+  //             {
+  //               color:
+  //                 colorScheme === "light"
+  //                   ? colors.default.gray[600]
+  //                   : colors.default.white[100],
+  //             },
+  //           ]}
+  //         >
+  //           Bluetooth
+  //         </Text>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 };
 
 const UnknownLogs = () => {
-  const colorScheme = useColorScheme();
-
   const { logs } = useUnknownLogs();
 
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].tintAccent },
-          ]}
-        />
-        <IonIcon
-          name="help-circle"
-          color={colors[colorScheme].tintAccent}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Unknown</Text>
-        </View>
-      </View>
-    </View>
+    <DashboardItem
+      icon="help-circle"
+      primaryColor={colors.default.tintAccent[400]}
+      title="Unknown"
+      logs={logs}
+    />
   );
+
+  // return (
+  //   <View style={[styles.dataContainerShadow]}>
+  //     <View style={[styles.dataContainer]}>
+  //       <View
+  //         style={[
+  //           styles.dataContainerHighlight,
+  //           { backgroundColor: colors[colorScheme].tintAccent },
+  //         ]}
+  //       />
+  //       <IonIcon
+  //         name="help-circle"
+  //         color={colors[colorScheme].tintAccent}
+  //         size={24}
+  //       />
+  //       <View style={[styles.dataTextContainer]}>
+  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+  //           {logs.length}
+  //         </Text>
+  //         <Text
+  //           style={[
+  //             styles.bubbleText,
+  //             {
+  //               color:
+  //                 colorScheme === "light"
+  //                   ? colors.default.gray[600]
+  //                   : colors.default.white[100],
+  //             },
+  //           ]}
+  //         >
+  //           Unknown
+  //         </Text>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 };
 
 const FailedLogs = () => {
-  const colorScheme = useColorScheme();
-
   const { logs } = useFailedLogs();
 
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].secondary },
-          ]}
-        />
-        <IonIcon
-          name="close-circle"
-          color={colors[colorScheme].secondary}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Failed</Text>
-        </View>
-      </View>
-    </View>
+    <DashboardItem
+      icon="close-circle"
+      primaryColor={colors.default.secondary[400]}
+      title="Failed"
+      logs={logs}
+    />
   );
+
+  // return (
+  //   <View style={[styles.dataContainerShadow]}>
+  //     <View style={[styles.dataContainer]}>
+  //       <View
+  //         style={[
+  //           styles.dataContainerHighlight,
+  //           { backgroundColor: colors[colorScheme].secondary },
+  //         ]}
+  //       />
+  //       <IonIcon
+  //         name="close-circle"
+  //         color={colors[colorScheme].secondary}
+  //         size={24}
+  //       />
+  //       <View style={[styles.dataTextContainer]}>
+  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+  //           {logs.length}
+  //         </Text>
+  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Failed</Text>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 };
 
 const SuccessfulPersonalLogs = () => {
-  const colorScheme = useColorScheme();
-
   const { logs } = useUserSuccessfulLogs();
 
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].success },
-          ]}
-        />
-        <IonIcon
-          name="checkmark-circle"
-          color={colors[colorScheme].success}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
-            Entrances
-          </Text>
-        </View>
-      </View>
-    </View>
+    <DashboardItem
+      icon="checkmark-circle"
+      primaryColor={colors.default.success[400]}
+      title="Entrances"
+      logs={logs}
+    />
   );
+
+  // return (
+  //   <View style={[styles.dataContainerShadow]}>
+  //     <View style={[styles.dataContainer]}>
+  //       <View
+  //         style={[
+  //           styles.dataContainerHighlight,
+  //           { backgroundColor: colors[colorScheme].success },
+  //         ]}
+  //       />
+  //       <IonIcon
+  //         name="checkmark-circle"
+  //         color={colors[colorScheme].success}
+  //         size={24}
+  //       />
+  //       <View style={[styles.dataTextContainer]}>
+  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+  //           {logs.length}
+  //         </Text>
+  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
+  //           Entrances
+  //         </Text>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 };
 
 const BluetoothPersonalLogs = () => {
-  const colorScheme = useColorScheme();
-
   const { logs } = useUserBluetoothLogs();
 
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].bluetooth },
-          ]}
-        />
-        <IonIcon
-          name="bluetooth"
-          color={colors[colorScheme].bluetooth}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
-            Bluetooth
-          </Text>
-        </View>
-      </View>
-    </View>
+    <DashboardItem
+      icon="bluetooth"
+      primaryColor={colors.default.bluetooth[400]}
+      title="Bluetooth"
+      logs={logs}
+    />
   );
+
+  // return (
+  //   <View style={[styles.dataContainerShadow]}>
+  //     <View style={[styles.dataContainer]}>
+  //       <View
+  //         style={[
+  //           styles.dataContainerHighlight,
+  //           { backgroundColor: colors[colorScheme].bluetooth },
+  //         ]}
+  //       />
+  //       <IonIcon
+  //         name="bluetooth"
+  //         color={colors[colorScheme].bluetooth}
+  //         size={24}
+  //       />
+  //       <View style={[styles.dataTextContainer]}>
+  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+  //           {logs.length}
+  //         </Text>
+  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
+  //           Bluetooth
+  //         </Text>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 };
 
 const FailedPersonalLogs = () => {
-  const colorScheme = useColorScheme();
-
   const { logs } = useUserFailedLogs();
 
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View style={[styles.dataContainer]}>
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: colors[colorScheme].secondary },
-          ]}
-        />
-        <IonIcon
-          name="close-circle"
-          color={colors[colorScheme].secondary}
-          size={24}
-        />
-        <View style={[styles.dataTextContainer]}>
-          <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-            {logs.length}
-          </Text>
-          <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Failed</Text>
-        </View>
-      </View>
-    </View>
+    <DashboardItem
+      icon="close-circle"
+      primaryColor={colors.default.secondary[400]}
+      title="Failed"
+      logs={logs}
+    />
   );
+
+  // return (
+  //   <View style={[styles.dataContainerShadow]}>
+  //     <View style={[styles.dataContainer]}>
+  //       <View
+  //         style={[
+  //           styles.dataContainerHighlight,
+  //           { backgroundColor: colors[colorScheme].secondary },
+  //         ]}
+  //       />
+  //       <IonIcon
+  //         name="close-circle"
+  //         color={colors[colorScheme].secondary}
+  //         size={24}
+  //       />
+  //       <View style={[styles.dataTextContainer]}>
+  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
+  //           {logs.length}
+  //         </Text>
+  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Failed</Text>
+  //       </View>
+  //     </View>
+  //   </View>
+  // );
 };
 
 const styles = StyleSheet.create({
@@ -323,7 +455,6 @@ const styles = StyleSheet.create({
   },
   logsBubble: {
     borderRadius: 100,
-    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
     padding: 12,

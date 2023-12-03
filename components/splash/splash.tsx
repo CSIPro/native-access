@@ -21,9 +21,12 @@ interface Props {
 
 export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
   const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.default.tint[400] }}
+    >
       <View
         style={[
           styles.container,

@@ -82,6 +82,7 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const palette = colors[colorScheme];
+  const isLight = colorScheme === "light";
 
   return (
     <Modal visible={isOpen} onClose={closeModal}>
@@ -112,7 +113,16 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
         {!!data && (
           <View>
             <ModalBody>
-              <Text style={[styles.prompt, { color: "#222222" }]}>
+              <Text
+                style={[
+                  styles.prompt,
+                  {
+                    color: isLight
+                      ? colors.default.black[400]
+                      : colors.default.white[100],
+                  },
+                ]}
+              >
                 Before attempting to connect, you need to provide your passcode.
                 Case insensitive.
               </Text>
@@ -125,12 +135,23 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
                     onChangeText={onChange}
                     value={value}
                     placeholder="Passcode"
-                    placeholderTextColor={"#222222"}
+                    placeholderTextColor={
+                      isLight
+                        ? colors.default.black[400]
+                        : colors.default.white[100]
+                    }
                     textContentType="password"
                     secureTextEntry={true}
                     style={[
                       styles.input,
-                      { color: "#222222", borderColor: "#222222" },
+                      {
+                        color: isLight
+                          ? colors.default.black[400]
+                          : colors.default.white[100],
+                        borderColor: isLight
+                          ? colors.default.black[400]
+                          : colors.default.white[100],
+                      },
                     ]}
                   />
                 )}

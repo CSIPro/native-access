@@ -13,6 +13,7 @@ import { UserContextProvider } from "../../context/user-context";
 import { Image } from "expo-image";
 import fonts from "../../constants/fonts";
 import { StatusBar } from "expo-status-bar";
+import { useRoles } from "../../hooks/use-roles";
 
 export default function TabsLayout() {
   const {
@@ -48,15 +49,24 @@ const TabsLayoutNav = () => {
   const colorScheme = useColorScheme();
 
   const { status: authUserStatus, data: authUserData } = useUser();
-  const { status, data } = useUserData();
+  const { status: userDataStatus, data: userData } = useUserData();
+  const { status: rolesStatus, data: rolesData } = useRoles();
 
   const isLight = colorScheme === "light";
 
-  if (status === "loading" || authUserStatus === "loading") {
+  if (
+    userDataStatus === "loading" ||
+    authUserStatus === "loading" ||
+    rolesStatus === "loading"
+  ) {
     return <SplashScreen loading message="Retrieving user data..." />;
   }
 
-  if (status === "error" || authUserStatus === "error") {
+  if (
+    userDataStatus === "error" ||
+    authUserStatus === "error" ||
+    rolesStatus === "error"
+  ) {
     return <SplashScreen message="Unable to fetch data from Firestore" />;
   }
 
@@ -64,9 +74,19 @@ const TabsLayoutNav = () => {
     return <Redirect href="/sign-in" />;
   }
 
-  if (!data) {
+  if (!userData) {
     return <Redirect href="/sign-up" />;
   }
+
+  if (!rolesData) {
+    return (
+      <SplashScreen message="Something went wrong. Please, try again later" />
+    );
+  }
+
+  const userRole = rolesData.find((role) => role.id === userData.role?.roleId);
+  const canSeeMembers =
+    userRole?.canGrantOrRevokeAccess || userRole?.canSetRoles;
 
   return (
     <View style={[{ flex: 1 }]}>
@@ -109,6 +129,19 @@ const TabsLayoutNav = () => {
             tabBarIcon: ({ color, focused }) => (
               <IonIcon
                 name={focused ? "log-in" : "log-in-outline"}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="members"
+          options={{
+            title: "Members",
+            href: canSeeMembers ? "/members" : null,
+            tabBarIcon: ({ color, focused }) => (
+              <IonIcon
+                name={focused ? "people-circle" : "people-circle-outline"}
                 color={color}
               />
             ),

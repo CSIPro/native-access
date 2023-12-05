@@ -56,7 +56,7 @@ export const useUserData = () => {
     userRoleStatus === "loading" ||
     userRoomRoleStatus === "loading"
   ) {
-    return { status: "loading", data: null };
+    return { status: "loading" };
   }
 
   if (
@@ -64,11 +64,11 @@ export const useUserData = () => {
     userRoleStatus === "error" ||
     userRoomRoleStatus === "error"
   ) {
-    return { status: "error", data: null };
+    return { status: "error" };
   }
 
   if (!userData) {
-    return { status: "success", data: null };
+    return { status: "success" };
   }
 
   const mergedData = {
@@ -108,7 +108,7 @@ export const useUserDataWithId = (uid: string | undefined) => {
     userRoleStatus === "loading" ||
     userRoomRoleStatus === "loading"
   ) {
-    return { status: "loading", data: null };
+    return { status: "loading" };
   }
 
   if (
@@ -116,7 +116,7 @@ export const useUserDataWithId = (uid: string | undefined) => {
     userRoleStatus === "error" ||
     userRoomRoleStatus === "error"
   ) {
-    return { status: "error", data: null };
+    return { status: "error" };
   }
 
   const mergedData = {
@@ -151,11 +151,11 @@ export const useUserRole = () => {
   );
 
   if (userRoleStatus === "loading") {
-    return { status: "loading", data: null };
+    return { status: "loading" };
   }
 
   if (userRoleStatus === "error") {
-    return { status: "error", data: null };
+    return { status: "error" };
   }
 
   return {

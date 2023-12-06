@@ -1,11 +1,10 @@
 import { FC, ReactNode, createContext, useContext } from "react";
-import * as z from "zod";
 
-import { roleSchema, useRoles } from "../hooks/use-roles";
+import { Role, useRoles } from "../hooks/use-roles";
 
 interface RoleContextProps {
   status?: "loading" | "error" | "success";
-  roles?: z.infer<typeof roleSchema>[];
+  roles?: Role[];
 }
 
 export const RoleContext = createContext<RoleContextProps>({});
@@ -38,7 +37,7 @@ export const RoleProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }
 
   const providerValue = {
-    roles: rolesData as z.infer<typeof roleSchema>[],
+    roles: rolesData,
   };
 
   return (

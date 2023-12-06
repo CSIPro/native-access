@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   FlatList,
+  SectionList,
   StyleSheet,
   Text,
   View,
@@ -10,10 +11,18 @@ import { useRoleContext } from "../../context/role-context";
 import colors from "../../constants/colors";
 import { MembersList } from "./members-list";
 import fonts from "../../constants/fonts";
+import { FC } from "react";
+import { useReducedMembersByRole } from "../../hooks/use-room-members";
+import { MemberItem } from "./member-item";
+import { Role } from "../../hooks/use-roles";
 
-export const RoleList = () => {
+interface Props {
+  roles: Role[];
+}
+
+export const RoleList: FC<Props> = ({ roles }) => {
   const colorScheme = useColorScheme();
-  const { status, roles } = useRoleContext();
+  const { status, data } = useReducedMembersByRole(roles);
 
   const isLight = colorScheme === "light";
 
@@ -41,7 +50,7 @@ export const RoleList = () => {
             },
           ]}
         >
-          Something went wrong while retrieving roles
+          Something went wrong while retrieving members
         </Text>
       </View>
     );
@@ -49,8 +58,11 @@ export const RoleList = () => {
 
   return (
     <View style={[styles.main]}>
-      {/* {roles.map((role) => (
-        <View key={role.id} style={[{ gap: 4 }]}>
+      <SectionList
+        sections={data}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => <MemberItem uid={item} />}
+        renderSectionHeader={({ section: { roleData } }) => (
           <View
             style={[
               styles.roleNameWrapper,
@@ -61,37 +73,15 @@ export const RoleList = () => {
               },
             ]}
           >
-            <Text style={[styles.roleName]}>{role.name}</Text>
-          </View>
-          <MembersList roleId={role.id} />
-        </View>
-      ))} */}
-      <FlatList
-        data={roles}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item: role }) => (
-          <View style={[{ gap: 4 }]}>
-            <View
-              style={[
-                styles.roleNameWrapper,
-                {
-                  backgroundColor: isLight
-                    ? colors.default.tint[400]
-                    : colors.default.tint[400],
-                },
-              ]}
-            >
-              <Text style={[styles.roleName]}>{role.name}</Text>
-            </View>
-            <MembersList roleId={role.id} />
+            <Text style={[styles.roleName]}>{roleData.name}</Text>
           </View>
         )}
-        contentContainerStyle={{ flexGrow: 1, padding: 4, gap: 4 }}
+        contentContainerStyle={{ flexGrow: 1, gap: 4 }}
         ListEmptyComponent={
           <View style={[styles.centered]}>
             <Text
               style={[
-                styles.centeredText,
+                styles.errorText,
                 {
                   color: isLight
                     ? colors.default.black[400]
@@ -99,10 +89,11 @@ export const RoleList = () => {
                 },
               ]}
             >
-              No roles found
+              No members in this room
             </Text>
           </View>
         }
+        stickySectionHeadersEnabled={true}
       />
     </View>
   );
@@ -120,10 +111,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.poppinsRegular,
     fontSize: 14,
   },
+  errorText: {
+    fontFamily: fonts.poppinsRegular,
+    fontSize: 14,
+    textAlign: "center",
+  },
   main: {
     flex: 1,
     width: "100%",
-    gap: 8,
+    gap: 4,
     flexGrow: 1,
   },
   roleNameWrapper: {
@@ -131,9 +127,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 4,
-    borderRadius: 4,
   },
   roleName: {
+    paddingTop: 4,
     fontFamily: fonts.poppinsBold,
     fontSize: 16,
     color: colors.default.white[100],

@@ -13,6 +13,8 @@ export const roleSchema = z.object({
   canCreateUsers: z.boolean().default(false),
 });
 
+export type Role = z.infer<typeof roleSchema>;
+
 export const useRoles = () => {
   const firestore = useFirestore();
 

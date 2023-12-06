@@ -2,12 +2,16 @@ import { FC } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  SectionList,
   StyleSheet,
   Text,
   View,
   useColorScheme,
 } from "react-native";
-import { useRoomMembersByRole } from "../../hooks/use-room-members";
+import {
+  useReducedMembersByRole,
+  useRoomMembersByRole,
+} from "../../hooks/use-room-members";
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
 import { MemberItem } from "./member-item";
@@ -88,5 +92,17 @@ const styles = StyleSheet.create({
     fontFamily: fonts.poppinsRegular,
     fontSize: 14,
     textAlign: "center",
+  },
+  roleNameWrapper: {
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 4,
+    borderRadius: 4,
+  },
+  roleName: {
+    fontFamily: fonts.poppinsBold,
+    fontSize: 16,
+    color: colors.default.white[100],
   },
 });

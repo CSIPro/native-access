@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: fonts.poppinsMedium,
     fontSize: 20,
+    paddingTop: 4,
   },
   timestampContainer: {
     flexDirection: "column",
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     color: "#fff",
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppinsLight,
     fontSize: 12,
   },
 });

@@ -2,16 +2,20 @@ import { FC, ReactNode } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
+  Switch,
   Text,
   View,
   useColorScheme,
 } from "react-native";
 import {
+  useUserData,
   useUserDataWithId,
   useUserRoleWithId,
 } from "../../hooks/use-user-data";
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
+import { updateDoc } from "firebase/firestore";
+import { useRoleContext } from "../../context/role-context";
 
 interface Props {
   uid?: string;
@@ -19,48 +23,92 @@ interface Props {
 
 export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   const colorScheme = useColorScheme();
-  const { status: userDataStatus, data: userData } = useUserDataWithId(uid);
+  const { status: rolesStatus, roles } = useRoleContext();
+  const { status: userStatus, data: userData } = useUserData();
+  const { status: memberStatus, data: memberData } = useUserDataWithId(uid);
   const {
-    status: userRoleStatus,
-    data: userRoleData,
-    doc: userRoleDoc,
+    status: memberRoleStatus,
+    data: memberRoleData,
+    doc: memberRoleDoc,
   } = useUserRoleWithId(uid);
 
   const isLight = colorScheme === "light";
 
-  if (userDataStatus === "loading" || userRoleStatus === "loading") {
+  if (
+    memberStatus === "loading" ||
+    memberRoleStatus === "loading" ||
+    rolesStatus === "loading" ||
+    userStatus === "loading"
+  ) {
     return (
-      <View style={[styles.memberItem]}>
-        <ActivityIndicator
-          size="small"
-          color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
-        />
+      <View>
+        <View style={[styles.memberItem]}>
+          <ActivityIndicator
+            size="small"
+            color={
+              isLight ? colors.default.tint[400] : colors.default.tint[200]
+            }
+          />
+        </View>
       </View>
     );
   }
 
-  if (userDataStatus === "error" || userRoleStatus === "error") {
+  if (
+    memberStatus === "error" ||
+    memberRoleStatus === "error" ||
+    rolesStatus === "error" ||
+    userStatus === "error"
+  ) {
     return (
-      <View style={[styles.memberItem]}>
-        <Text style={[styles.errorText, { color: colors.default.white[100] }]}>
-          Something went wrong
-        </Text>
+      <View>
+        <View style={[styles.memberItem]}>
+          <Text
+            style={[styles.errorText, { color: colors.default.white[100] }]}
+          >
+            Something went wrong
+          </Text>
+        </View>
       </View>
     );
   }
+
+  const backgroundColor = isLight
+    ? !!memberRoleData?.accessGranted ?? false
+      ? colors.default.tint.translucid[600]
+      : colors.default.secondary.translucid[600]
+    : !!memberRoleData?.accessGranted ?? false
+    ? colors.default.tint.translucid[300]
+    : colors.default.secondary.translucid[300];
+
+  const isRoot = userData?.isRoot ?? false;
+  const userRole = roles.find((role) => role?.id === userData?.role?.id);
+  const canSetAccess = userRole?.canGrantOrRevokeAccess ?? false;
+
+  const handleUpdateAccess = (value: boolean) => {
+    if (!memberRoleDoc || !(canSetAccess || isRoot)) return;
+
+    updateDoc(memberRoleDoc, { accessGranted: value });
+  };
 
   return (
-    <View
-      style={[
-        styles.memberItem,
-        {
-          backgroundColor: isLight
-            ? colors.default.tint.translucid[600]
-            : colors.default.tint.translucid[300],
-        },
-      ]}
-    >
-      <MemberName>{userData?.name ?? "Name not found"}</MemberName>
+    <View style={{ paddingHorizontal: 4 }}>
+      <View
+        style={[
+          styles.memberItem,
+          {
+            borderRadius: 8,
+            backgroundColor: backgroundColor,
+          },
+        ]}
+      >
+        <MemberName>{memberData?.name ?? "Name not found"}</MemberName>
+        <MemberAccess
+          accessGranted={!!memberRoleData?.accessGranted}
+          setAccess={handleUpdateAccess}
+          disabled={!canSetAccess && !isRoot}
+        />
+      </View>
     </View>
   );
 };
@@ -83,17 +131,58 @@ const MemberName = ({ children }: { children: ReactNode }) => {
   );
 };
 
+interface MemberAccessProps {
+  accessGranted?: boolean;
+  setAccess: (value: boolean) => void;
+  disabled?: boolean;
+}
+
+const MemberAccess: FC<MemberAccessProps> = ({
+  accessGranted = false,
+  setAccess,
+  disabled = false,
+}) => {
+  return (
+    <View
+      style={[
+        styles.switchWrapper,
+        {
+          backgroundColor: !disabled
+            ? accessGranted
+              ? colors.default.tint[400]
+              : colors.default.secondary[400]
+            : colors.default.gray[600],
+        },
+      ]}
+    >
+      <Switch
+        disabled={disabled}
+        value={accessGranted}
+        onValueChange={setAccess}
+        thumbColor={
+          !disabled
+            ? accessGranted
+              ? colors.default.white[100]
+              : colors.default.black[400]
+            : colors.default.gray[200]
+        }
+        trackColor={{
+          false: disabled ? "transparent" : colors.default.secondary[200],
+          true: disabled ? "transparent" : colors.default.tint[200],
+        }}
+      />
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   memberItem: {
-    marginBottom: 4,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 8,
+    gap: 16,
     padding: 4,
-    paddingTop: 8,
-    borderRadius: 4,
   },
   errorText: {
     textAlign: "center",
@@ -107,10 +196,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.poppinsLight,
     color: colors.default.white[100],
+    paddingTop: 4,
   },
   memberName: {
     fontSize: 16,
     fontFamily: fonts.poppinsRegular,
     color: colors.default.white[100],
+    paddingTop: 4,
+  },
+  switchWrapper: {
+    borderRadius: 100,
   },
 });

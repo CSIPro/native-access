@@ -86,7 +86,9 @@ const TabsLayoutNav = () => {
 
   const userRole = rolesData.find((role) => role.id === userData.role?.roleId);
   const canSeeMembers =
-    userRole?.canGrantOrRevokeAccess || userRole?.canSetRoles;
+    userRole?.canGrantOrRevokeAccess ||
+    userRole?.canSetRoles ||
+    userData.isRoot;
 
   return (
     <View style={[{ flex: 1 }]}>
@@ -139,6 +141,7 @@ const TabsLayoutNav = () => {
           options={{
             title: "Members",
             href: canSeeMembers ? "/members" : null,
+            headerShadowVisible: false,
             tabBarIcon: ({ color, focused }) => (
               <IonIcon
                 name={focused ? "people-circle" : "people-circle-outline"}

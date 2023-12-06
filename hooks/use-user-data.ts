@@ -183,11 +183,11 @@ export const useUserRoleWithId = (uid: string) => {
   );
 
   if (userRoleStatus === "loading") {
-    return { status: "loading", data: null };
+    return { status: "loading" };
   }
 
   if (userRoleStatus === "error") {
-    return { status: "error", data: null };
+    return { status: "error" };
   }
 
   return {

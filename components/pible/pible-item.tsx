@@ -32,25 +32,38 @@ export const PibleItem: FC<Props> = ({ device }) => {
 
   const isStopped = scanState === ScanState.stopped;
 
+  const isLight = colorScheme === "light";
+
   return (
     <Pressable
       style={[
         styles.container,
-        { backgroundColor: "#fff", opacity: isStopped ? 0.6 : 1 },
+        {
+          backgroundColor: colors.default.white[100],
+          opacity: isStopped ? 0.6 : 1,
+        },
       ]}
       onPress={connectToDevice}
     >
       <View
         style={[
           styles.containerHighlight,
-          { backgroundColor: colors[colorScheme].bluetooth },
+          {
+            backgroundColor: isLight
+              ? colors.default.bluetooth[400]
+              : colors.default.bluetooth[200],
+          },
         ]}
       />
       <Text
         numberOfLines={1}
         style={[
           styles.roomName,
-          { color: colors[colorScheme ?? "light"].tint },
+          {
+            color: isLight
+              ? colors.default.bluetooth[400]
+              : colors.default.bluetooth[200],
+          },
         ]}
       >
         {device.localName.replace("PiBLE-", "")}
@@ -61,15 +74,12 @@ export const PibleItem: FC<Props> = ({ device }) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: "relative",
-    marginHorizontal: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
     maxWidth: 180,
     justifyContent: "center",
     alignItems: "center",
-    gap: 4,
     overflow: "hidden",
   },
   containerHighlight: {
@@ -82,6 +92,6 @@ const styles = StyleSheet.create({
   roomName: {
     fontSize: 20,
     paddingTop: 2,
-    fontFamily: fonts.poppinsBold,
+    fontFamily: fonts.poppinsMedium,
   },
 });

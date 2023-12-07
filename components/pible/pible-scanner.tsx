@@ -95,7 +95,7 @@ export const PibleScanner = () => {
           `${item.id}-${item.localName}-${item.rssi}-${index}`
         }
         renderItem={({ item }) => <PibleItem device={item} />}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, gap: 8, paddingHorizontal: 8 }}
         ListEmptyComponent={
           <View style={[styles.emptyList, { flex: 1 }]}>
             <Text style={[styles.stateLabel]}>No rooms available</Text>

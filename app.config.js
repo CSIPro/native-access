@@ -24,6 +24,7 @@ export default {
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
+        monochromeImage: "./assets/adaptive-icon.png",
         backgroundColor: "#7145d6",
       },
       permissions: [

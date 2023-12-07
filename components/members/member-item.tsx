@@ -76,10 +76,10 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   const backgroundColor = isLight
     ? !!memberRoleData?.accessGranted ?? false
       ? colors.default.tint.translucid[600]
-      : colors.default.secondary.translucid[600]
+      : colors.default.secondary.translucid[500]
     : !!memberRoleData?.accessGranted ?? false
-    ? colors.default.tint.translucid[300]
-    : colors.default.secondary.translucid[300];
+    ? colors.default.tint.translucid[500]
+    : colors.default.secondary.translucid[400];
 
   const isRoot = userData?.isRoot ?? false;
   const userRole = roles.find((role) => role?.id === userData?.role?.id);
@@ -160,11 +160,7 @@ const MemberAccess: FC<MemberAccessProps> = ({
         value={accessGranted}
         onValueChange={setAccess}
         thumbColor={
-          !disabled
-            ? accessGranted
-              ? colors.default.white[100]
-              : colors.default.black[400]
-            : colors.default.gray[200]
+          !disabled ? colors.default.white[100] : colors.default.gray[200]
         }
         trackColor={{
           false: disabled ? "transparent" : colors.default.secondary[200],

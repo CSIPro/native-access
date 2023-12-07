@@ -25,7 +25,7 @@ import {
 import fonts from "../../constants/fonts";
 import { IonIcon } from "../../components/icons/ion";
 import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { useBLE } from "../../context/ble-context";
 import { RoomPicker } from "../../components/room-picker/room-picker";
 import { DashboardItem } from "../../components/ui/dashboard/item";
@@ -42,7 +42,6 @@ export default function Home() {
 
   return (
     <View
-      // behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{
         flex: 1,
         backgroundColor: palette.tint,
@@ -87,12 +86,12 @@ export default function Home() {
             >
               Summary
             </Text>
-            <SuccessfulLogs />
+            <SuccessfulLogs isLight={isLight} />
           </View>
           <View style={styles.dashboardRow}>
-            <BluetoothLogs />
-            <FailedLogs />
-            <UnknownLogs />
+            <BluetoothLogs isLight={isLight} />
+            <FailedLogs isLight={isLight} />
+            <UnknownLogs isLight={isLight} />
           </View>
           <View style={{ alignItems: "center", gap: 4, width: "100%" }}>
             <Text
@@ -108,8 +107,8 @@ export default function Home() {
               Personal
             </Text>
             <View style={[styles.dashboardRow, { width: "100%" }]}>
-              <BluetoothPersonalLogs />
-              <FailedPersonalLogs />
+              <BluetoothPersonalLogs isLight={isLight} />
+              <FailedPersonalLogs isLight={isLight} />
               <SuccessfulPersonalLogs />
             </View>
           </View>
@@ -121,14 +120,12 @@ export default function Home() {
   );
 }
 
-const SuccessfulLogs = () => {
-  const colorScheme = useColorScheme();
+interface DashboardItemProps {
+  isLight?: boolean;
+}
 
+const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useSuccessfulLogs();
-
-  const palette = colors[colorScheme];
-
-  const isLight = colorScheme === "light";
 
   return (
     <View style={styles.successShadow}>
@@ -152,8 +149,10 @@ const SuccessfulLogs = () => {
               borderColor: isLight
                 ? colors.default.gray[100]
                 : colors.default.black[100],
-              borderBlockEndColor: palette.tint,
-              borderBottomWidth: 3,
+              borderBlockEndColor: isLight
+                ? colors.default.tint[400]
+                : colors.default.tint[200],
+              borderBottomWidth: 4,
             },
           ]}
         >
@@ -177,7 +176,7 @@ const SuccessfulLogs = () => {
               {
                 color: isLight
                   ? colors.default.tint[400]
-                  : colors.default.white[600],
+                  : colors.default.tint[100],
                 fontSize: 16,
               },
             ]}
@@ -190,152 +189,54 @@ const SuccessfulLogs = () => {
   );
 };
 
-const BluetoothLogs = () => {
+const BluetoothLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useBluetoothLogs();
 
   return (
     <DashboardItem
       icon="bluetooth"
-      primaryColor={colors.default.bluetooth[400]}
+      primaryColor={
+        isLight ? colors.default.bluetooth[400] : colors.default.bluetooth[300]
+      }
       title="Bluetooth"
       logs={logs}
     />
   );
-
-  // return (
-  //   <View style={[styles.dataContainerShadow]}>
-  //     <View
-  //       style={[
-  //         styles.dataContainer,
-  //         {
-  //           backgroundColor:
-  //             colorScheme === "light"
-  //               ? colors.default.white[100]
-  //               : colors.default.black[300],
-  //         },
-  //       ]}
-  //     >
-  //       <View
-  //         style={[
-  //           styles.dataContainerHighlight,
-  //           { backgroundColor: colors[colorScheme].bluetooth },
-  //         ]}
-  //       />
-  //       <IonIcon
-  //         name="bluetooth"
-  //         color={colors[colorScheme].bluetooth}
-  //         size={24}
-  //       />
-  //       <View style={[styles.dataTextContainer]}>
-  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-  //           {logs.length}
-  //         </Text>
-  //         <Text
-  //           style={[
-  //             styles.bubbleText,
-  //             {
-  //               color:
-  //                 colorScheme === "light"
-  //                   ? colors.default.gray[600]
-  //                   : colors.default.white[100],
-  //             },
-  //           ]}
-  //         >
-  //           Bluetooth
-  //         </Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
 };
 
-const UnknownLogs = () => {
+const UnknownLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useUnknownLogs();
 
   return (
     <DashboardItem
       icon="help-circle"
-      primaryColor={colors.default.tintAccent[400]}
+      primaryColor={
+        isLight
+          ? colors.default.tintAccent[400]
+          : colors.default.tintAccent[300]
+      }
       title="Unknown"
       logs={logs}
     />
   );
-
-  // return (
-  //   <View style={[styles.dataContainerShadow]}>
-  //     <View style={[styles.dataContainer]}>
-  //       <View
-  //         style={[
-  //           styles.dataContainerHighlight,
-  //           { backgroundColor: colors[colorScheme].tintAccent },
-  //         ]}
-  //       />
-  //       <IonIcon
-  //         name="help-circle"
-  //         color={colors[colorScheme].tintAccent}
-  //         size={24}
-  //       />
-  //       <View style={[styles.dataTextContainer]}>
-  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-  //           {logs.length}
-  //         </Text>
-  //         <Text
-  //           style={[
-  //             styles.bubbleText,
-  //             {
-  //               color:
-  //                 colorScheme === "light"
-  //                   ? colors.default.gray[600]
-  //                   : colors.default.white[100],
-  //             },
-  //           ]}
-  //         >
-  //           Unknown
-  //         </Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
 };
 
-const FailedLogs = () => {
+const FailedLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useFailedLogs();
 
   return (
     <DashboardItem
       icon="close-circle"
-      primaryColor={colors.default.secondary[400]}
+      primaryColor={
+        isLight ? colors.default.secondary[400] : colors.default.secondary[300]
+      }
       title="Failed"
       logs={logs}
     />
   );
-
-  // return (
-  //   <View style={[styles.dataContainerShadow]}>
-  //     <View style={[styles.dataContainer]}>
-  //       <View
-  //         style={[
-  //           styles.dataContainerHighlight,
-  //           { backgroundColor: colors[colorScheme].secondary },
-  //         ]}
-  //       />
-  //       <IonIcon
-  //         name="close-circle"
-  //         color={colors[colorScheme].secondary}
-  //         size={24}
-  //       />
-  //       <View style={[styles.dataTextContainer]}>
-  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-  //           {logs.length}
-  //         </Text>
-  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Failed</Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
 };
 
-const SuccessfulPersonalLogs = () => {
+const SuccessfulPersonalLogs: FC<DashboardItemProps> = () => {
   const { logs } = useUserSuccessfulLogs();
 
   return (
@@ -346,108 +247,36 @@ const SuccessfulPersonalLogs = () => {
       logs={logs}
     />
   );
-
-  // return (
-  //   <View style={[styles.dataContainerShadow]}>
-  //     <View style={[styles.dataContainer]}>
-  //       <View
-  //         style={[
-  //           styles.dataContainerHighlight,
-  //           { backgroundColor: colors[colorScheme].success },
-  //         ]}
-  //       />
-  //       <IonIcon
-  //         name="checkmark-circle"
-  //         color={colors[colorScheme].success}
-  //         size={24}
-  //       />
-  //       <View style={[styles.dataTextContainer]}>
-  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-  //           {logs.length}
-  //         </Text>
-  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
-  //           Entrances
-  //         </Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
 };
 
-const BluetoothPersonalLogs = () => {
+const BluetoothPersonalLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useUserBluetoothLogs();
 
   return (
     <DashboardItem
       icon="bluetooth"
-      primaryColor={colors.default.bluetooth[400]}
+      primaryColor={
+        isLight ? colors.default.bluetooth[400] : colors.default.bluetooth[300]
+      }
       title="Bluetooth"
       logs={logs}
     />
   );
-
-  // return (
-  //   <View style={[styles.dataContainerShadow]}>
-  //     <View style={[styles.dataContainer]}>
-  //       <View
-  //         style={[
-  //           styles.dataContainerHighlight,
-  //           { backgroundColor: colors[colorScheme].bluetooth },
-  //         ]}
-  //       />
-  //       <IonIcon
-  //         name="bluetooth"
-  //         color={colors[colorScheme].bluetooth}
-  //         size={24}
-  //       />
-  //       <View style={[styles.dataTextContainer]}>
-  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-  //           {logs.length}
-  //         </Text>
-  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>
-  //           Bluetooth
-  //         </Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
 };
 
-const FailedPersonalLogs = () => {
+const FailedPersonalLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useUserFailedLogs();
 
   return (
     <DashboardItem
       icon="close-circle"
-      primaryColor={colors.default.secondary[400]}
+      primaryColor={
+        isLight ? colors.default.secondary[400] : colors.default.secondary[300]
+      }
       title="Failed"
       logs={logs}
     />
   );
-
-  // return (
-  //   <View style={[styles.dataContainerShadow]}>
-  //     <View style={[styles.dataContainer]}>
-  //       <View
-  //         style={[
-  //           styles.dataContainerHighlight,
-  //           { backgroundColor: colors[colorScheme].secondary },
-  //         ]}
-  //       />
-  //       <IonIcon
-  //         name="close-circle"
-  //         color={colors[colorScheme].secondary}
-  //         size={24}
-  //       />
-  //       <View style={[styles.dataTextContainer]}>
-  //         <Text style={[styles.bubbleText, { fontSize: 28 }]}>
-  //           {logs.length}
-  //         </Text>
-  //         <Text style={[styles.bubbleText, { color: "#a1a1a1" }]}>Failed</Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // );
 };
 
 const styles = StyleSheet.create({

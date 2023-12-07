@@ -80,15 +80,18 @@ export const useReducedMembersByRole = (roles: Role[]) => {
     return { status: "error" };
   }
 
-  const reducedData = data.docs.reduce((acc, doc) => {
-    const { roleId } = doc.data();
-    const userId = doc.ref.parent.parent?.id;
+  const reducedData = data.docs.reduce(
+    (acc, doc) => {
+      const { roleId } = doc.data();
+      const userId = doc.ref.parent.parent?.id;
 
-    return {
-      ...acc,
-      [roleId]: [...(acc[roleId] || []), userId],
-    };
-  }, {});
+      return {
+        ...acc,
+        [roleId]: [...(acc[roleId] || []), userId],
+      };
+    },
+    roleIds.reduce((acc, roleId) => ({ ...acc, [roleId]: [] }), {})
+  );
 
   const reducedDataArray = Object.entries(reducedData).map(([key, value]) => ({
     title: key,

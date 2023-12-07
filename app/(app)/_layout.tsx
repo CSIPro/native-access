@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
-import { View, useColorScheme } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { IonIcon } from "../../components/icons/ion";
 
@@ -101,9 +101,21 @@ const TabsLayoutNav = () => {
             height: 64,
             paddingVertical: 8,
           },
-          tabBarLabelStyle: {
-            fontFamily: fonts.poppinsRegular,
-            fontSize: 12,
+          tabBarLabel: ({ color, focused, children }) => {
+            return focused ? (
+              <Text
+                style={[
+                  styles.tabLabelBase,
+                  { color: color, fontFamily: fonts.poppinsMedium },
+                ]}
+              >
+                {children}
+              </Text>
+            ) : (
+              <Text style={[styles.tabLabelBase, { color: color }]}>
+                {children}
+              </Text>
+            );
           },
           headerStyle: {
             backgroundColor: colors.default.tint[400],
@@ -129,10 +141,7 @@ const TabsLayoutNav = () => {
           options={{
             title: "Logs",
             tabBarIcon: ({ color, focused }) => (
-              <IonIcon
-                name={focused ? "log-in" : "log-in-outline"}
-                color={color}
-              />
+              <IonIcon name={focused ? "list" : "list-outline"} color={color} />
             ),
           }}
         />
@@ -144,7 +153,7 @@ const TabsLayoutNav = () => {
             headerShadowVisible: false,
             tabBarIcon: ({ color, focused }) => (
               <IonIcon
-                name={focused ? "people-circle" : "people-circle-outline"}
+                name={focused ? "people" : "people-outline"}
                 color={color}
               />
             ),
@@ -183,3 +192,10 @@ const TabsLayoutNav = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  tabLabelBase: {
+    fontFamily: fonts.poppinsRegular,
+    fontSize: 12,
+  },
+});

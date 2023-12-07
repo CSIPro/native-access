@@ -28,16 +28,17 @@ export const LogItem: FC<LogItemProps> = ({
   children,
 }) => {
   const colorScheme = useColorScheme();
-
-  const palette = colors[colorScheme];
+  const isLight = colorScheme === "light";
 
   const backgroundColor = known
     ? accessed
       ? bluetooth
-        ? palette.bluetooth
-        : palette.tint
-      : palette.secondary
-    : palette.black;
+        ? colors.default.bluetooth[400]
+        : colors.default.tint[400]
+      : colors.default.secondary[400]
+    : isLight
+    ? colors.default.black[400]
+    : colors.default.black[200];
 
   return (
     <View style={[styles.container, { backgroundColor }]}>{children}</View>
@@ -49,11 +50,7 @@ interface LogItemTitleProps {
 }
 
 export const LogItemTitle: FC<LogItemTitleProps> = ({ user }) => {
-  const colorScheme = useColorScheme();
-
   const { status, data } = useUserDataWithId(user ?? "undefined");
-
-  const palette = colors[colorScheme];
 
   if (status === "loading") {
     return <ActivityIndicator size="small" color="#fff" />;

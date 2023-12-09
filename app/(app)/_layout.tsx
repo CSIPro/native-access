@@ -1,5 +1,11 @@
 import { Redirect, Tabs } from "expo-router";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 
 import { IonIcon } from "../../components/icons/ion";
 
@@ -101,6 +107,13 @@ const TabsLayoutNav = () => {
             height: 64,
             paddingVertical: 8,
           },
+          headerStyle: {
+            backgroundColor: colors.default.tint[400],
+          },
+          headerTitleStyle: {
+            fontFamily: fonts.poppinsMedium,
+            color: colors.default.white[100],
+          },
           tabBarLabel: ({ color, focused, children }) => {
             return focused ? (
               <Text
@@ -116,13 +129,6 @@ const TabsLayoutNav = () => {
                 {children}
               </Text>
             );
-          },
-          headerStyle: {
-            backgroundColor: colors.default.tint[400],
-          },
-          headerTitleStyle: {
-            fontFamily: fonts.poppinsMedium,
-            color: colors.default.white[100],
           },
         }}
       >

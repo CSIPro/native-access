@@ -118,7 +118,7 @@ export const ProfileCard = () => {
           </View>
         </View>
         <View style={[styles.row]}>
-          <View style={[{ minWidth: 24 }]}>
+          <View style={[styles.iconWrapper]}>
             <IonIcon
               name="person"
               color={
@@ -154,7 +154,7 @@ export const ProfileCard = () => {
           </Text>
         </View>
         <View style={[styles.row]}>
-          <View style={[{ minWidth: 24 }]}>
+          <View style={[styles.iconWrapper]}>
             <IonIcon
               name="mail"
               color={
@@ -178,7 +178,7 @@ export const ProfileCard = () => {
           </Text>
         </View>
         <View style={[styles.row]}>
-          <View style={[{ minWidth: 24 }]}>
+          <View style={[styles.iconWrapper]}>
             <FAIcon
               name="birthday-cake"
               color={
@@ -259,5 +259,10 @@ const styles = StyleSheet.create({
   header: {
     fontFamily: fonts.poppinsMedium,
     fontSize: 24,
+  },
+  iconWrapper: {
+    minWidth: 24,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

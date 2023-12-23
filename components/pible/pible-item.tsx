@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const PibleItem: FC<Props> = ({ device }) => {
-  const { startAutoScan, connect, scanState } = useBLE();
+  const { startScan: startAutoScan, connect, scanState } = useBLE();
   const colorScheme = useColorScheme();
 
   const connectToDevice = () => {
@@ -61,8 +61,8 @@ export const PibleItem: FC<Props> = ({ device }) => {
           styles.roomName,
           {
             color: isLight
-              ? colors.default.bluetooth[400]
-              : colors.default.bluetooth[200],
+              ? colors.default.tint[400]
+              : colors.default.tint[200],
           },
         ]}
       >

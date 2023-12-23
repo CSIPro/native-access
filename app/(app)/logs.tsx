@@ -42,7 +42,7 @@ export default function AccessLogs() {
   }
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.main,
         {
@@ -74,7 +74,7 @@ export default function AccessLogs() {
           </View>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

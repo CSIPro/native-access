@@ -24,8 +24,8 @@ interface BLEContextProps {
   devices: Device[];
   openModal: boolean;
   connect: (device: Device) => void;
-  startAutoScan: () => void;
-  stopScan: () => void;
+  startScan: () => void;
+  stopScan: ({ immediate }: { immediate: boolean }) => void;
   closeModal: () => void;
   // startScan: () => void;
 }
@@ -47,7 +47,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     setBtState(state);
   }, true);
 
-  const startAutoScan = async () => {
+  const startScan = async () => {
     const scanPermission = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
       {
@@ -82,10 +82,10 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     }
 
     setDevices([]);
-    startScan();
+    scanForDevices();
   };
 
-  const startScan = () => {
+  const scanForDevices = () => {
     setScanState(ScanState.scanning);
     manager.startDeviceScan(
       ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
@@ -129,9 +129,16 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     }, scanDuration);
   };
 
-  const stopScan = () => {
+  const stopScan = ({ immediate = false }: { immediate?: boolean } = {}) => {
     manager.stopDeviceScan();
     clearTimeout(scanTimeout);
+
+    if (immediate) {
+      setDevices([]);
+      setScanState(ScanState.stopped);
+      return;
+    }
+
     setTimeout(() => {
       setDevices([]);
       setScanState(ScanState.stopped);
@@ -179,12 +186,12 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
                     })
                     .catch((error) => {
                       console.log(error);
-                      startAutoScan();
+                      startScan();
                     });
                 })
                 .catch((error) => {
                   console.log(error);
-                  startAutoScan();
+                  startScan();
                 });
             })
             .catch((error) => {
@@ -194,7 +201,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
         })
         .catch((error) => {
           console.log(error);
-          startAutoScan();
+          startScan();
         });
     }, 75);
   };
@@ -226,7 +233,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     scanState,
     devices: [...devices],
     connect,
-    startAutoScan: startAutoScan,
+    startScan: startScan,
     stopScan,
     openModal,
     closeModal,

@@ -46,9 +46,9 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 
   const handlePress = () => {
     if (state === ScanState.stopped) {
-      bleCtx?.startAutoScan();
+      bleCtx?.startScan();
     } else if (state === ScanState.scanning) {
-      bleCtx?.stopScan();
+      bleCtx?.stopScan({ immediate: true });
     }
   };
 
@@ -71,7 +71,7 @@ export const PibleScanner = () => {
       : "ERROR";
 
   useEffect(() => {
-    bleCtx?.startAutoScan();
+    bleCtx?.startScan();
   }, []);
 
   return (

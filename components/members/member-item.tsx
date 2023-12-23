@@ -42,7 +42,7 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   ) {
     return (
       <View>
-        <View style={[styles.memberItem]}>
+        <View style={[styles.memberItem, { justifyContent: "center" }]}>
           <ActivityIndicator
             size="small"
             color={
@@ -73,13 +73,23 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
     );
   }
 
+  const memberHasAccess = !!memberRoleData?.accessGranted ?? false;
+
   const backgroundColor = isLight
-    ? !!memberRoleData?.accessGranted ?? false
+    ? memberHasAccess
       ? colors.default.tint.translucid[600]
-      : colors.default.secondary.translucid[500]
-    : !!memberRoleData?.accessGranted ?? false
-    ? colors.default.tint.translucid[500]
-    : colors.default.secondary.translucid[400];
+      : colors.default.secondary.translucid[600]
+    : memberHasAccess
+    ? colors.default.tint.translucid[200]
+    : colors.default.secondary.translucid[200];
+
+  const borderColor = isLight
+    ? memberHasAccess
+      ? colors.default.tint[600]
+      : colors.default.secondary[600]
+    : memberHasAccess
+    ? colors.default.tint[300]
+    : colors.default.secondary[300];
 
   const isRoot = userData?.isRoot ?? false;
   const userRole = roles.find((role) => role?.id === userData?.role?.id);
@@ -99,6 +109,8 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
           {
             borderRadius: 8,
             backgroundColor: backgroundColor,
+            borderColor: borderColor,
+            borderWidth: 2,
           },
         ]}
       >
@@ -178,7 +190,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 16,
-    padding: 4,
+    padding: 8,
   },
   errorText: {
     textAlign: "center",

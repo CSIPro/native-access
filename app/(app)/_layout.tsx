@@ -146,6 +146,7 @@ const TabsLayoutNav = () => {
           name="logs"
           options={{
             title: "Logs",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <IonIcon name={focused ? "list" : "list-outline"} color={color} />
             ),

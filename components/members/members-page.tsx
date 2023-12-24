@@ -54,7 +54,6 @@ export const MembersPage = () => {
         backgroundColor: isLight
           ? colors.default.white[100]
           : colors.default.black[400],
-        paddingTop: 4,
       }}
     >
       <View style={[styles.roomPickerWrapper]}>
@@ -79,6 +78,7 @@ const styles = StyleSheet.create({
   },
   roomPickerWrapper: {
     paddingHorizontal: 4,
+    paddingBottom: 8,
     paddingVertical: 4,
     width: "100%",
   },

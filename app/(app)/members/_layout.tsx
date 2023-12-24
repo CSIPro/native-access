@@ -1,33 +1,23 @@
-import { Stack } from "expo-router";
-import { View, useColorScheme } from "react-native";
+import { View } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import colors from "../../../constants/colors";
 import fonts from "../../../constants/fonts";
 import { useState } from "react";
-import { RoleList } from "../../../components/members/role-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MembersPage } from "../../../components/members/members-page";
 import { RequestsPage } from "../../../components/requests/requests-page";
 
-const DummyScene = () => <View style={[{ flex: 1 }]} />;
-
-const DummyScene2 = () => <View style={[{ flex: 1 }]} />;
-
 const renderScene = SceneMap({
   members: MembersPage,
-  dummy: RequestsPage,
+  requests: RequestsPage,
 });
 
 export default function MembersLayout() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "members", title: "Members" },
-    { key: "dummy", title: "Requests" },
+    { key: "requests", title: "Requests" },
   ]);
-
-  const colorScheme = useColorScheme();
-
-  const isLight = colorScheme === "light";
 
   return (
     <SafeAreaView
@@ -40,7 +30,11 @@ export default function MembersLayout() {
         renderTabBar={(props) => (
           <TabBar
             {...props}
-            style={[{ backgroundColor: colors.default.tint[400] }]}
+            style={[
+              {
+                backgroundColor: colors.default.tint[400],
+              },
+            ]}
             labelStyle={[
               {
                 fontFamily: fonts.poppinsMedium,
@@ -48,29 +42,14 @@ export default function MembersLayout() {
                 fontSize: 16,
               },
             ]}
+            indicatorStyle={[
+              {
+                backgroundColor: colors.default.white[100],
+              },
+            ]}
           />
         )}
       />
     </SafeAreaView>
-    // <Stack
-    //   screenOptions={{
-    //     headerStyle: {
-    //       backgroundColor: isLight
-    //         ? colors.default.tint[400]
-    //         : colors.default.tint[200],
-    //     },
-    //     headerTitleStyle: {
-    //       fontFamily: fonts.poppinsMedium,
-    //       color: colors.default.white[100],
-    //     },
-    //   }}
-    // >
-    //   <Stack.Screen
-    //     name="index"
-    //     options={{
-    //       title: "Members",
-    //     }}
-    //   />
-    // </Stack>
   );
 }

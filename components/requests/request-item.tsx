@@ -61,7 +61,7 @@ export const RequestItem: FC<Props> = ({ request }) => {
     },
     [RequestStatusEnum.enum.approved]: {
       backgroundColor: isLight
-        ? colors.default.tint.translucid[600]
+        ? colors.default.tint.translucid[800]
         : colors.default.tint.translucid[200],
       borderWidth: 2,
       borderColor: isLight
@@ -70,7 +70,7 @@ export const RequestItem: FC<Props> = ({ request }) => {
     },
     [RequestStatusEnum.enum.rejected]: {
       backgroundColor: isLight
-        ? colors.default.secondary.translucid[600]
+        ? colors.default.secondary.translucid[700]
         : colors.default.secondary.translucid[200],
       borderWidth: 2,
       borderColor: isLight

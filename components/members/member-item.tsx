@@ -77,7 +77,7 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
 
   const backgroundColor = isLight
     ? memberHasAccess
-      ? colors.default.tint.translucid[600]
+      ? colors.default.tint.translucid[700]
       : colors.default.secondary.translucid[600]
     : memberHasAccess
     ? colors.default.tint.translucid[200]

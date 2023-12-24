@@ -1,13 +1,17 @@
-import { useFirestore, useFirestoreCollectionData } from "reactfire";
+import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { useRoomContext } from "../context/room-context";
 import {
   Timestamp,
   collection,
+  doc,
   orderBy,
   query,
+  setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { z } from "zod";
+import { useRoles } from "./use-roles";
 
 enum RequestStatus {
   pending,
@@ -49,5 +53,64 @@ export const useRoomRequests = () => {
   return {
     status,
     data: data as Request[],
+  };
+};
+
+export const useRequestHelpers = (request: Request) => {
+  const user = useUser();
+  const firestore = useFirestore();
+  const { data: roles } = useRoles();
+  const requestDoc = doc(firestore, "requests", request.id);
+
+  const approveRequest = async () => {
+    if (user.data === null) return;
+
+    try {
+      const guestRole = roles?.find((role) => role.name === "Guest");
+      if (!guestRole) {
+        throw new Error("Guest role not found");
+      }
+
+      const roomRolesDoc = doc(
+        firestore,
+        "user_roles",
+        request.userId,
+        "room_roles",
+        request.roomId
+      );
+
+      await updateDoc(requestDoc, {
+        status: RequestStatusEnum.enum.approved,
+        adminId: user.data?.uid,
+        updatedAt: Timestamp.now(),
+      });
+
+      await setDoc(roomRolesDoc, {
+        roleId: guestRole.id,
+        accessGranted: true,
+        key: request.roomId,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const rejectRequest = async () => {
+    if (user.data === null) return;
+
+    try {
+      await updateDoc(requestDoc, {
+        status: RequestStatusEnum.enum.rejected,
+        adminId: user.data?.uid,
+        updatedAt: Timestamp.now(),
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return {
+    approveRequest,
+    rejectRequest,
   };
 };

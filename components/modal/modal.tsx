@@ -92,7 +92,24 @@ export const ModalBody: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 export const ModalFooter: FC<{ children: ReactNode }> = ({ children }) => {
-  return <View style={[styles.modalBody]}>{children}</View>;
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  return (
+    <View
+      style={[
+        styles.modalFooter,
+        {
+          borderTopWidth: 1,
+          borderTopColor: isLight
+            ? colors.default.gray[400]
+            : colors.default.black[100],
+        },
+      ]}
+    >
+      {children}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -123,17 +140,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalTitle: {
+    paddingTop: 4,
     fontFamily: fonts.poppinsMedium,
-    fontSize: 24,
+    fontSize: 20,
     color: "#222222",
   },
   modalHeader: {
     padding: 8,
     width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalBody: {
     padding: 8,
     gap: 8,
     width: "100%",
+  },
+  modalFooter: {
+    padding: 8,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    width: "100%",
+    gap: 16,
   },
 });

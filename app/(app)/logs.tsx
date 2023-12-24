@@ -25,21 +25,33 @@ export default function AccessLogs() {
   const palette = colors[colorScheme];
   const isLight = colorScheme === "light";
 
+  const backgroundColor = isLight
+    ? colors.default.white[100]
+    : colors.default.black[400];
+
   if (logsStatus === "loading") {
     return (
-      <View style={[styles.centered]}>
-        <ActivityIndicator size="large" color={palette.tint} />
-      </View>
+      <SafeAreaView
+        style={[styles.main, { backgroundColor: colors.default.tint[400] }]}
+      >
+        <View style={[styles.centered, { backgroundColor }]}>
+          <ActivityIndicator size="large" color={palette.tint} />
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (logsStatus === "error") {
     return (
-      <View style={[styles.centered]}>
-        <Text style={[styles.errorText, { color: palette.text }]}>
-          Error loading logs
-        </Text>
-      </View>
+      <SafeAreaView
+        style={[styles.main, { backgroundColor: colors.default.tint[400] }]}
+      >
+        <View style={[styles.centered, { backgroundColor }]}>
+          <Text style={[styles.errorText, { color: palette.text }]}>
+            Error loading logs
+          </Text>
+        </View>
+      </SafeAreaView>
     );
   }
 

@@ -85,8 +85,8 @@ export const useUserData = () => {
 
 export const useUserDataWithId = (uid: string | undefined) => {
   const firestore = useFirestore();
-  const userQuery = doc(firestore, "users", uid);
-  const userRoleQuery = doc(firestore, "user_roles", uid);
+  const userQuery = doc(firestore, "users", uid ?? "undefined");
+  const userRoleQuery = doc(firestore, "user_roles", uid ?? "undefined");
 
   const { status: userRoomRoleStatus, data: userRoomRoleData } = useUserRole();
   const { status: userStatus, data: userData } = useFirestoreDocData(

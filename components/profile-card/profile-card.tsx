@@ -108,8 +108,8 @@ export const ProfileCard = () => {
                 styles.textBase,
                 {
                   color: isLight
-                    ? colors.default.gray[600]
-                    : colors.default.white[600],
+                    ? colors.default.tint.translucid[700]
+                    : colors.default.gray[600],
                 },
               ]}
             >
@@ -122,7 +122,7 @@ export const ProfileCard = () => {
             <IonIcon
               name="person"
               color={
-                isLight ? colors.default.gray[600] : colors.default.white[200]
+                isLight ? colors.default.tint[300] : colors.default.tint[100]
               }
               size={24}
             />
@@ -139,16 +139,16 @@ export const ProfileCard = () => {
             ]}
           >
             {userAccessData.csiId}
+            {" \u2022 "}
             <Text
               style={[
                 {
                   color: isLight
-                    ? colors.default.gray[600]
+                    ? colors.default.tint.translucid[700]
                     : colors.default.gray[600],
                 },
               ]}
             >
-              {" \u2022 "}
               CSI ID
             </Text>
           </Text>
@@ -158,7 +158,7 @@ export const ProfileCard = () => {
             <IonIcon
               name="mail"
               color={
-                isLight ? colors.default.gray[600] : colors.default.white[200]
+                isLight ? colors.default.tint[300] : colors.default.tint[100]
               }
               size={24}
             />
@@ -182,7 +182,7 @@ export const ProfileCard = () => {
             <FAIcon
               name="birthday-cake"
               color={
-                isLight ? colors.default.gray[600] : colors.default.white[200]
+                isLight ? colors.default.tint[300] : colors.default.tint[100]
               }
               size={24}
             />

@@ -32,12 +32,29 @@ export const RequestDetails: FC<Props> = ({
   onApprove,
   onReject,
 }) => {
+  const colorScheme = useColorScheme();
   const { data: userData } = useUserData();
   const { data: roles } = useRoles();
+
+  const isLight = colorScheme === "light";
 
   const canHandleRequests =
     roles?.find((role) => role.id === userData?.role?.roleId)
       ?.canHandleRequests || userData.isRoot;
+
+  const approveBg = isLight
+    ? colors.default.tint.translucid[100]
+    : colors.default.tint.translucid[100];
+  const approveText = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
+
+  const rejectBg = isLight
+    ? colors.default.secondary.translucid[100]
+    : colors.default.secondary.translucid[100];
+  const rejectText = isLight
+    ? colors.default.secondary[400]
+    : colors.default.secondary[100];
 
   return (
     <Modal visible={open} onClose={onClose}>
@@ -45,17 +62,27 @@ export const RequestDetails: FC<Props> = ({
       <ModalBody>{children}</ModalBody>
       {isPending && canHandleRequests && (
         <ModalFooter>
-          <Pressable style={[styles.textButton]} onPress={onApprove}>
-            <Text style={[styles.text, { color: colors.default.tint[400] }]}>
-              Approve
-            </Text>
+          <Pressable
+            style={[
+              styles.textButton,
+              {
+                backgroundColor: approveBg,
+              },
+            ]}
+            onPress={onApprove}
+          >
+            <Text style={[styles.text, { color: approveText }]}>Approve</Text>
           </Pressable>
-          <Pressable style={[styles.textButton]} onPress={onReject}>
-            <Text
-              style={[styles.text, { color: colors.default.secondary[400] }]}
-            >
-              Reject
-            </Text>
+          <Pressable
+            style={[
+              styles.textButton,
+              {
+                backgroundColor: rejectBg,
+              },
+            ]}
+            onPress={onReject}
+          >
+            <Text style={[styles.text, { color: rejectText }]}>Reject</Text>
           </Pressable>
         </ModalFooter>
       )}
@@ -68,6 +95,9 @@ export const RequestDetailsUser: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
 
   return (
     <View style={[styles.dataRow]}>
@@ -76,7 +106,7 @@ export const RequestDetailsUser: FC<{ children: ReactNode }> = ({
         color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
         size={24}
       />
-      <Text style={[styles.text]}>{children}</Text>
+      <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );
 };
@@ -86,6 +116,9 @@ export const RequestDetailsRoom: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
 
   return (
     <View style={[styles.dataRow]}>
@@ -94,7 +127,7 @@ export const RequestDetailsRoom: FC<{ children: ReactNode }> = ({
         color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
         size={24}
       />
-      <Text style={[styles.text]}>{children}</Text>
+      <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );
 };
@@ -104,6 +137,9 @@ export const RequestDetailsAdmin: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
 
   return (
     <View style={[styles.dataRow]}>
@@ -112,7 +148,7 @@ export const RequestDetailsAdmin: FC<{ children: ReactNode }> = ({
         color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
         size={24}
       />
-      <Text style={[styles.text]}>{children}</Text>
+      <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );
 };
@@ -122,6 +158,9 @@ export const RequestDetailsStatus: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
 
   return (
     <View style={[styles.dataRow]}>
@@ -130,7 +169,9 @@ export const RequestDetailsStatus: FC<{ children: ReactNode }> = ({
         color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
         size={24}
       />
-      <Text style={[styles.text, styles.requestStatus]}>{children}</Text>
+      <Text style={[styles.text, styles.requestStatus, { color: textColor }]}>
+        {children}
+      </Text>
     </View>
   );
 };
@@ -140,6 +181,9 @@ export const RequestDetailsDate: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
 
   return (
     <View style={[styles.dataRow]}>
@@ -148,7 +192,7 @@ export const RequestDetailsDate: FC<{ children: ReactNode }> = ({
         color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
         size={24}
       />
-      <Text style={[styles.text]}>{children}</Text>
+      <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );
 };
@@ -169,5 +213,6 @@ const styles = StyleSheet.create({
   },
   textButton: {
     padding: 8,
+    borderRadius: 8,
   },
 });

@@ -157,7 +157,7 @@ const TabsLayoutNav = () => {
           options={{
             title: "Members",
             href: canSeeMembers ? "/members" : null,
-            headerShadowVisible: false,
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <IonIcon
                 name={focused ? "people" : "people-outline"}
@@ -202,7 +202,7 @@ const TabsLayoutNav = () => {
 
 const styles = StyleSheet.create({
   tabLabelBase: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 12,
   },
 });

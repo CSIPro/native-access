@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   textBase: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 16,
   },
   header: {

@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     maxHeight: 180,
   },
   label: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 20,
     color: "#fff",
   },

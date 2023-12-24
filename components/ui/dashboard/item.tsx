@@ -75,7 +75,7 @@ export const DashboardItem: FC<Props> = ({
 
 const styles = StyleSheet.create({
   dashboardTitle: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     color: "#222222",
     fontSize: 24,
   },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   bubbleText: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
   },
 });

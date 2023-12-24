@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   centeredText: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
   },
   errorText: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
     textAlign: "center",
   },

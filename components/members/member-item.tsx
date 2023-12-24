@@ -191,11 +191,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 16,
     padding: 8,
+    paddingVertical: 6,
   },
   errorText: {
     textAlign: "center",
     fontSize: 16,
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
   },
   nameWrapper: {
     maxWidth: "70%",
@@ -207,8 +208,8 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   memberName: {
-    fontSize: 16,
-    fontFamily: fonts.poppinsRegular,
+    fontSize: 18,
+    fontFamily: fonts.poppinsMedium,
     color: colors.default.white[100],
     paddingTop: 4,
   },

@@ -200,11 +200,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   prompt: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 16,
   },
   input: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 16,
     padding: 8,
     borderWidth: 1,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   submitButton: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     alignItems: "center",
     justifyContent: "center",
     fontSize: 16,

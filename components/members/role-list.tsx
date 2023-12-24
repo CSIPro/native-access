@@ -61,19 +61,25 @@ export const RoleList: FC<Props> = ({ roles }) => {
       <SectionList
         sections={data}
         keyExtractor={(item) => item}
-        renderItem={({ item }) => <MemberItem uid={item} />}
+        renderItem={({ item }) => (
+          <View style={[{ paddingHorizontal: 4 }]}>
+            <MemberItem uid={item} />
+          </View>
+        )}
         renderSectionHeader={({ section: { roleData } }) => (
-          <View
-            style={[
-              styles.roleNameWrapper,
-              {
-                backgroundColor: isLight
-                  ? colors.default.tint[400]
-                  : colors.default.tint[400],
-              },
-            ]}
-          >
-            <Text style={[styles.roleName]}>{roleData.name}</Text>
+          <View style={[{ paddingHorizontal: 4 }]}>
+            <View
+              style={[
+                styles.roleNameWrapper,
+                {
+                  backgroundColor: isLight
+                    ? colors.default.tint[400]
+                    : colors.default.tint[400],
+                },
+              ]}
+            >
+              <Text style={[styles.roleName]}>{roleData.name}</Text>
+            </View>
           </View>
         )}
         contentContainerStyle={{ flexGrow: 1, gap: 4 }}
@@ -108,11 +114,11 @@ const styles = StyleSheet.create({
   },
   centeredText: {
     textAlign: "center",
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
   },
   errorText: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
     textAlign: "center",
   },
@@ -127,6 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 4,
+    borderRadius: 4,
   },
   roleName: {
     paddingTop: 4,

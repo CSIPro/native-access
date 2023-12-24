@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   feedbackMessage: {
     color: "#fff",
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 16,
     textAlign: "center",
   },

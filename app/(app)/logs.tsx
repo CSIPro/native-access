@@ -15,6 +15,8 @@ import {
   LogItemTitle,
 } from "../../components/logs/log-item";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RoomPicker } from "../../components/room-picker/room-picker";
+import { StatusBar } from "expo-status-bar";
 
 export default function AccessLogs() {
   const colorScheme = useColorScheme();
@@ -46,34 +48,48 @@ export default function AccessLogs() {
       style={[
         styles.main,
         {
-          backgroundColor: isLight
-            ? colors.default.white[100]
-            : colors.default.black[400],
+          backgroundColor: colors.default.tint[400],
         },
       ]}
     >
-      <FlatList
-        data={logs}
-        keyExtractor={(item) => `${item.timestamp}-${item.room}-${item.user}`}
-        contentContainerStyle={{ flexGrow: 1, padding: 4, gap: 4 }}
-        renderItem={({ item: log }) => (
-          <LogItem
-            known={!!log.user}
-            accessed={log.accessed}
-            bluetooth={log.bluetooth}
-          >
-            <LogItemTitle user={log.user} />
-            <LogItemTimestamp timestamp={log.timestamp} />
-          </LogItem>
-        )}
-        ListEmptyComponent={
-          <View style={[styles.centered]}>
-            <Text style={[styles.errorText, { color: palette.text }]}>
-              No logs found
-            </Text>
-          </View>
-        }
-      />
+      <View
+        style={[
+          {
+            flex: 1,
+            backgroundColor: isLight
+              ? colors.default.white[100]
+              : colors.default.black[400],
+          },
+        ]}
+      >
+        <View style={[styles.roomPickerWrapper]}>
+          <RoomPicker />
+        </View>
+        <FlatList
+          data={logs}
+          keyExtractor={(item) => `${item.timestamp}-${item.room}-${item.user}`}
+          contentContainerStyle={[
+            { flexGrow: 1, paddingHorizontal: 8, gap: 4 },
+          ]}
+          renderItem={({ item: log }) => (
+            <LogItem
+              known={!!log.user}
+              accessed={log.accessed}
+              bluetooth={log.bluetooth}
+            >
+              <LogItemTitle user={log.user} />
+              <LogItemTimestamp timestamp={log.timestamp} />
+            </LogItem>
+          )}
+          ListEmptyComponent={
+            <View style={[styles.centered]}>
+              <Text style={[styles.errorText, { color: palette.text }]}>
+                No logs found
+              </Text>
+            </View>
+          }
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -83,6 +99,17 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
+  header: {
+    backgroundColor: "transparent",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "red",
+  },
+  roomPickerWrapper: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    width: "100%",
+  },
   centered: {
     flex: 1,
     alignItems: "center",
@@ -90,7 +117,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   errorText: {
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
     textAlign: "center",
   },

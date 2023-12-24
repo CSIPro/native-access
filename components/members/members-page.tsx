@@ -5,13 +5,13 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-
-import colors from "../../constants/colors";
-import { RoleList } from "../../components/members/role-list";
 import { useRoleContext } from "../../context/role-context";
+import colors from "../../constants/colors";
+import { RoleList } from "./role-list";
 import fonts from "../../constants/fonts";
+import { RoomPicker } from "../room-picker/room-picker";
 
-export default function Members() {
+export const MembersPage = () => {
   const colorScheme = useColorScheme();
   const { status, roles } = useRoleContext();
 
@@ -54,12 +54,16 @@ export default function Members() {
         backgroundColor: isLight
           ? colors.default.white[100]
           : colors.default.black[400],
+        paddingTop: 4,
       }}
     >
+      <View style={[styles.roomPickerWrapper]}>
+        <RoomPicker />
+      </View>
       <RoleList roles={roles} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   centered: {
@@ -70,7 +74,12 @@ const styles = StyleSheet.create({
   },
   centeredText: {
     textAlign: "center",
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 14,
+  },
+  roomPickerWrapper: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    width: "100%",
   },
 });

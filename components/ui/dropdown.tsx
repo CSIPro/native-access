@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   dropdownLabel: {
     paddingTop: 4,
-    fontFamily: fonts.poppinsRegular,
+    fontFamily: fonts.poppins,
     fontSize: 16,
   },
 });

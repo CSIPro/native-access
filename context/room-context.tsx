@@ -1,7 +1,15 @@
-import { FC, ReactNode, createContext, useContext, useState } from "react";
+import {
+  FC,
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { z } from "zod";
 
 import { useRooms, useUserRooms } from "../hooks/use-rooms";
+import { getFromStorage, saveToStorage } from "../lib/utils";
 
 const roomSchema = z.object({
   id: z.string(),
@@ -24,6 +32,20 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [selectedRoom, setSelectedRoom] = useState<string>();
   const { status: roomsStatus, data: roomsData } = useRooms();
   const { status: userRoomsStatus, data: userRoomsData } = useUserRooms();
+
+  useEffect(() => {
+    const retrieveSelectedRoom = async () => {
+      const roomId = await getFromStorage("SELECTED_ROOM");
+
+      setSelectedRoom(roomId);
+    };
+
+    if (selectedRoom) {
+      saveToStorage("SELECTED_ROOM", selectedRoom);
+    } else if (roomsData) {
+      retrieveSelectedRoom();
+    }
+  }, [selectedRoom, roomsData]);
 
   if (roomsStatus === "loading" || userRoomsStatus === "loading") {
     return (

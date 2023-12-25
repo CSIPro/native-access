@@ -9,6 +9,7 @@ interface Props {
   logs: Log[];
   title: string;
   primaryColor: string;
+  color?: "tint" | "secondary" | "bluetooth" | "tintAccent" | "success";
   icon: ComponentProps<typeof IonIcon>["name"];
 }
 
@@ -17,59 +18,92 @@ export const DashboardItem: FC<Props> = ({
   title,
   primaryColor,
   icon,
+  color,
 }) => {
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";
 
+  const iconColor = isLight
+    ? !!color
+      ? colors.default[color][500]
+      : primaryColor
+    : !!color
+    ? colors.default[color][200]
+    : primaryColor;
+
   return (
-    <View style={[styles.dataContainerShadow]}>
-      <View
-        style={[
-          styles.dataContainer,
-          {
-            backgroundColor: isLight
-              ? colors.default.white[100]
-              : colors.default.black[300],
-          },
-        ]}
-      >
+    // <View style={[styles.dataContainerShadow]}>
+    <View
+      style={[
+        styles.dataContainer,
+        {
+          backgroundColor: isLight
+            ? !!color
+              ? colors.default[color].translucid[200]
+              : colors.default.white[100]
+            : !!color
+            ? colors.default[color].translucid[100]
+            : colors.default.black[300],
+        },
+        !!color && {
+          borderWidth: 2,
+          borderColor: isLight
+            ? !!color
+              ? colors.default[color][400]
+              : colors.default.white[300]
+            : !!color
+            ? colors.default[color][400]
+            : colors.default.black[400],
+        },
+      ]}
+    >
+      {!!!color && (
         <View
           style={[
             styles.dataContainerHighlight,
             { backgroundColor: primaryColor },
           ]}
         />
-        <IonIcon name={icon} color={primaryColor} size={24} />
-        <View style={[styles.dataTextContainer]}>
-          <Text
-            style={[
-              styles.bubbleText,
-              {
-                fontSize: 28,
-                color: isLight
-                  ? colors.default.black[400]
-                  : colors.default.white[200],
-              },
-            ]}
-          >
-            {logs.length}
-          </Text>
-          <Text
-            style={[
-              styles.bubbleText,
-              {
-                color: isLight
-                  ? colors.default.gray[600]
-                  : colors.default.white[600],
-              },
-            ]}
-          >
-            {title}
-          </Text>
-        </View>
+      )}
+      <IonIcon name={icon} color={iconColor} size={24} />
+      <View style={[styles.dataTextContainer]}>
+        <Text
+          style={[
+            styles.bubbleText,
+            {
+              fontSize: 28,
+              color: isLight
+                ? !!color
+                  ? colors.default[color][500]
+                  : colors.default.black[400]
+                : !!color
+                ? colors.default[color][200]
+                : colors.default.white[200],
+            },
+          ]}
+        >
+          {logs.length}
+        </Text>
+        <Text
+          style={[
+            styles.bubbleText,
+            {
+              color: isLight
+                ? !!color
+                  ? colors.default[color][300]
+                  : colors.default.gray[600]
+                : !!color
+                ? colors.default[color][200]
+                : colors.default.white[600],
+            },
+          ]}
+        >
+          {title}
+        </Text>
       </View>
     </View>
+    // </View>
   );
 };
 
@@ -131,7 +165,6 @@ const styles = StyleSheet.create({
   dataContainer: {
     position: "relative",
     alignItems: "center",
-    backgroundColor: "#fff",
     width: 100,
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -150,7 +183,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   bubbleText: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.poppinsMedium,
     fontSize: 14,
   },
 });

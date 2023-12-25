@@ -199,6 +199,7 @@ const BluetoothLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
         isLight ? colors.default.bluetooth[400] : colors.default.bluetooth[300]
       }
       title="Bluetooth"
+      color="bluetooth"
       logs={logs}
     />
   );
@@ -215,6 +216,7 @@ const UnknownLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
           ? colors.default.tintAccent[400]
           : colors.default.tintAccent[300]
       }
+      color="tintAccent"
       title="Unknown"
       logs={logs}
     />
@@ -230,6 +232,7 @@ const FailedLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
       primaryColor={
         isLight ? colors.default.secondary[400] : colors.default.secondary[300]
       }
+      color="secondary"
       title="Failed"
       logs={logs}
     />
@@ -244,6 +247,7 @@ const SuccessfulPersonalLogs: FC<DashboardItemProps> = () => {
       icon="checkmark-circle"
       primaryColor={colors.default.success[400]}
       title="Entrances"
+      color="success"
       logs={logs}
     />
   );
@@ -259,6 +263,7 @@ const BluetoothPersonalLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
         isLight ? colors.default.bluetooth[400] : colors.default.bluetooth[300]
       }
       title="Bluetooth"
+      color="bluetooth"
       logs={logs}
     />
   );
@@ -274,6 +279,7 @@ const FailedPersonalLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
         isLight ? colors.default.secondary[400] : colors.default.secondary[300]
       }
       title="Failed"
+      color="secondary"
       logs={logs}
     />
   );

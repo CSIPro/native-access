@@ -30,18 +30,42 @@ export const LogItem: FC<LogItemProps> = ({
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
 
-  const backgroundColor = known
+  const backgroundColor = isLight
+    ? known
+      ? accessed
+        ? bluetooth
+          ? colors.default.bluetooth.translucid[700]
+          : colors.default.tint.translucid[700]
+        : colors.default.secondary.translucid[600]
+      : colors.default.black.translucid[700]
+    : known
+    ? accessed
+      ? bluetooth
+        ? colors.default.bluetooth.translucid[400]
+        : colors.default.tint.translucid[400]
+      : colors.default.secondary.translucid[400]
+    : colors.default.black.translucid[300];
+
+  const borderColor = isLight
+    ? known
+      ? accessed
+        ? bluetooth
+          ? colors.default.bluetooth[600]
+          : colors.default.tint[600]
+        : colors.default.secondary[600]
+      : colors.default.black[400]
+    : known
     ? accessed
       ? bluetooth
         ? colors.default.bluetooth[400]
         : colors.default.tint[400]
       : colors.default.secondary[400]
-    : isLight
-    ? colors.default.black[400]
-    : colors.default.black[200];
+    : colors.default.black[100];
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>{children}</View>
+    <View style={[styles.container, { backgroundColor, borderColor }]}>
+      {children}
+    </View>
   );
 };
 
@@ -99,6 +123,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     overflow: "hidden",
     gap: 16,
+    borderWidth: 2,
   },
   title: {
     maxWidth: "65%",

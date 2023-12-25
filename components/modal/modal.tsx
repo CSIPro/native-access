@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   },
   modalBody: {
     padding: 8,
-    gap: 8,
+    gap: 4,
     width: "100%",
   },
   modalFooter: {

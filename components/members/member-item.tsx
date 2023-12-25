@@ -1,6 +1,7 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Switch,
   Text,
@@ -16,12 +17,23 @@ import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
 import { updateDoc } from "firebase/firestore";
 import { useRoleContext } from "../../context/role-context";
+import {
+  MemberCard,
+  MemberCardBirthday,
+  MemberCardName,
+  MemberCardRole,
+  MemberCardUniSonId,
+} from "./member-card";
+import { format } from "date-fns/esm";
+import { MaterialIcon } from "../icons/material";
 
 interface Props {
   uid?: string;
 }
 
 export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
+  const [openDetails, setOpenDetails] = useState(false);
+
   const colorScheme = useColorScheme();
   const { status: rolesStatus, roles } = useRoleContext();
   const { status: userStatus, data: userData } = useUserData();
@@ -33,6 +45,8 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   } = useUserRoleWithId(uid);
 
   const isLight = colorScheme === "light";
+
+  const handleCloseDetails = () => setOpenDetails(false);
 
   if (
     memberStatus === "loading" ||
@@ -91,19 +105,35 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
     ? colors.default.tint[300]
     : colors.default.secondary[300];
 
+  const iconColor = isLight
+    ? memberHasAccess
+      ? colors.default.tint[600]
+      : colors.default.secondary[600]
+    : memberHasAccess
+    ? colors.default.tint[200]
+    : colors.default.secondary[200];
+
   const isRoot = userData?.isRoot ?? false;
-  const userRole = roles.find((role) => role?.id === userData?.role?.id);
-  const canSetAccess = userRole?.canGrantOrRevokeAccess ?? false;
+  const memberRole = roles.find((role) => role?.id === memberRoleData?.roleId);
+  const userRole = roles.find((role) => role?.id === userData?.role?.roleId);
+  const canSetAccess =
+    isRoot ||
+    ((userRole?.canGrantOrRevokeAccess ?? false) &&
+      userRole?.level > memberRole?.level);
+  const canSetRoles =
+    isRoot ||
+    ((userRole?.canSetRoles ?? false) && userRole?.level > memberRole?.level);
 
   const handleUpdateAccess = (value: boolean) => {
-    if (!memberRoleDoc || !(canSetAccess || isRoot)) return;
+    if (!memberRoleDoc || !canSetAccess) return;
 
     updateDoc(memberRoleDoc, { accessGranted: value });
   };
 
   return (
     <View style={{ paddingHorizontal: 4 }}>
-      <View
+      <Pressable
+        onPress={() => setOpenDetails(true)}
         style={[
           styles.memberItem,
           {
@@ -114,13 +144,34 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
           },
         ]}
       >
+        <View style={[styles.iconWrapper]}>
+          <MaterialIcon name="visibility" size={24} color={iconColor} />
+        </View>
         <MemberName>{memberData?.name ?? "Name not found"}</MemberName>
         <MemberAccess
           accessGranted={!!memberRoleData?.accessGranted}
           setAccess={handleUpdateAccess}
-          disabled={!canSetAccess && !isRoot}
+          disabled={!canSetAccess}
         />
-      </View>
+      </Pressable>
+      <MemberCard open={openDetails} onClose={handleCloseDetails}>
+        <MemberCardName>
+          {memberData?.name}
+          {" \u2022 "}
+          {memberData?.csiId}
+        </MemberCardName>
+        <MemberCardUniSonId>{memberData?.unisonId}</MemberCardUniSonId>
+        <MemberCardBirthday>
+          {format(memberData?.dateOfBirth.toDate(), "MMMM dd")}
+        </MemberCardBirthday>
+        <MemberCardRole
+          canSetRoles={canSetRoles}
+          roleDoc={memberRoleDoc}
+          roleData={memberRoleData}
+        >
+          {memberRole?.name}
+        </MemberCardRole>
+      </MemberCard>
     </View>
   );
 };
@@ -198,7 +249,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: fonts.poppins,
   },
+  iconWrapper: {
+    minWidth: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   nameWrapper: {
+    flexGrow: 1,
     maxWidth: "70%",
   },
   missingName: {

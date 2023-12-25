@@ -116,17 +116,17 @@ export const RequestDetailsRoom: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+
   const textColor = isLight
     ? colors.default.black[400]
     : colors.default.white[100];
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[200];
 
   return (
     <View style={[styles.dataRow]}>
-      <IonIcon
-        name="location"
-        color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
-        size={24}
-      />
+      <IonIcon name="location" color={iconColor} size={24} />
       <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );
@@ -137,17 +137,17 @@ export const RequestDetailsAdmin: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+
   const textColor = isLight
     ? colors.default.black[400]
     : colors.default.white[100];
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[200];
 
   return (
     <View style={[styles.dataRow]}>
-      <MaterialIcon
-        name="local-police"
-        color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
-        size={24}
-      />
+      <MaterialIcon name="local-police" color={iconColor} size={24} />
       <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );
@@ -158,17 +158,17 @@ export const RequestDetailsStatus: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+
   const textColor = isLight
     ? colors.default.black[400]
     : colors.default.white[100];
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[200];
 
   return (
     <View style={[styles.dataRow]}>
-      <IonIcon
-        name="ellipsis-horizontal"
-        color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
-        size={24}
-      />
+      <IonIcon name="ellipsis-horizontal" color={iconColor} size={24} />
       <Text style={[styles.text, styles.requestStatus, { color: textColor }]}>
         {children}
       </Text>
@@ -181,17 +181,17 @@ export const RequestDetailsDate: FC<{ children: ReactNode }> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+
   const textColor = isLight
     ? colors.default.black[400]
     : colors.default.white[100];
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[200];
 
   return (
     <View style={[styles.dataRow]}>
-      <IonIcon
-        name="calendar"
-        color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
-        size={24}
-      />
+      <IonIcon name="calendar" color={iconColor} size={24} />
       <Text style={[styles.text, { color: textColor }]}>{children}</Text>
     </View>
   );

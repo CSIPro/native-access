@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, createContext, useContext } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -21,6 +21,26 @@ interface LogItemProps {
   children: ReactNode;
 }
 
+interface LogItemContextProps {
+  textColor: string;
+}
+
+const LogItemContext = createContext<LogItemContextProps>({
+  textColor: colors.default.white[100],
+});
+
+const useLogItemContext = () => {
+  const context = useContext(LogItemContext);
+
+  if (!context) {
+    throw new Error(
+      "useLogItemContext must be used within a LogItemContext.Provider"
+    );
+  }
+
+  return context;
+};
+
 export const LogItem: FC<LogItemProps> = ({
   known = false,
   accessed = false,
@@ -34,38 +54,56 @@ export const LogItem: FC<LogItemProps> = ({
     ? known
       ? accessed
         ? bluetooth
-          ? colors.default.bluetooth.translucid[700]
-          : colors.default.tint.translucid[700]
-        : colors.default.secondary.translucid[600]
-      : colors.default.black.translucid[700]
+          ? colors.default.bluetooth.translucid[400]
+          : colors.default.tint.translucid[500]
+        : colors.default.secondary.translucid[400]
+      : colors.default.black.translucid[500]
     : known
     ? accessed
       ? bluetooth
-        ? colors.default.bluetooth.translucid[400]
-        : colors.default.tint.translucid[400]
-      : colors.default.secondary.translucid[400]
-    : colors.default.black.translucid[300];
+        ? colors.default.bluetooth.translucid[100]
+        : colors.default.tint.translucid[100]
+      : colors.default.secondary.translucid[100]
+    : colors.default.white.translucid[50];
 
   const borderColor = isLight
     ? known
       ? accessed
         ? bluetooth
-          ? colors.default.bluetooth[600]
-          : colors.default.tint[600]
-        : colors.default.secondary[600]
-      : colors.default.black[400]
+          ? colors.default.bluetooth[500]
+          : colors.default.tint[500]
+        : colors.default.secondary[500]
+      : colors.default.black[500]
     : known
     ? accessed
       ? bluetooth
-        ? colors.default.bluetooth[400]
-        : colors.default.tint[400]
-      : colors.default.secondary[400]
-    : colors.default.black[100];
+        ? colors.default.bluetooth[200]
+        : colors.default.tint[200]
+      : colors.default.secondary[200]
+    : colors.default.black[50];
+
+  const textColor = isLight
+    ? known
+      ? accessed
+        ? bluetooth
+          ? colors.default.bluetooth[500]
+          : colors.default.tint[500]
+        : colors.default.secondary[500]
+      : colors.default.black[500]
+    : known
+    ? accessed
+      ? bluetooth
+        ? colors.default.bluetooth[200]
+        : colors.default.tint[200]
+      : colors.default.secondary[200]
+    : colors.default.white[100];
 
   return (
-    <View style={[styles.container, { backgroundColor, borderColor }]}>
-      {children}
-    </View>
+    <LogItemContext.Provider value={{ textColor }}>
+      <View style={[styles.container, { backgroundColor, borderColor }]}>
+        {children}
+      </View>
+    </LogItemContext.Provider>
   );
 };
 
@@ -74,6 +112,7 @@ interface LogItemTitleProps {
 }
 
 export const LogItemTitle: FC<LogItemTitleProps> = ({ user }) => {
+  const { textColor } = useLogItemContext();
   const { status, data } = useUserDataWithId(user ?? "undefined");
 
   if (status === "loading") {
@@ -82,7 +121,7 @@ export const LogItemTitle: FC<LogItemTitleProps> = ({ user }) => {
 
   if (status === "error") {
     return (
-      <Text numberOfLines={1} style={[styles.title]}>
+      <Text numberOfLines={1} style={[styles.title, { color: textColor }]}>
         Unknown user
       </Text>
     );
@@ -91,7 +130,7 @@ export const LogItemTitle: FC<LogItemTitleProps> = ({ user }) => {
   const userData = userSchema.safeParse(data);
 
   return (
-    <Text numberOfLines={1} style={[styles.title]}>
+    <Text numberOfLines={1} style={[styles.title, { color: textColor }]}>
       {userData.success ? userData.data.name : "Unknown user"}
     </Text>
   );
@@ -102,12 +141,17 @@ interface LogItemTimestampProps {
 }
 
 export const LogItemTimestamp: FC<LogItemTimestampProps> = ({ timestamp }) => {
+  const { textColor } = useLogItemContext();
   const date = timestamp.toDate();
 
   return (
     <View style={[styles.timestampContainer]}>
-      <Text style={[styles.timestamp]}>{format(date, "HH:mm:ss")}</Text>
-      <Text style={[styles.timestamp]}>{format(date, "PPP")}</Text>
+      <Text style={[styles.timestamp, { color: textColor }]}>
+        {format(date, "HH:mm:ss")}
+      </Text>
+      <Text style={[styles.timestamp, { color: textColor }]}>
+        {format(date, "PPP")}
+      </Text>
     </View>
   );
 };
@@ -139,7 +183,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     color: "#fff",
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.poppins,
     fontSize: 12,
   },
 });

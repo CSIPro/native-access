@@ -22,15 +22,16 @@ import {
 import fonts from "../../constants/fonts";
 import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
 import { FC } from "react";
-import { useBLE } from "../../context/ble-context";
 import { RoomPicker } from "../../components/room-picker/room-picker";
 import { DashboardItem } from "../../components/ui/dashboard/item";
 import { StatusBar } from "expo-status-bar";
+import { useStore } from "../../store/store";
 
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
-  const { openModal, closeModal } = useBLE();
+  const openModal = useStore((state) => state.openPasscodeModal);
+  const closeModal = useStore((state) => state.onClosePasscodeModal);
 
   const palette = colors[colorScheme];
 

@@ -1,6 +1,6 @@
 import IonIcons from "@expo/vector-icons/Ionicons";
 
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import {
   useColorScheme,
   StyleSheet,
@@ -11,44 +11,42 @@ import {
   Pressable,
 } from "react-native";
 
-import { ScanState, useBLE } from "../../context/ble-context";
 import colors from "../../constants/colors";
 import { State } from "react-native-ble-plx";
 import fonts from "../../constants/fonts";
 import { PibleItem } from "./pible-item";
 import { IonIcon } from "../icons/ion";
+import { useStore } from "../../store/store";
+import { ScanState } from "../../store/ble-slice";
 
 const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
-  if (state === ScanState.stopped) {
+  if (state === ScanState.enum.idle) {
     return <IonIcon name="stop" color="#fff" size={12} />;
-  }
-
-  if (state === ScanState.paused) {
-    return <IonIcon name="pause" color="#fff" size={12} />;
   }
 
   return <ActivityIndicator size="small" color="#fff" />;
 };
 
 const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
-  const bleCtx = useBLE();
+  const startScan = useStore((state) => state.scan);
+  const stopScan = useStore((state) => state.stopScan);
 
   const colorScheme = useColorScheme();
 
   const color = colors[colorScheme ?? "light"].tint;
 
   const icon =
-    state === ScanState.stopped ? (
+    state === ScanState.enum.idle ? (
       <IonIcon name="play" color={color} size={16} />
     ) : (
       <IonIcon name="stop" color={color} size={16} />
     );
 
   const handlePress = () => {
-    if (state === ScanState.stopped) {
-      bleCtx?.startScan();
-    } else if (state === ScanState.scanning) {
-      bleCtx?.stopScan({ immediate: true });
+    if (state === ScanState.enum.idle) {
+      startScan();
+    } else if (state === ScanState.enum.scanning) {
+      stopScan({ immediate: true });
     }
   };
 
@@ -60,19 +58,18 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 };
 
 export const PibleScanner = () => {
-  const bleCtx = useBLE();
+  const devices = useStore((state) => state.devices);
+  const bleState = useStore((state) => state.bluetoothState);
+  const scanState = useStore((state) => state.scanState);
+
   const colorScheme = useColorScheme();
 
   const btState =
-    bleCtx?.bluetoothState === State.PoweredOn
+    bleState === State.PoweredOn
       ? "ON"
-      : bleCtx?.bluetoothState === State.PoweredOff
+      : bleState === State.PoweredOff
       ? "OFF"
       : "ERROR";
-
-  useEffect(() => {
-    bleCtx?.startScan();
-  }, []);
 
   return (
     <View
@@ -90,7 +87,7 @@ export const PibleScanner = () => {
       </View>
       <FlatList
         horizontal
-        data={bleCtx?.devices}
+        data={devices}
         keyExtractor={(item, index) =>
           `${item.id}-${item.localName}-${item.rssi}-${index}`
         }
@@ -111,13 +108,11 @@ export const PibleScanner = () => {
               justifyContent: "center",
             }}
           >
-            <ScanStateIcon state={bleCtx?.scanState ?? ScanState.stopped} />
+            <ScanStateIcon state={scanState} />
           </View>
-          <Text style={[styles.stateLabel]}>
-            {ScanState[bleCtx?.scanState ?? ScanState.stopped]}
-          </Text>
+          <Text style={[styles.stateLabel]}>{scanState}</Text>
         </View>
-        <ScanControlButton state={bleCtx?.scanState ?? ScanState.stopped} />
+        <ScanControlButton state={scanState} />
       </View>
     </View>
   );

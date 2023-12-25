@@ -1,50 +1,42 @@
 import { Buffer } from "buffer";
-import * as LocalAuthentication from "expo-local-authentication";
-import { FC, ReactNode, createContext, useContext, useState } from "react";
-import { PermissionsAndroid } from "react-native";
-import AES from "react-native-aes-crypto";
-import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
+
 import Constants from "expo-constants";
+import * as LocalAuthentication from "expo-local-authentication";
+import { PermissionsAndroid } from "react-native";
+import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
+import AES from "react-native-aes-crypto";
+import { z } from "zod";
+import { StateCreator } from "zustand";
 
 import { generateNonce, getFromStorage } from "../lib/utils";
 
-const scanDuration = 30000;
-
-export enum ScanState {
-  scanning,
-  connecting,
-  paused,
-  stopped,
-}
-
-interface BLEContextProps {
-  manager: BleManager;
+export interface BleSlice {
   bluetoothState: State;
   scanState: ScanState;
   devices: Device[];
-  openModal: boolean;
+  openPasscodeModal: boolean;
+  // connectedDevice: Device | null;
   connect: (device: Device) => void;
-  startScan: () => void;
+  // disconnect: () => void;
+  scan: () => void;
   stopScan: ({ immediate }: { immediate: boolean }) => void;
-  closeModal: () => void;
-  // startScan: () => void;
+  onClosePasscodeModal: () => void;
 }
 
-const BLEContext = createContext<BLEContextProps | null>(null);
+export const ScanState = z.enum(["idle", "scanning", "connecting"]);
+export type ScanState = z.infer<typeof ScanState>;
 
-export const BLEContextProvider: FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [openModal, setOpenModal] = useState(false);
-  const [btState, setBtState] = useState<State>(State.Unknown);
-  const [scanState, setScanState] = useState<ScanState>(ScanState.stopped);
-  const [devices, setDevices] = useState<Device[]>([]);
-
+export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const manager = new BleManager();
+  const scanDuration = 30000;
   let scanTimeout: NodeJS.Timeout;
 
   manager.onStateChange((state) => {
-    setBtState(state);
+    if (state === State.PoweredOn && get().bluetoothState !== State.PoweredOn) {
+      startScan();
+    }
+
+    set({ bluetoothState: state });
   }, true);
 
   const startScan = async () => {
@@ -81,12 +73,11 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
       return;
     }
 
-    setDevices([]);
     scanForDevices();
   };
 
   const scanForDevices = () => {
-    setScanState(ScanState.scanning);
+    set({ scanState: ScanState.enum.scanning });
     manager.startDeviceScan(
       null,
       // ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
@@ -94,7 +85,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
       (error, device) => {
         if (error) {
           if (error.name === "BleError") {
-            setScanState(ScanState.stopped);
+            set({ scanState: ScanState.enum.idle });
           }
 
           return;
@@ -104,12 +95,12 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
           return;
         }
 
-        setDevices((prev) => {
-          if (prev.some((d) => d.id === device.id)) {
-            return prev;
+        set((state) => {
+          if (state.devices.some((d) => d.id === device.id)) {
+            return { devices: state.devices };
           }
 
-          const updatedList = [...prev, device].sort((a, b) => {
+          const updatedList = [...state.devices, device].sort((a, b) => {
             if (a.localName < b.localName) {
               return -1;
             } else if (a.localName > b.localName) {
@@ -119,14 +110,14 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
             return 0;
           });
 
-          return updatedList;
+          return { devices: updatedList };
         });
       }
     );
 
     scanTimeout = setTimeout(() => {
       manager.stopDeviceScan();
-      setScanState(ScanState.stopped);
+      set({ scanState: ScanState.enum.idle });
     }, scanDuration);
   };
 
@@ -135,14 +126,13 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     clearTimeout(scanTimeout);
 
     if (immediate) {
-      setDevices([]);
-      setScanState(ScanState.stopped);
+      set({ scanState: ScanState.enum.idle, devices: [] });
+
       return;
     }
 
     setTimeout(() => {
-      setDevices([]);
-      setScanState(ScanState.stopped);
+      set({ scanState: ScanState.enum.idle, devices: [] });
     }, 5000);
   };
 
@@ -150,11 +140,11 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     const passcode = await getFromStorage("PASSCODE");
 
     if (!passcode) {
-      setOpenModal(true);
+      set({ openPasscodeModal: true });
       return;
     }
 
-    setScanState(ScanState.connecting);
+    set({ scanState: ScanState.enum.connecting });
 
     setTimeout(() => {
       device
@@ -197,7 +187,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
             })
             .catch((error) => {
               console.log(error);
-              setScanState(ScanState.stopped);
+              set({ scanState: ScanState.enum.idle });
             });
         })
         .catch((error) => {
@@ -226,31 +216,14 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
     return crypt;
   };
 
-  const closeModal = () => setOpenModal(false);
-
-  const providerValue = {
-    manager,
-    bluetoothState: btState,
-    scanState,
-    devices: [...devices],
-    connect,
-    startScan: startScan,
+  return {
+    bluetoothState: State.Unknown,
+    scanState: ScanState.enum.idle,
+    devices: [],
+    openPasscodeModal: false,
+    scan: startScan,
     stopScan,
-    openModal,
-    closeModal,
+    connect,
+    onClosePasscodeModal: () => set({ openPasscodeModal: false }),
   };
-
-  return (
-    <BLEContext.Provider value={providerValue}>{children}</BLEContext.Provider>
-  );
-};
-
-export const useBLE = () => {
-  const context = useContext(BLEContext);
-
-  if (!context) {
-    throw new Error("useBLE must be used within a BLEContextProvider");
-  }
-
-  return context;
 };

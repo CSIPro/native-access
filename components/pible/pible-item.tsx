@@ -8,29 +8,32 @@ import {
 } from "react-native";
 import { Device } from "react-native-ble-plx";
 
-import { IonIcon } from "../icons/ion";
-import { ScanState, useBLE } from "../../context/ble-context";
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
+import { useStore } from "../../store/store";
+import { ScanState } from "../../store/ble-slice";
 
 interface Props {
   device: Device;
 }
 
 export const PibleItem: FC<Props> = ({ device }) => {
-  const { startScan: startAutoScan, connect, scanState } = useBLE();
+  const scanState = useStore((state) => state.scanState);
+  const startScan = useStore((state) => state.scan);
+  const connect = useStore((state) => state.connect);
+
   const colorScheme = useColorScheme();
 
   const connectToDevice = () => {
-    if (scanState === ScanState.stopped) {
-      startAutoScan();
+    if (scanState === ScanState.enum.idle) {
+      startScan();
       return;
     }
 
     connect(device);
   };
 
-  const isStopped = scanState === ScanState.stopped;
+  const isStopped = scanState === ScanState.enum.idle;
 
   const isLight = colorScheme === "light";
 
@@ -66,7 +69,7 @@ export const PibleItem: FC<Props> = ({ device }) => {
           },
         ]}
       >
-        {device.localName.replace("PiBLE-", "")}
+        {device.localName?.replace("PiBLE-", "") ?? "Unknown"}
       </Text>
     </Pressable>
   );

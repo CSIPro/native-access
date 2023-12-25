@@ -19,6 +19,7 @@ import { updateDoc } from "firebase/firestore";
 import { useRoleContext } from "../../context/role-context";
 import {
   MemberCard,
+  MemberCardAuthorized,
   MemberCardBirthday,
   MemberCardName,
   MemberCardRole,
@@ -128,10 +129,14 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
     ((userRole?.canKickMembers ?? false) &&
       userRole?.level > memberRole?.level);
 
-  const handleUpdateAccess = (value: boolean) => {
+  const handleUpdateAccess = async (value: boolean) => {
     if (!memberRoleDoc || !canSetAccess) return;
 
-    updateDoc(memberRoleDoc, { accessGranted: value });
+    try {
+      await updateDoc(memberRoleDoc, { accessGranted: value });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -180,6 +185,7 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
         >
           {memberRole?.name}
         </MemberCardRole>
+        <MemberCardAuthorized authorized={memberHasAccess} />
       </MemberCard>
     </View>
   );

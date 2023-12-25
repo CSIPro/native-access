@@ -220,6 +220,53 @@ export const MemberCardRole: FC<MemberCardRoleProps> = ({
   );
 };
 
+export const MemberCardAuthorized: FC<{ authorized: boolean }> = ({
+  authorized,
+}) => {
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const bgColor = isLight
+    ? authorized
+      ? colors.default.tint.translucid[400]
+      : colors.default.secondary.translucid[400]
+    : authorized
+    ? colors.default.tint.translucid[300]
+    : colors.default.secondary.translucid[300];
+  const textColor = isLight
+    ? authorized
+      ? colors.default.tint[400]
+      : colors.default.secondary[400]
+    : authorized
+    ? colors.default.tint[200]
+    : colors.default.secondary[100];
+  const iconColor = isLight
+    ? authorized
+      ? colors.default.tint[400]
+      : colors.default.secondary[400]
+    : authorized
+    ? colors.default.tint[200]
+    : colors.default.secondary[100];
+
+  return (
+    <View style={[styles.dataRow]}>
+      <View style={[styles.iconWrapper]}>
+        <IonIcon name="log-in" color={iconColor} size={24} />
+      </View>
+      <Text
+        style={[
+          styles.text,
+          {
+            color: textColor,
+          },
+        ]}
+      >
+        {authorized ? "Authorized" : "Unauthorized"}
+      </Text>
+    </View>
+  );
+};
+
 interface KickModalProps {
   open: boolean;
   onClose: () => void;

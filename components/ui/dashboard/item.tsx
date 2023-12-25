@@ -40,7 +40,7 @@ export const DashboardItem: FC<Props> = ({
         {
           backgroundColor: isLight
             ? !!color
-              ? colors.default[color].translucid[200]
+              ? colors.default[color].translucid[100]
               : colors.default.white[100]
             : !!color
             ? colors.default[color].translucid[100]

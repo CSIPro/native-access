@@ -1,6 +1,4 @@
 import {
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,13 +17,11 @@ import {
   useUnknownLogs,
   useUserBluetoothLogs,
   useUserFailedLogs,
-  useUserLogs,
   useUserSuccessfulLogs,
 } from "../../hooks/use-logs";
 import fonts from "../../constants/fonts";
-import { IonIcon } from "../../components/icons/ion";
 import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { useBLE } from "../../context/ble-context";
 import { RoomPicker } from "../../components/room-picker/room-picker";
 import { DashboardItem } from "../../components/ui/dashboard/item";
@@ -128,63 +124,47 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useSuccessfulLogs();
 
   return (
-    <View style={styles.successShadow}>
-      <View
+    <View
+      style={[
+        styles.successContainer,
+        {
+          backgroundColor: isLight
+            ? colors.default.tint.translucid[100]
+            : colors.default.tint.translucid[100],
+          borderWidth: 2,
+          borderColor: isLight
+            ? colors.default.tint[400]
+            : colors.default.tint[400],
+        },
+      ]}
+    >
+      <Text
         style={[
-          styles.logsBubble,
+          styles.bubbleText,
           {
-            backgroundColor: isLight
-              ? colors.default.white[100]
-              : colors.default.black[300],
+            color: isLight
+              ? colors.default.tint[500]
+              : colors.default.tint[200],
+            fontSize: 72,
+            fontFamily: fonts.poppins,
           },
         ]}
       >
-        <View
-          style={[
-            styles.successContainer,
-            {
-              backgroundColor: isLight
-                ? colors.default.white[100]
-                : colors.default.black[300],
-              borderColor: isLight
-                ? colors.default.gray[100]
-                : colors.default.black[100],
-              borderBlockEndColor: isLight
-                ? colors.default.tint[400]
-                : colors.default.tint[200],
-              borderBottomWidth: 4,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.bubbleText,
-              {
-                color: isLight
-                  ? colors.default.black[400]
-                  : colors.default.white[100],
-                fontSize: 60,
-                fontFamily: fonts.poppinsLight,
-              },
-            ]}
-          >
-            {logs.length}
-          </Text>
-          <Text
-            style={[
-              styles.bubbleText,
-              {
-                color: isLight
-                  ? colors.default.tint[400]
-                  : colors.default.tint[100],
-                fontSize: 16,
-              },
-            ]}
-          >
-            Entrances
-          </Text>
-        </View>
-      </View>
+        {logs.length}
+      </Text>
+      <Text
+        style={[
+          styles.bubbleText,
+          {
+            color: isLight
+              ? colors.default.tint[300]
+              : colors.default.tint[200],
+            fontSize: 16,
+          },
+        ]}
+      >
+        Entrances
+      </Text>
     </View>
   );
 };
@@ -301,12 +281,12 @@ const styles = StyleSheet.create({
   },
   successContainer: {
     flex: 1,
-    width: "100%",
-    backgroundColor: "#fff",
+    height: 200,
+    aspectRatio: 1,
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
-    gap: -28,
+    gap: -36,
     borderWidth: 2,
   },
   successShadow: {
@@ -361,7 +341,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   bubbleText: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.poppinsMedium,
     fontSize: 14,
   },
 });

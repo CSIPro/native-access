@@ -37,35 +37,32 @@ export const PibleItem: FC<Props> = ({ device }) => {
 
   const isLight = colorScheme === "light";
 
+  const bgColor = isLight
+    ? colors.default.bluetooth.translucid[300]
+    : colors.default.bluetooth.translucid[200];
+  const borderColor = isLight
+    ? colors.default.bluetooth[200]
+    : colors.default.bluetooth[400];
+
   return (
     <Pressable
       style={[
         styles.container,
         {
-          backgroundColor: colors.default.white[100],
+          backgroundColor: bgColor,
           opacity: isStopped ? 0.6 : 1,
+          borderWidth: 2,
+          borderColor,
         },
       ]}
       onPress={connectToDevice}
     >
-      <View
-        style={[
-          styles.containerHighlight,
-          {
-            backgroundColor: isLight
-              ? colors.default.bluetooth[400]
-              : colors.default.bluetooth[200],
-          },
-        ]}
-      />
       <Text
         numberOfLines={1}
         style={[
           styles.roomName,
           {
-            color: isLight
-              ? colors.default.tint[400]
-              : colors.default.tint[200],
+            color: colors.default.white[100],
           },
         ]}
       >
@@ -94,7 +91,7 @@ const styles = StyleSheet.create({
   },
   roomName: {
     fontSize: 20,
-    paddingTop: 2,
+    paddingTop: 4,
     fontFamily: fonts.poppinsMedium,
   },
 });

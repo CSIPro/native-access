@@ -123,6 +123,10 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   const canSetRoles =
     isRoot ||
     ((userRole?.canSetRoles ?? false) && userRole?.level > memberRole?.level);
+  const canKickMembers =
+    isRoot ||
+    ((userRole?.canKickMembers ?? false) &&
+      userRole?.level > memberRole?.level);
 
   const handleUpdateAccess = (value: boolean) => {
     if (!memberRoleDoc || !canSetAccess) return;
@@ -154,7 +158,12 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
           disabled={!canSetAccess}
         />
       </Pressable>
-      <MemberCard open={openDetails} onClose={handleCloseDetails}>
+      <MemberCard
+        open={openDetails}
+        onClose={handleCloseDetails}
+        kickable={canKickMembers}
+        doc={memberRoleDoc}
+      >
         <MemberCardName>
           {memberData?.name}
           {" \u2022 "}

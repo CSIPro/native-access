@@ -11,6 +11,7 @@ export const roleSchema = z.object({
   canHandleRequests: z.boolean().default(false),
   canGrantOrRevokeAccess: z.boolean().default(false),
   canCreateUsers: z.boolean().default(false),
+  canKickMembers: z.boolean().default(false),
 });
 
 export type Role = z.infer<typeof roleSchema>;

@@ -1,5 +1,5 @@
 import { FC, ReactNode, useState } from "react";
-import { Modal, ModalBody, ModalHeader } from "../modal/modal";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import fonts from "../../constants/fonts";
 import {
   Pressable,
@@ -13,21 +13,81 @@ import { IonIcon } from "../icons/ion";
 import { MaterialIcon } from "../icons/material";
 import { FAIcon } from "../icons/font-awesome";
 import { RolePicker } from "../role-picker/role-picker";
-import { DocumentData, DocumentReference } from "firebase/firestore";
+import { DocumentData, DocumentReference, deleteDoc } from "firebase/firestore";
 import { UserRoomRole } from "../../hooks/use-user-data";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   children: ReactNode;
+  kickable?: boolean;
+  doc: DocumentReference<DocumentData>;
 }
 
-export const MemberCard: FC<Props> = ({ open, onClose, children }) => {
+export const MemberCard: FC<Props> = ({
+  kickable = false,
+  open,
+  onClose,
+  children,
+  doc,
+}) => {
+  const [openKickModal, setOpenKickModal] = useState(false);
+
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const closeKickModal = () => setOpenKickModal(false);
+
+  const okayBg = isLight
+    ? colors.default.tint.translucid[100]
+    : colors.default.tint.translucid[100];
+  const okayText = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
+
+  const kickBg = isLight
+    ? colors.default.secondary.translucid[100]
+    : colors.default.secondary.translucid[100];
+  const kickText = isLight
+    ? colors.default.secondary[400]
+    : colors.default.secondary[100];
+
+  const handleKick = async () => {
+    try {
+      await deleteDoc(doc);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <Modal visible={open} onClose={onClose}>
-      <ModalHeader>Member Details</ModalHeader>
-      <ModalBody>{children}</ModalBody>
-    </Modal>
+    <>
+      <Modal visible={open} onClose={onClose}>
+        <ModalHeader>Member Details</ModalHeader>
+        <ModalBody>{children}</ModalBody>
+        <ModalFooter>
+          {kickable && (
+            <Pressable
+              onPress={() => setOpenKickModal(true)}
+              style={[styles.textButton, { backgroundColor: kickBg }]}
+            >
+              <Text style={[styles.text, { color: kickText }]}>Kick</Text>
+            </Pressable>
+          )}
+          <Pressable
+            onPress={onClose}
+            style={[styles.textButton, { backgroundColor: okayBg }]}
+          >
+            <Text style={[styles.text, { color: okayText }]}>Okay</Text>
+          </Pressable>
+        </ModalFooter>
+      </Modal>
+      <KickModal
+        open={openKickModal}
+        onClose={closeKickModal}
+        onKick={handleKick}
+      />
+    </>
   );
 };
 
@@ -157,6 +217,60 @@ export const MemberCardRole: FC<MemberCardRoleProps> = ({
         </>
       )}
     </View>
+  );
+};
+
+interface KickModalProps {
+  open: boolean;
+  onClose: () => void;
+  onKick: () => void;
+}
+
+const KickModal: FC<KickModalProps> = ({ open, onClose, onKick }) => {
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
+
+  const cancelBg = isLight
+    ? colors.default.tint.translucid[100]
+    : colors.default.tint.translucid[100];
+  const cancelText = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
+
+  const kickBg = isLight
+    ? colors.default.secondary.translucid[100]
+    : colors.default.secondary.translucid[100];
+  const kickText = isLight
+    ? colors.default.secondary[400]
+    : colors.default.secondary[100];
+
+  return (
+    <Modal visible={open} onClose={onClose}>
+      <ModalHeader>Kick member</ModalHeader>
+      <ModalBody>
+        <Text style={[styles.text, { color: textColor }]}>
+          Are you sure you want to kick this member?
+        </Text>
+      </ModalBody>
+      <ModalFooter>
+        <Pressable
+          onPress={onKick}
+          style={[styles.textButton, { backgroundColor: kickBg }]}
+        >
+          <Text style={[styles.text, { color: kickText }]}>Kick</Text>
+        </Pressable>
+        <Pressable
+          onPress={onClose}
+          style={[styles.textButton, { backgroundColor: cancelBg }]}
+        >
+          <Text style={[styles.text, { color: cancelText }]}>Cancel</Text>
+        </Pressable>
+      </ModalFooter>
+    </Modal>
   );
 };
 

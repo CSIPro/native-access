@@ -79,8 +79,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const scanForDevices = () => {
     set({ scanState: ScanState.enum.scanning });
     manager.startDeviceScan(
-      null,
-      // ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
+      // null,
+      ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
       { scanMode: ScanMode.Balanced },
       (error, device) => {
         if (error) {

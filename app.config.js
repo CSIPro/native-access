@@ -31,6 +31,7 @@ export default {
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
       ],
       package: "com.csipro.nativeAccess",
     },

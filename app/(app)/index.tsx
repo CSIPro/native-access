@@ -6,6 +6,13 @@ import {
   useColorScheme,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 import { PibleScanner } from "../../components/pible/pible-scanner";
 
@@ -21,7 +28,7 @@ import {
 } from "../../hooks/use-logs";
 import fonts from "../../constants/fonts";
 import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { RoomPicker } from "../../components/room-picker/room-picker";
 import { DashboardItem } from "../../components/ui/dashboard/item";
 import { StatusBar } from "expo-status-bar";
@@ -119,15 +126,42 @@ interface DashboardItemProps {
 
 const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   const { logs } = useSuccessfulLogs();
+  const sv = useSharedValue(0);
+
+  useEffect(() => {
+    if (!logs || logs?.length === 0) return;
+
+    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
+  }, [logs?.length]);
+
+  const animatedItem = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.tint.translucid[500]
+          : colors.default.tint.translucid[100],
+        isLight
+          ? colors.default.tint.translucid[800]
+          : colors.default.tint.translucid[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.successContainer,
+        animatedItem,
         {
-          backgroundColor: isLight
-            ? colors.default.tint.translucid[100]
-            : colors.default.tint.translucid[100],
+          // backgroundColor: isLight
+          //   ? colors.default.tint.translucid[100]
+          //   : colors.default.tint.translucid[100],
           borderWidth: 2,
           borderColor: isLight
             ? colors.default.tint[400]
@@ -147,7 +181,7 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
           },
         ]}
       >
-        {logs.length}
+        {logs?.length ?? 0}
       </Text>
       <Text
         style={[
@@ -162,7 +196,7 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
       >
         Entries
       </Text>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -174,7 +208,7 @@ const BluetoothLogs = () => {
       icon="bluetooth"
       title="Wireless"
       color="bluetooth"
-      logs={logs}
+      logs={logs?.length ?? 0}
     />
   );
 };
@@ -187,7 +221,7 @@ const UnknownLogs = () => {
       icon="help-circle"
       color="tintAccent"
       title="Unknown"
-      logs={logs}
+      logs={logs?.length ?? 0}
     />
   );
 };
@@ -200,7 +234,7 @@ const FailedLogs = () => {
       icon="close-circle"
       color="secondary"
       title="Failed"
-      logs={logs}
+      logs={logs?.length ?? 0}
     />
   );
 };
@@ -213,7 +247,7 @@ const SuccessfulPersonalLogs = () => {
       icon="checkmark-circle"
       title="Entries"
       color="success"
-      logs={logs}
+      logs={logs?.length ?? 0}
     />
   );
 };
@@ -226,7 +260,7 @@ const BluetoothPersonalLogs = () => {
       icon="bluetooth"
       title="Wireless"
       color="bluetooth"
-      logs={logs}
+      logs={logs?.length ?? 0}
     />
   );
 };
@@ -239,7 +273,7 @@ const FailedPersonalLogs = () => {
       icon="close-circle"
       title="Failed"
       color="secondary"
-      logs={logs}
+      logs={logs?.length ?? 0}
     />
   );
 };

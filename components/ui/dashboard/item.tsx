@@ -2,37 +2,65 @@ import { StyleSheet, Text, View, useColorScheme } from "react-native";
 import { IonIcon } from "../../icons/ion";
 import colors from "../../../constants/colors";
 import fonts from "../../../constants/fonts";
-import { Log } from "../../../hooks/use-logs";
-import { ComponentProps, FC } from "react";
+import { ComponentProps, FC, useEffect } from "react";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 interface Props {
-  logs: Log[];
+  logs: number;
   title: string;
   color: keyof typeof colors.default;
   icon: ComponentProps<typeof IonIcon>["name"];
 }
 
 export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
+  const sv = useSharedValue(0);
   const colorScheme = useColorScheme();
-
   const isLight = colorScheme === "light";
+
+  useEffect(() => {
+    if (logs === 0) return;
+
+    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
+  }, [logs]);
+
+  const animatedItem = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default[color].translucid[500]
+          : colors.default[color].translucid[100],
+        isLight
+          ? colors.default[color].translucid[800]
+          : colors.default[color].translucid[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
 
   const iconColor = isLight
     ? colors.default[color].translucid[600]
     : colors.default[color].translucid[600];
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.dataContainer,
+        animatedItem,
         {
-          backgroundColor: isLight
-            ? !!color
-              ? colors.default[color].translucid[500]
-              : colors.default.white[100]
-            : !!color
-            ? colors.default[color].translucid[100]
-            : colors.default.black[300],
+          // backgroundColor: isLight
+          //   ? colors.default[color].translucid[500]
+          //   : colors.default[color].translucid[100],
           borderWidth: 2,
           borderColor: colors.default[color][400],
         },
@@ -63,7 +91,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
             },
           ]}
         >
-          {logs.length}
+          {logs}
         </Text>
         <Text
           style={[
@@ -78,8 +106,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
           {title}
         </Text>
       </View>
-    </View>
-    // </View>
+    </Animated.View>
   );
 };
 

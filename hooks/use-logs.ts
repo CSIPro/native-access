@@ -67,11 +67,11 @@ export const useSuccessfulLogs = () => {
   const { status: logsStatus, data: logsData } = useLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] };
+    return { status: "error" };
   }
 
   const successfulLogs = logsData?.filter((log) => log.accessed) ?? [];
@@ -83,11 +83,11 @@ export const useFailedLogs = () => {
   const { status: logsStatus, data: logsData } = useLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] };
+    return { status: "error" };
   }
 
   const failedLogs = logsData?.filter((log) => !log.accessed) ?? [];
@@ -99,11 +99,11 @@ export const useBluetoothLogs = () => {
   const { status: logsStatus, data: logsData } = useLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] };
+    return { status: "error" };
   }
 
   const bluetoothLogs = logsData?.filter((log) => log.bluetooth) ?? [];
@@ -115,11 +115,11 @@ export const useUnknownLogs = () => {
   const { status: logsStatus, data: logsData } = useLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] };
+    return { status: "error" };
   }
 
   const unknownLogs = logsData?.filter((log) => !log.user) ?? [];
@@ -132,11 +132,11 @@ export const useUserLogs = () => {
   const { status: logsStatus, data: logsData } = useLogs();
 
   if (logsStatus === "loading" || userStatus === "loading") {
-    return { status: "loading", logs: [] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error" || userStatus === "error") {
-    return { status: "error", logs: [] };
+    return { status: "error" };
   }
 
   const userAttempts =
@@ -152,11 +152,11 @@ export const useUserSuccessfulLogs = () => {
   const { status: logsStatus, logs: logsData } = useUserLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] as Log[] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] as Log[] };
+    return { status: "error" };
   }
 
   const successfulLogs = logsData?.filter((log) => log.accessed) ?? [];
@@ -168,11 +168,11 @@ export const useUserBluetoothLogs = () => {
   const { status: logsStatus, logs: logsData } = useUserSuccessfulLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] as Log[] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] as Log[] };
+    return { status: "error" };
   }
 
   const successfulLogs = logsData?.filter((log) => log.bluetooth) ?? [];
@@ -184,11 +184,11 @@ export const useUserFailedLogs = () => {
   const { status: logsStatus, logs: logsData } = useUserLogs();
 
   if (logsStatus === "loading") {
-    return { status: "loading", logs: [] as Log[] };
+    return { status: "loading" };
   }
 
   if (logsStatus === "error") {
-    return { status: "error", logs: [] as Log[] };
+    return { status: "error" };
   }
 
   const successfulLogs = logsData?.filter((log) => !log.accessed) ?? [];

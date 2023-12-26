@@ -6,16 +6,16 @@ import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
 import { useRoomContext } from "../context/room-context";
 
-export const userRoomRoleSchema = z.object({
+export const UserRoomRole = z.object({
   id: z.string(),
   key: z.string(),
   accessGranted: z.boolean().default(false),
   roleId: z.string(),
 });
 
-export type UserRoomRole = z.infer<typeof userRoomRoleSchema>;
+export type UserRoomRole = z.infer<typeof UserRoomRole>;
 
-export const userSchema = z.object({
+export const AccessUser = z.object({
   id: z.string(),
   csiId: z.number(),
   name: z.string(),
@@ -24,10 +24,10 @@ export const userSchema = z.object({
   createdAt: z.custom<Timestamp>(),
   dateOfBirth: z.custom<Timestamp>(),
   isRoot: z.boolean().optional().default(false),
-  role: userRoomRoleSchema.optional(),
+  role: UserRoomRole.optional(),
 });
 
-export type AccessUser = z.infer<typeof userSchema>;
+export type AccessUser = z.infer<typeof AccessUser>;
 
 export const useUserData = () => {
   const user = useUser();
@@ -123,7 +123,7 @@ export const useUserDataWithId = (uid: string | undefined) => {
     ...userData,
     isRoot: userRoleData?.isRoot || false,
     role: userRoomRoleData,
-  } as z.infer<typeof userSchema>;
+  } as z.infer<typeof AccessUser>;
 
   return {
     status: userStatus,
@@ -160,7 +160,7 @@ export const useUserRole = () => {
 
   return {
     status: userRoleStatus,
-    data: userRoleData as z.infer<typeof userRoomRoleSchema>,
+    data: userRoleData as z.infer<typeof UserRoomRole>,
   };
 };
 
@@ -193,6 +193,6 @@ export const useUserRoleWithId = (uid: string) => {
   return {
     status: userRoleStatus,
     doc: userRoleDoc,
-    data: userRoleData as z.infer<typeof userRoomRoleSchema>,
+    data: userRoleData as z.infer<typeof UserRoomRole>,
   };
 };

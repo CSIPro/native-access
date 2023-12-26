@@ -8,6 +8,12 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from "react-native-reanimated";
 import {
   useUserData,
   useUserDataWithId,
@@ -90,22 +96,6 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
 
   const memberHasAccess = !!memberRoleData?.accessGranted ?? false;
 
-  const backgroundColor = isLight
-    ? memberHasAccess
-      ? colors.default.tint.translucid[700]
-      : colors.default.secondary.translucid[600]
-    : memberHasAccess
-    ? colors.default.tint.translucid[200]
-    : colors.default.secondary.translucid[200];
-
-  const borderColor = isLight
-    ? memberHasAccess
-      ? colors.default.tint[600]
-      : colors.default.secondary[600]
-    : memberHasAccess
-    ? colors.default.tint[300]
-    : colors.default.secondary[300];
-
   const iconColor = isLight
     ? memberHasAccess
       ? colors.default.tint[600]
@@ -141,27 +131,18 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
 
   return (
     <View style={{ paddingHorizontal: 4 }}>
-      <Pressable
-        onPress={() => setOpenDetails(true)}
-        style={[
-          styles.memberItem,
-          {
-            borderRadius: 8,
-            backgroundColor: backgroundColor,
-            borderColor: borderColor,
-            borderWidth: 2,
-          },
-        ]}
-      >
-        <View style={[styles.iconWrapper]}>
-          <MaterialIcon name="visibility" size={24} color={iconColor} />
-        </View>
-        <MemberName>{memberData?.name ?? "Name not found"}</MemberName>
-        <MemberAccess
-          accessGranted={!!memberRoleData?.accessGranted}
-          setAccess={handleUpdateAccess}
-          disabled={!canSetAccess}
-        />
+      <Pressable onPress={() => setOpenDetails(true)}>
+        <MemberWrapper memberHasAccess={memberHasAccess}>
+          <View style={[styles.iconWrapper]}>
+            <MaterialIcon name="visibility" size={24} color={iconColor} />
+          </View>
+          <MemberName>{memberData?.name ?? "Unknown"}</MemberName>
+          <MemberAccess
+            accessGranted={!!memberRoleData?.accessGranted}
+            setAccess={handleUpdateAccess}
+            disabled={!canSetAccess}
+          />
+        </MemberWrapper>
       </Pressable>
       <MemberCard
         open={openDetails}
@@ -188,6 +169,81 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
         <MemberCardAuthorized authorized={memberHasAccess} />
       </MemberCard>
     </View>
+  );
+};
+
+interface MemberWrapperProps {
+  memberHasAccess?: boolean;
+  children: ReactNode;
+}
+
+const MemberWrapper: FC<MemberWrapperProps> = ({
+  memberHasAccess = false,
+  children,
+}) => {
+  const progress = useDerivedValue(
+    () => (memberHasAccess ? withTiming(1) : withTiming(0)),
+    [memberHasAccess]
+  );
+
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const wrapperStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.secondary.translucid[600]
+          : colors.default.secondary.translucid[200],
+        isLight
+          ? colors.default.tint.translucid[700]
+          : colors.default.tint.translucid[200],
+      ]
+    );
+
+    const borderColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      [
+        isLight ? colors.default.secondary[600] : colors.default.secondary[300],
+        isLight ? colors.default.tint[600] : colors.default.tint[300],
+      ]
+    );
+
+    return { backgroundColor, borderColor };
+  });
+
+  const backgroundColor = isLight
+    ? memberHasAccess
+      ? colors.default.tint.translucid[700]
+      : colors.default.secondary.translucid[600]
+    : memberHasAccess
+    ? colors.default.tint.translucid[200]
+    : colors.default.secondary.translucid[200];
+
+  const borderColor = isLight
+    ? memberHasAccess
+      ? colors.default.tint[600]
+      : colors.default.secondary[600]
+    : memberHasAccess
+    ? colors.default.tint[300]
+    : colors.default.secondary[300];
+
+  return (
+    <Animated.View
+      style={[
+        styles.memberItem,
+        {
+          borderRadius: 8,
+          borderWidth: 2,
+        },
+        wrapperStyle,
+      ]}
+    >
+      {children}
+    </Animated.View>
   );
 };
 

@@ -11,7 +11,7 @@ import {
 
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
-import { useUserDataWithId, userSchema } from "../../hooks/use-user-data";
+import { useUserDataWithId, AccessUser } from "../../hooks/use-user-data";
 import { Timestamp } from "firebase/firestore";
 
 interface LogItemProps {
@@ -127,7 +127,7 @@ export const LogItemTitle: FC<LogItemTitleProps> = ({ user }) => {
     );
   }
 
-  const userData = userSchema.safeParse(data);
+  const userData = AccessUser.safeParse(data);
 
   return (
     <Text numberOfLines={1} style={[styles.title, { color: textColor }]}>

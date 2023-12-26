@@ -7,12 +7,19 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import Animated, {
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { z } from "zod";
 
 import fonts from "../../constants/fonts";
 import colors from "../../constants/colors";
 import { IonIcon } from "../icons/ion";
-import { Modal, ModalBody, ModalHeader } from "../modal/modal";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 
 const itemSchema = z.object({
   label: z.string(),
@@ -30,11 +37,18 @@ interface Props {
 }
 
 export const Dropdown: FC<Props> = ({ items = [], value, onChange }) => {
+  const [selectedRoom, setSelectedRoom] = useState(value);
   const [open, setOpen] = useState(false);
   const colorScheme = useColorScheme();
 
-  const palette = colors[colorScheme];
   const isLight = colorScheme === "light";
+
+  const submitBg = isLight
+    ? colors.default.tint.translucid[100]
+    : colors.default.tint.translucid[100];
+  const submitText = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
 
   return (
     <View
@@ -42,7 +56,7 @@ export const Dropdown: FC<Props> = ({ items = [], value, onChange }) => {
         styles.wrapper,
         {
           borderColor: colors.default.tint[400],
-          backgroundColor: isLight ? "transparent" : colors.default.tint[400],
+          backgroundColor: isLight ? submitBg : colors.default.tint[400],
         },
       ]}
     >
@@ -75,44 +89,92 @@ export const Dropdown: FC<Props> = ({ items = [], value, onChange }) => {
             data={items}
             keyExtractor={(item) => item.key ?? item.value}
             renderItem={({ item }) => (
-              <Pressable
-                onPress={() => {
-                  onChange(item.value);
-                  setOpen(false);
-                }}
-                style={[
-                  styles.dropdownItem,
-                  value === item.value && {
-                    backgroundColor: colors.default.tint.translucid[200],
-                  },
-                ]}
-              >
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.dropdownLabel,
-                    {
-                      color: isLight
-                        ? colors.default.black[400]
-                        : colors.default.white[200],
-                    },
-                    value === item.value && {
-                      fontFamily: fonts.poppinsMedium,
-                      color: isLight
-                        ? colors.default.tint[400]
-                        : colors.default.tint[100],
-                    },
-                  ]}
-                >
-                  {item.label ?? "Unknown"}
-                </Text>
-              </Pressable>
+              <DropdownItem
+                item={item}
+                selectedRoom={selectedRoom}
+                setSelectedRoom={setSelectedRoom}
+              />
             )}
             contentContainerStyle={[styles.list]}
           />
         </ModalBody>
+        <ModalFooter>
+          <Pressable
+            onPress={() => {
+              onChange(selectedRoom);
+              setOpen(false);
+            }}
+            style={[styles.textButton, { backgroundColor: submitBg }]}
+          >
+            <Text style={[styles.text, { color: submitText }]}>OK</Text>
+          </Pressable>
+        </ModalFooter>
       </Modal>
     </View>
+  );
+};
+
+interface DropdownItemProps {
+  item: DropdownItemType;
+  selectedRoom: string;
+  setSelectedRoom: (value: string) => void;
+}
+
+const DropdownItem: FC<DropdownItemProps> = ({
+  item,
+  selectedRoom,
+  setSelectedRoom,
+}) => {
+  const progress = useDerivedValue(
+    () => (selectedRoom === item.value ? withTiming(1) : withTiming(0)),
+    [selectedRoom, item]
+  );
+
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const viewStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      ["transparent", colors.default.tint.translucid[100]]
+    );
+
+    return { backgroundColor };
+  });
+
+  const textStyles = useAnimatedStyle(() => {
+    const textColor = interpolateColor(
+      progress.value,
+      [0, 1],
+      [
+        isLight ? colors.default.black[400] : colors.default.white[200],
+        isLight ? colors.default.tint[400] : colors.default.tint[100],
+      ]
+    );
+
+    return { color: textColor };
+  });
+
+  return (
+    <Pressable
+      onPress={() => {
+        setSelectedRoom(item.value);
+      }}
+    >
+      <Animated.View style={[styles.dropdownItem, viewStyles]}>
+        <Animated.Text
+          numberOfLines={1}
+          style={[
+            styles.dropdownLabel,
+            textStyles,
+            selectedRoom === item.value && { fontFamily: fonts.poppinsMedium },
+          ]}
+        >
+          {item.label ?? "Unknown"}
+        </Animated.Text>
+      </Animated.View>
+    </Pressable>
   );
 };
 
@@ -170,5 +232,14 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     fontFamily: fonts.poppins,
     fontSize: 16,
+  },
+  text: {
+    paddingTop: 4,
+    fontFamily: fonts.poppinsMedium,
+    fontSize: 16,
+  },
+  textButton: {
+    padding: 8,
+    borderRadius: 8,
   },
 });

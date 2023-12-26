@@ -40,7 +40,20 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   }, true);
 
   const startScan = async () => {
-    const scanPermission = await PermissionsAndroid.request(
+    await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      {
+        title:
+          "This feature needs location permission to scan for BLE devices.",
+        message:
+          "This feature needs location permission to scan for BLE devices.",
+        buttonNeutral: "Ask me later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      }
+    );
+
+    await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
       {
         title:
@@ -53,7 +66,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
       }
     );
 
-    const connectPermission = await PermissionsAndroid.request(
+    await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
       {
         title:
@@ -65,13 +78,6 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
         buttonPositive: "OK",
       }
     );
-
-    if (
-      scanPermission !== PermissionsAndroid.RESULTS.GRANTED ||
-      connectPermission !== PermissionsAndroid.RESULTS.GRANTED
-    ) {
-      return;
-    }
 
     scanForDevices();
   };

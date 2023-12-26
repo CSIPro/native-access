@@ -45,7 +45,6 @@ export default {
         {
           isBackgroundEnabled: false,
           modes: ["central"],
-          neverForLocation: true,
         },
       ],
       [

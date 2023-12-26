@@ -14,6 +14,7 @@ import fonts from "../../constants/fonts";
 import { MaterialIcon } from "../icons/material";
 import { useUserData } from "../../hooks/use-user-data";
 import { useRoles } from "../../hooks/use-roles";
+import { useStoreRoles, useStoreUser } from "../../store/store";
 
 interface Props {
   isPending?: boolean;
@@ -33,8 +34,10 @@ export const RequestDetails: FC<Props> = ({
   onReject,
 }) => {
   const colorScheme = useColorScheme();
-  const { data: userData } = useUserData();
-  const { data: roles } = useRoles();
+  // const { data: userData } = useUserData();
+  // const { data: roles } = useRoles();
+  const userData = useStoreUser();
+  const roles = useStoreRoles();
 
   const isLight = colorScheme === "light";
 

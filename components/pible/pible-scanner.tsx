@@ -16,7 +16,13 @@ import { State } from "react-native-ble-plx";
 import fonts from "../../constants/fonts";
 import { PibleItem } from "./pible-item";
 import { IonIcon } from "../icons/ion";
-import { useStore } from "../../store/store";
+import {
+  useBLEDevices,
+  useBLEScan,
+  useBLEScanState,
+  useBLEState,
+  useBLEStopScan,
+} from "../../store/store";
 import { ScanState } from "../../store/ble-slice";
 
 const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
@@ -28,8 +34,8 @@ const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
 };
 
 const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
-  const startScan = useStore((state) => state.scan);
-  const stopScan = useStore((state) => state.stopScan);
+  const startScan = useBLEScan();
+  const stopScan = useBLEStopScan();
 
   const colorScheme = useColorScheme();
 
@@ -58,9 +64,9 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 };
 
 export const PibleScanner = () => {
-  const devices = useStore((state) => state.devices);
-  const bleState = useStore((state) => state.bluetoothState);
-  const scanState = useStore((state) => state.scanState);
+  const devices = useBLEDevices();
+  const bleState = useBLEState();
+  const scanState = useBLEScanState();
 
   const colorScheme = useColorScheme();
 

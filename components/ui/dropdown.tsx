@@ -13,6 +13,7 @@ import fonts from "../../constants/fonts";
 import colors from "../../constants/colors";
 import { IonIcon } from "../icons/ion";
 import { Modal, ModalBody, ModalHeader } from "../modal/modal";
+import { useStore } from "../../store/store";
 
 const itemSchema = z.object({
   label: z.string(),
@@ -59,7 +60,7 @@ export const Dropdown: FC<Props> = ({ items, value, onChange }) => {
             },
           ]}
         >
-          {items.find((item) => item.value === value)?.label ?? "Select"}
+          {items.find((item) => item.value === value)?.label ?? "Loading..."}
         </Text>
         <IonIcon
           name="chevron-down"

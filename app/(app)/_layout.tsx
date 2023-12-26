@@ -20,6 +20,8 @@ import { Image } from "expo-image";
 import fonts from "../../constants/fonts";
 import { StatusBar } from "expo-status-bar";
 import { useRoles } from "../../hooks/use-roles";
+import { useRooms, useUserRooms } from "../../hooks/use-rooms";
+import { useStoreRoles, useStoreUser } from "../../store/store";
 
 export default function TabsLayout() {
   const {
@@ -27,6 +29,11 @@ export default function TabsLayout() {
     data: checkData,
     error: checkError,
   } = useSigninCheck();
+
+  useRooms();
+  useUserRooms();
+  useRoles();
+  useUserData();
 
   if (checkStatus === "loading") {
     return <SplashScreen loading message="Retrieving session..." />;
@@ -41,13 +48,13 @@ export default function TabsLayout() {
   }
 
   return (
-    <RoomProvider>
-      <RoleProvider>
-        <UserContextProvider>
-          <TabsLayoutNav />
-        </UserContextProvider>
-      </RoleProvider>
-    </RoomProvider>
+    // <RoomProvider>
+    // <RoleProvider>
+    // <UserContextProvider>
+    <TabsLayoutNav />
+    // </UserContextProvider>
+    // </RoleProvider>
+    // </RoomProvider>
   );
 }
 
@@ -55,24 +62,16 @@ const TabsLayoutNav = () => {
   const colorScheme = useColorScheme();
 
   const { status: authUserStatus, data: authUserData } = useUser();
-  const { status: userDataStatus, data: userData } = useUserData();
-  const { status: rolesStatus, data: rolesData } = useRoles();
+  const roles = useStoreRoles();
+  const userData = useStoreUser();
 
   const isLight = colorScheme === "light";
 
-  if (
-    userDataStatus === "loading" ||
-    authUserStatus === "loading" ||
-    rolesStatus === "loading"
-  ) {
+  if (authUserStatus === "loading") {
     return <SplashScreen loading message="Retrieving user data..." />;
   }
 
-  if (
-    userDataStatus === "error" ||
-    authUserStatus === "error" ||
-    rolesStatus === "error"
-  ) {
+  if (authUserStatus === "error") {
     return <SplashScreen message="Unable to fetch data from Firestore" />;
   }
 
@@ -80,21 +79,11 @@ const TabsLayoutNav = () => {
     return <Redirect href="/sign-in" />;
   }
 
-  if (!userData) {
-    return <Redirect href="/sign-up" />;
-  }
-
-  if (!rolesData) {
-    return (
-      <SplashScreen message="Something went wrong. Please, try again later" />
-    );
-  }
-
-  const userRole = rolesData.find((role) => role.id === userData.role?.roleId);
+  const userRole = roles.find((role) => role.id === userData.role?.roleId);
   const canSeeMembers =
+    userData?.isRoot ||
     userRole?.canGrantOrRevokeAccess ||
-    userRole?.canSetRoles ||
-    userData.isRoot;
+    userRole?.canSetRoles;
 
   return (
     <View style={[{ flex: 1 }]}>

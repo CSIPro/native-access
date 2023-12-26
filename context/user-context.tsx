@@ -2,7 +2,7 @@ import { FC, ReactNode, createContext, useContext } from "react";
 
 import bcrypt from "bcryptjs";
 
-import { AccessUser, useUserData, userSchema } from "../hooks/use-user-data";
+import { AccessUser, useUserData } from "../hooks/use-user-data";
 import { saveToStorage } from "../lib/utils";
 
 interface UserContextProps {
@@ -74,7 +74,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
 
   const providerValue = {
     status,
-    user: userSchema.parse(data),
+    user: AccessUser.parse(data),
     submitPasscode,
   };
 

@@ -11,16 +11,16 @@ import { StateCreator } from "zustand";
 import { generateNonce, getFromStorage } from "../lib/utils";
 
 export interface BleSlice {
-  bluetoothState: State;
-  scanState: ScanState;
-  devices: Device[];
-  openPasscodeModal: boolean;
-  // connectedDevice: Device | null;
-  connect: (device: Device) => void;
-  // disconnect: () => void;
-  scan: () => void;
-  stopScan: ({ immediate }: { immediate: boolean }) => void;
-  onClosePasscodeModal: () => void;
+  ble: {
+    bluetoothState: State;
+    scanState: ScanState;
+    devices: Device[];
+    openPasscodeModal: boolean;
+    connect: (device: Device) => void;
+    scan: () => void;
+    stopScan: ({ immediate }: { immediate: boolean }) => void;
+    onClosePasscodeModal: () => void;
+  };
 }
 
 export const ScanState = z.enum(["idle", "scanning", "connecting"]);
@@ -31,12 +31,20 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const scanDuration = 30000;
   let scanTimeout: NodeJS.Timeout;
 
-  manager.onStateChange((state) => {
-    if (state === State.PoweredOn && get().bluetoothState !== State.PoweredOn) {
+  manager.onStateChange((bleState) => {
+    if (
+      bleState === State.PoweredOn &&
+      get().ble.bluetoothState !== State.PoweredOn
+    ) {
       startScan();
     }
 
-    set({ bluetoothState: state });
+    set((state) => ({
+      ble: {
+        ...state.ble,
+        bluetoothState: bleState,
+      },
+    }));
   }, true);
 
   const startScan = async () => {
@@ -77,7 +85,12 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   const scanForDevices = () => {
-    set({ scanState: ScanState.enum.scanning });
+    set((state) => ({
+      ble: {
+        ...state.ble,
+        scanState: ScanState.enum.scanning,
+      },
+    }));
     manager.startDeviceScan(
       // null,
       ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
@@ -85,7 +98,12 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
       (error, device) => {
         if (error) {
           if (error.name === "BleError") {
-            set({ scanState: ScanState.enum.idle });
+            set((state) => ({
+              ble: {
+                ...state.ble,
+                scanState: ScanState.enum.idle,
+              },
+            }));
           }
 
           return;
@@ -96,11 +114,11 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
         }
 
         set((state) => {
-          if (state.devices.some((d) => d.id === device.id)) {
-            return { devices: state.devices };
+          if (state.ble.devices.some((d) => d.id === device.id)) {
+            return { devices: state.ble.devices };
           }
 
-          const updatedList = [...state.devices, device].sort((a, b) => {
+          const updatedList = [...state.ble.devices, device].sort((a, b) => {
             if (a.localName < b.localName) {
               return -1;
             } else if (a.localName > b.localName) {
@@ -110,14 +128,24 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
             return 0;
           });
 
-          return { devices: updatedList };
+          return {
+            ble: {
+              ...state.ble,
+              devices: updatedList,
+            },
+          };
         });
       }
     );
 
     scanTimeout = setTimeout(() => {
       manager.stopDeviceScan();
-      set({ scanState: ScanState.enum.idle });
+      set((state) => ({
+        ble: {
+          ...state.ble,
+          scanState: ScanState.enum.idle,
+        },
+      }));
     }, scanDuration);
   };
 
@@ -126,13 +154,25 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     clearTimeout(scanTimeout);
 
     if (immediate) {
-      set({ scanState: ScanState.enum.idle, devices: [] });
+      set((state) => ({
+        ble: {
+          ...state.ble,
+          scanState: ScanState.enum.idle,
+          devices: [],
+        },
+      }));
 
       return;
     }
 
     setTimeout(() => {
-      set({ scanState: ScanState.enum.idle, devices: [] });
+      set((state) => ({
+        ble: {
+          ...state.ble,
+          scanState: ScanState.enum.idle,
+          devices: [],
+        },
+      }));
     }, 5000);
   };
 
@@ -140,11 +180,21 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     const passcode = await getFromStorage("PASSCODE");
 
     if (!passcode) {
-      set({ openPasscodeModal: true });
+      set((state) => ({
+        ble: {
+          ...state.ble,
+          openPasscodeModal: true,
+        },
+      }));
       return;
     }
 
-    set({ scanState: ScanState.enum.connecting });
+    set((state) => ({
+      ble: {
+        ...state.ble,
+        scanState: ScanState.enum.connecting,
+      },
+    }));
 
     setTimeout(() => {
       device
@@ -187,7 +237,12 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
             })
             .catch((error) => {
               console.log(error);
-              set({ scanState: ScanState.enum.idle });
+              set((state) => ({
+                ble: {
+                  ...state.ble,
+                  scanState: ScanState.enum.idle,
+                },
+              }));
             });
         })
         .catch((error) => {
@@ -217,13 +272,21 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   return {
-    bluetoothState: State.Unknown,
-    scanState: ScanState.enum.idle,
-    devices: [],
-    openPasscodeModal: false,
-    scan: startScan,
-    stopScan,
-    connect,
-    onClosePasscodeModal: () => set({ openPasscodeModal: false }),
+    ble: {
+      bluetoothState: State.Unknown,
+      scanState: ScanState.enum.idle,
+      devices: [],
+      openPasscodeModal: false,
+      scan: startScan,
+      stopScan,
+      connect,
+      onClosePasscodeModal: () =>
+        set((state) => ({
+          ble: {
+            ...state.ble,
+            openPasscodeModal: false,
+          },
+        })),
+    },
   };
 };

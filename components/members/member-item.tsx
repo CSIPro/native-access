@@ -27,6 +27,7 @@ import {
 } from "./member-card";
 import { format } from "date-fns/esm";
 import { MaterialIcon } from "../icons/material";
+import { useStoreUser } from "../../store/store";
 
 interface Props {
   uid?: string;
@@ -37,7 +38,8 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
 
   const colorScheme = useColorScheme();
   const { status: rolesStatus, roles } = useRoleContext();
-  const { status: userStatus, data: userData } = useUserData();
+  // const { status: userStatus, data: userData } = useUserData();
+  const userData = useStoreUser();
   const { status: memberStatus, data: memberData } = useUserDataWithId(uid);
   const {
     status: memberRoleStatus,
@@ -52,8 +54,7 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   if (
     memberStatus === "loading" ||
     memberRoleStatus === "loading" ||
-    rolesStatus === "loading" ||
-    userStatus === "loading"
+    rolesStatus === "loading"
   ) {
     return (
       <View>
@@ -72,8 +73,7 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
   if (
     memberStatus === "error" ||
     memberRoleStatus === "error" ||
-    rolesStatus === "error" ||
-    userStatus === "error"
+    rolesStatus === "error"
   ) {
     return (
       <View>

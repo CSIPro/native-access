@@ -25,13 +25,16 @@ import { FC } from "react";
 import { RoomPicker } from "../../components/room-picker/room-picker";
 import { DashboardItem } from "../../components/ui/dashboard/item";
 import { StatusBar } from "expo-status-bar";
-import { useStore } from "../../store/store";
+import {
+  useBLEClosePasscodeModal,
+  useBLEOpenPasscodeModal,
+} from "../../store/store";
 
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
-  const openModal = useStore((state) => state.openPasscodeModal);
-  const closeModal = useStore((state) => state.onClosePasscodeModal);
+  const openModal = useBLEOpenPasscodeModal();
+  const closeModal = useBLEClosePasscodeModal();
 
   const palette = colors[colorScheme];
 

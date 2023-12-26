@@ -5,17 +5,26 @@ import { z } from "zod";
 import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
 import { useRoomContext } from "../context/room-context";
+import { useSelectedRoom, useSetUser, useStore } from "../store/store";
 
-export const userRoomRoleSchema = z.object({
+export const UserRole = z.object({
   id: z.string(),
   key: z.string(),
-  accessGranted: z.boolean().default(false),
+  isRoot: z.boolean().optional().default(false),
+});
+
+export type UserRole = z.infer<typeof UserRole>;
+
+export const UserRoomRole = z.object({
+  id: z.string(),
+  key: z.string(),
+  accessGranted: z.boolean().optional().default(false),
   roleId: z.string(),
 });
 
-export type UserRoomRole = z.infer<typeof userRoomRoleSchema>;
+export type UserRoomRole = z.infer<typeof UserRoomRole>;
 
-export const userSchema = z.object({
+export const AccessUser = z.object({
   id: z.string(),
   csiId: z.number(),
   name: z.string(),
@@ -24,10 +33,10 @@ export const userSchema = z.object({
   createdAt: z.custom<Timestamp>(),
   dateOfBirth: z.custom<Timestamp>(),
   isRoot: z.boolean().optional().default(false),
-  role: userRoomRoleSchema.optional(),
+  role: UserRoomRole.optional(),
 });
 
-export type AccessUser = z.infer<typeof userSchema>;
+export type AccessUser = z.infer<typeof AccessUser>;
 
 export const useUserData = () => {
   const user = useUser();
@@ -50,6 +59,12 @@ export const useUserData = () => {
       idField: "id",
     }
   );
+
+  useSetUser()({
+    ...(userData as Omit<AccessUser, "role" | "isRoot">),
+    isRoot: (userRoleData as UserRole)?.isRoot ?? false,
+    role: userRoomRoleData as UserRoomRole,
+  });
 
   if (
     userStatus === "loading" ||
@@ -123,7 +138,7 @@ export const useUserDataWithId = (uid: string | undefined) => {
     ...userData,
     isRoot: userRoleData?.isRoot || false,
     role: userRoomRoleData,
-  } as z.infer<typeof userSchema>;
+  } as z.infer<typeof AccessUser>;
 
   return {
     status: userStatus,
@@ -132,7 +147,8 @@ export const useUserDataWithId = (uid: string | undefined) => {
 };
 
 export const useUserRole = () => {
-  const { selectedRoom } = useRoomContext();
+  // const { selectedRoom } = useRoomContext();
+  const selectedRoom = useSelectedRoom();
   const user = useUser();
   const firestore = useFirestore();
   const userRoleQuery = doc(
@@ -150,6 +166,8 @@ export const useUserRole = () => {
     }
   );
 
+  useStore((state) => state.roles.setUserRole)(userRoleData?.roleId);
+
   if (userRoleStatus === "loading") {
     return { status: "loading" };
   }
@@ -160,7 +178,7 @@ export const useUserRole = () => {
 
   return {
     status: userRoleStatus,
-    data: userRoleData as z.infer<typeof userRoomRoleSchema>,
+    data: userRoleData as z.infer<typeof UserRoomRole>,
   };
 };
 
@@ -193,6 +211,6 @@ export const useUserRoleWithId = (uid: string) => {
   return {
     status: userRoleStatus,
     doc: userRoleDoc,
-    data: userRoleData as z.infer<typeof userRoomRoleSchema>,
+    data: userRoleData as z.infer<typeof UserRoomRole>,
   };
 };

@@ -6,15 +6,16 @@ import {
   useFirestoreDocData,
   useUser,
 } from "reactfire";
+import { useStore } from "../store/store";
 
-const roomSchema = z.object({
+const Room = z.object({
   id: z.string(),
   name: z.string(),
   room: z.string(),
   building: z.string(),
 });
 
-export type Room = z.infer<typeof roomSchema>;
+export type Room = z.infer<typeof Room>;
 
 export const useRooms = () => {
   const firestore = useFirestore();
@@ -26,13 +27,12 @@ export const useRooms = () => {
     }
   );
 
-  if (roomsStatus === "error") {
-    return { status: "error", data: [] };
-  }
+  const setRooms = useStore((state) => state.rooms.setRooms);
+  setRooms(roomsData as Room[]);
 
   return {
     status: roomsStatus,
-    data: roomsData as z.infer<typeof roomSchema>[],
+    data: roomsData as Room[],
   };
 };
 
@@ -49,7 +49,7 @@ export const useRoom = (roomId: string) => {
 
   return {
     status: roomStatus,
-    data: roomData as z.infer<typeof roomSchema>,
+    data: roomData as z.infer<typeof Room>,
   };
 };
 
@@ -74,8 +74,11 @@ export const useUserRooms = () => {
       idField: "id",
     });
 
+  const setUserRooms = useStore((state) => state.rooms.setUserRooms);
+  setUserRooms(userRoomsData as Room[]);
+
   if (userRoomsStatus === "error") {
-    return { status: "error", data: [] };
+    return { status: "error" };
   }
 
   return {

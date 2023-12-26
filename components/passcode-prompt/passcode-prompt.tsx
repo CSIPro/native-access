@@ -20,6 +20,7 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { AccessUser, useUserData } from "../../hooks/use-user-data";
 import { useUserContext } from "../../context/user-context";
 import { useMutation, useQuery } from "react-query";
+import { useSubmitPasscode } from "../../store/store";
 
 const formSchema = z.object({
   passcode: z
@@ -39,7 +40,7 @@ interface ModalProps {
 }
 
 export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
-  const { submitPasscode } = useUserContext();
+  const submitPasscode = useSubmitPasscode();
   const {
     mutateAsync,
     data: mutationData,
@@ -47,9 +48,8 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
     isError,
     error,
   } = useMutation<boolean, Error, string>(submitPasscode, {
-    onError: (error) => console.log(error),
+    onError: (error) => console.error(error),
   });
-  const { status, data } = useUserData();
 
   const {
     control,
@@ -81,14 +81,20 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  const palette = colors[colorScheme];
   const isLight = colorScheme === "light";
+
+  const submitBg = isLight
+    ? colors.default.tint.translucid[100]
+    : colors.default.tint.translucid[100];
+  const submitText = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
 
   return (
     <Modal visible={isOpen} onClose={closeModal}>
       <View>
         <ModalHeader>Enter your passcode</ModalHeader>
-        {status === "loading" && (
+        {/* {
           <ModalBody>
             <View
               style={[
@@ -104,89 +110,87 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
               <ActivityIndicator size="small" color={palette.tint} />
             </View>
           </ModalBody>
-        )}
-        {status === "error" && (
+        }
+        {
           <ModalBody>
             <Text style={[styles.prompt]}>Error loading user data</Text>
           </ModalBody>
-        )}
-        {!!data && (
-          <View>
-            <ModalBody>
-              <Text
-                style={[
-                  styles.prompt,
-                  {
-                    color: isLight
+        } */}
+
+        <View>
+          <ModalBody>
+            <Text
+              style={[
+                styles.prompt,
+                {
+                  color: isLight
+                    ? colors.default.black[400]
+                    : colors.default.white[100],
+                },
+              ]}
+            >
+              Before attempting to connect, you need to provide your passcode.
+              Case insensitive.
+            </Text>
+            <Controller
+              control={control}
+              name="passcode"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="Passcode"
+                  placeholderTextColor={
+                    isLight
                       ? colors.default.black[400]
-                      : colors.default.white[100],
-                  },
-                ]}
-              >
-                Before attempting to connect, you need to provide your passcode.
-                Case insensitive.
-              </Text>
-              <Controller
-                control={control}
-                name="passcode"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    placeholder="Passcode"
-                    placeholderTextColor={
-                      isLight
+                      : colors.default.white[100]
+                  }
+                  textContentType="password"
+                  secureTextEntry={true}
+                  style={[
+                    styles.input,
+                    {
+                      color: isLight
                         ? colors.default.black[400]
-                        : colors.default.white[100]
-                    }
-                    textContentType="password"
-                    secureTextEntry={true}
-                    style={[
-                      styles.input,
-                      {
-                        color: isLight
-                          ? colors.default.black[400]
-                          : colors.default.white[100],
-                        borderColor: isLight
-                          ? colors.default.black[400]
-                          : colors.default.white[100],
-                      },
-                    ]}
-                  />
-                )}
-              />
-              {errors.passcode && (
+                        : colors.default.white[100],
+                      borderColor: isLight
+                        ? colors.default.black[400]
+                        : colors.default.white[100],
+                    },
+                  ]}
+                />
+              )}
+            />
+            {errors.passcode && (
+              <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
+                {errors.passcode.message}
+              </Text>
+            )}
+            <View>
+              {isError && (
                 <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
-                  {errors.passcode.message}
+                  {error?.message}
                 </Text>
               )}
-              <View>
-                {isError && (
-                  <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
-                    {error?.message}
-                  </Text>
-                )}
-              </View>
-            </ModalBody>
-            <ModalFooter>
-              <Pressable
-                disabled={isLoading}
-                onPress={handleSubmit(submit)}
-                style={[
-                  styles.submitButton,
-                  { backgroundColor: palette.tint, alignSelf: "center" },
-                ]}
-              >
-                {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text style={[styles.buttonText]}>Submit</Text>
-                )}
-              </Pressable>
-            </ModalFooter>
-          </View>
-        )}
+            </View>
+          </ModalBody>
+          <ModalFooter>
+            <Pressable
+              disabled={isLoading}
+              onPress={handleSubmit(submit)}
+              style={[styles.textButton, { backgroundColor: submitBg }]}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={[styles.buttonText, { color: submitText }]}>
+                  Submit
+                </Text>
+              )}
+            </Pressable>
+          </ModalFooter>
+        </View>
       </View>
     </Modal>
   );
@@ -220,10 +224,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginTop: 8,
   },
+  textButton: {
+    padding: 8,
+    borderRadius: 8,
+  },
   buttonText: {
     fontFamily: fonts.poppinsMedium,
     fontSize: 16,
-    textTransform: "uppercase",
-    color: "#fff",
   },
 });

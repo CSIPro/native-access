@@ -10,7 +10,7 @@ import { Device } from "react-native-ble-plx";
 
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
-import { useStore } from "../../store/store";
+import { useBLEConnect, useBLEScan, useBLEScanState } from "../../store/store";
 import { ScanState } from "../../store/ble-slice";
 
 interface Props {
@@ -18,9 +18,9 @@ interface Props {
 }
 
 export const PibleItem: FC<Props> = ({ device }) => {
-  const scanState = useStore((state) => state.scanState);
-  const startScan = useStore((state) => state.scan);
-  const connect = useStore((state) => state.connect);
+  const scanState = useBLEScanState();
+  const startScan = useBLEScan();
+  const connect = useBLEConnect();
 
   const colorScheme = useColorScheme();
 

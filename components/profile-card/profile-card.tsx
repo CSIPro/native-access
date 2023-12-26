@@ -14,15 +14,17 @@ import { IonIcon } from "../icons/ion";
 import { MaterialIcon } from "../icons/material";
 import { FAIcon } from "../icons/font-awesome";
 import format from "date-fns/format";
+import { useStoreUser } from "../../store/store";
 
 export const ProfileCard = () => {
   const colorScheme = useColorScheme();
   const { status: authUserStatus, data: authUserData } = useUser();
-  const { status: userDataStatus, data: userData } = useUserData();
+  const userData = useStoreUser();
+  // const { status: userDataStatus, data: userData } = useUserData();
 
   const isLight = colorScheme === "light";
 
-  if (authUserStatus === "loading" || userDataStatus === "loading") {
+  if (authUserStatus === "loading") {
     return (
       <View
         style={[
@@ -41,7 +43,7 @@ export const ProfileCard = () => {
     );
   }
 
-  if (authUserStatus === "error" || userDataStatus === "error") {
+  if (authUserStatus === "error") {
     return (
       <View
         style={[
@@ -69,8 +71,6 @@ export const ProfileCard = () => {
       </View>
     );
   }
-
-  const userAccessData = userData as AccessUser;
 
   return (
     <View style={[styles.cardShadow]}>
@@ -101,7 +101,7 @@ export const ProfileCard = () => {
                 },
               ]}
             >
-              {userAccessData.name}
+              {userData.name}
             </Text>
             <Text
               style={[
@@ -113,7 +113,7 @@ export const ProfileCard = () => {
                 },
               ]}
             >
-              {userAccessData.unisonId}
+              {userData.unisonId}
             </Text>
           </View>
         </View>
@@ -138,7 +138,7 @@ export const ProfileCard = () => {
               },
             ]}
           >
-            {userAccessData.csiId}
+            {userData.csiId}
             {" \u2022 "}
             <Text
               style={[
@@ -198,7 +198,7 @@ export const ProfileCard = () => {
               },
             ]}
           >
-            {format(userAccessData.dateOfBirth.toDate(), "MMMM dd")}
+            {format(userData.dateOfBirth.toDate(), "MMMM dd")}
           </Text>
         </View>
       </View>

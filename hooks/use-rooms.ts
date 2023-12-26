@@ -75,7 +75,7 @@ export const useUserRooms = () => {
     });
 
   if (userRoomsStatus === "error") {
-    return { status: "error", data: [] };
+    return { status: "error" };
   }
 
   return {

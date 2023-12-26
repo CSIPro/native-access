@@ -23,13 +23,13 @@ const itemSchema = z.object({
 export type DropdownItemType = z.infer<typeof itemSchema>;
 
 interface Props {
-  items: DropdownItemType[];
+  items?: DropdownItemType[];
   value: string;
   // label: (item: DropdownItemType) => string;
   onChange: (value: string) => void;
 }
 
-export const Dropdown: FC<Props> = ({ items, value, onChange }) => {
+export const Dropdown: FC<Props> = ({ items = [], value, onChange }) => {
   const [open, setOpen] = useState(false);
   const colorScheme = useColorScheme();
 
@@ -59,7 +59,7 @@ export const Dropdown: FC<Props> = ({ items, value, onChange }) => {
             },
           ]}
         >
-          {items.find((item) => item.value === value)?.label ?? "Select"}
+          {items.find((item) => item.value === value)?.label ?? "Loading..."}
         </Text>
         <IonIcon
           name="chevron-down"

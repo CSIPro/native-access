@@ -8,78 +8,58 @@ import { ComponentProps, FC } from "react";
 interface Props {
   logs: Log[];
   title: string;
-  primaryColor: string;
-  color?: "tint" | "secondary" | "bluetooth" | "tintAccent" | "success";
+  color: keyof typeof colors.default;
   icon: ComponentProps<typeof IonIcon>["name"];
 }
 
-export const DashboardItem: FC<Props> = ({
-  logs,
-  title,
-  primaryColor,
-  icon,
-  color,
-}) => {
+export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";
 
   const iconColor = isLight
-    ? !!color
-      ? colors.default[color][500]
-      : primaryColor
-    : !!color
-    ? colors.default[color][200]
-    : primaryColor;
+    ? colors.default[color].translucid[600]
+    : colors.default[color].translucid[600];
 
   return (
-    // <View style={[styles.dataContainerShadow]}>
     <View
       style={[
         styles.dataContainer,
         {
           backgroundColor: isLight
             ? !!color
-              ? colors.default[color].translucid[100]
+              ? colors.default[color].translucid[500]
               : colors.default.white[100]
             : !!color
             ? colors.default[color].translucid[100]
             : colors.default.black[300],
-        },
-        !!color && {
           borderWidth: 2,
-          borderColor: isLight
-            ? !!color
-              ? colors.default[color][400]
-              : colors.default.white[300]
-            : !!color
-            ? colors.default[color][400]
-            : colors.default.black[400],
+          borderColor: colors.default[color][400],
         },
       ]}
     >
-      {!!!color && (
-        <View
-          style={[
-            styles.dataContainerHighlight,
-            { backgroundColor: primaryColor },
-          ]}
-        />
-      )}
-      <IonIcon name={icon} color={iconColor} size={24} />
+      <View
+        style={[
+          {
+            ...StyleSheet.absoluteFillObject,
+            top: 12,
+            left: 24,
+            alignItems: "center",
+            justifyContent: "center",
+          },
+        ]}
+      >
+        <IonIcon name={icon} color={iconColor} size={96} />
+      </View>
       <View style={[styles.dataTextContainer]}>
         <Text
           style={[
             styles.bubbleText,
             {
-              fontSize: 28,
+              fontSize: 40,
               color: isLight
-                ? !!color
-                  ? colors.default[color][500]
-                  : colors.default.black[400]
-                : !!color
-                ? colors.default[color][200]
-                : colors.default.white[200],
+                ? colors.default.white[100]
+                : colors.default.white[100],
             },
           ]}
         >
@@ -90,12 +70,8 @@ export const DashboardItem: FC<Props> = ({
             styles.bubbleText,
             {
               color: isLight
-                ? !!color
-                  ? colors.default[color][300]
-                  : colors.default.gray[600]
-                : !!color
-                ? colors.default[color][200]
-                : colors.default.white[600],
+                ? colors.default.white[100]
+                : colors.default.white.translucid[900],
             },
           ]}
         >
@@ -164,16 +140,18 @@ const styles = StyleSheet.create({
   },
   dataContainer: {
     position: "relative",
+    justifyContent: "center",
     alignItems: "center",
     width: 100,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     overflow: "hidden",
+    aspectRatio: 1,
   },
   dataTextContainer: {
     alignItems: "center",
-    gap: -12,
+    gap: -20,
   },
   dataContainerHighlight: {
     position: "absolute",

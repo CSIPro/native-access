@@ -66,48 +66,44 @@ export default function Home() {
             width: "100%",
             alignItems: "center",
             padding: 8,
-            gap: 8,
+            gap: 4,
           }}
         >
           <RoomPicker />
-          <View style={{ alignItems: "center", gap: 4, width: "100%" }}>
-            <Text
-              style={[
-                styles.dashboardTitle,
-                {
-                  color: isLight
-                    ? colors.default.black[400]
-                    : colors.default.white[100],
-                },
-              ]}
-            >
-              Summary
-            </Text>
-            <SuccessfulLogs isLight={isLight} />
+          <Text
+            style={[
+              styles.dashboardTitle,
+              {
+                color: isLight
+                  ? colors.default.black[400]
+                  : colors.default.white[100],
+              },
+            ]}
+          >
+            Room stats
+          </Text>
+          <SuccessfulLogs />
+          <View style={[styles.dashboardRow, { paddingTop: 4 }]}>
+            <BluetoothLogs />
+            <FailedLogs />
+            <UnknownLogs />
           </View>
-          <View style={styles.dashboardRow}>
-            <BluetoothLogs isLight={isLight} />
-            <FailedLogs isLight={isLight} />
-            <UnknownLogs isLight={isLight} />
-          </View>
-          <View style={{ alignItems: "center", gap: 4, width: "100%" }}>
-            <Text
-              style={[
-                styles.dashboardTitle,
-                {
-                  color: isLight
-                    ? colors.default.black[400]
-                    : colors.default.white[100],
-                },
-              ]}
-            >
-              Personal
-            </Text>
-            <View style={[styles.dashboardRow, { width: "100%" }]}>
-              <BluetoothPersonalLogs isLight={isLight} />
-              <FailedPersonalLogs isLight={isLight} />
-              <SuccessfulPersonalLogs />
-            </View>
+          <Text
+            style={[
+              styles.dashboardTitle,
+              {
+                color: isLight
+                  ? colors.default.black[400]
+                  : colors.default.white[100],
+              },
+            ]}
+          >
+            Personal stats
+          </Text>
+          <View style={[styles.dashboardRow, { width: "100%" }]}>
+            <BluetoothPersonalLogs />
+            <FailedPersonalLogs />
+            <SuccessfulPersonalLogs />
           </View>
         </ScrollView>
       </View>
@@ -164,39 +160,31 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
           },
         ]}
       >
-        Entrances
+        Entries
       </Text>
     </View>
   );
 };
 
-const BluetoothLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
+const BluetoothLogs = () => {
   const { logs } = useBluetoothLogs();
 
   return (
     <DashboardItem
       icon="bluetooth"
-      primaryColor={
-        isLight ? colors.default.bluetooth[400] : colors.default.bluetooth[300]
-      }
-      title="Bluetooth"
+      title="Wireless"
       color="bluetooth"
       logs={logs}
     />
   );
 };
 
-const UnknownLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
+const UnknownLogs = () => {
   const { logs } = useUnknownLogs();
 
   return (
     <DashboardItem
       icon="help-circle"
-      primaryColor={
-        isLight
-          ? colors.default.tintAccent[400]
-          : colors.default.tintAccent[300]
-      }
       color="tintAccent"
       title="Unknown"
       logs={logs}
@@ -204,15 +192,12 @@ const UnknownLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   );
 };
 
-const FailedLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
+const FailedLogs = () => {
   const { logs } = useFailedLogs();
 
   return (
     <DashboardItem
       icon="close-circle"
-      primaryColor={
-        isLight ? colors.default.secondary[400] : colors.default.secondary[300]
-      }
       color="secondary"
       title="Failed"
       logs={logs}
@@ -220,45 +205,38 @@ const FailedLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
   );
 };
 
-const SuccessfulPersonalLogs: FC<DashboardItemProps> = () => {
+const SuccessfulPersonalLogs = () => {
   const { logs } = useUserSuccessfulLogs();
 
   return (
     <DashboardItem
       icon="checkmark-circle"
-      primaryColor={colors.default.success[400]}
-      title="Entrances"
+      title="Entries"
       color="success"
       logs={logs}
     />
   );
 };
 
-const BluetoothPersonalLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
+const BluetoothPersonalLogs = () => {
   const { logs } = useUserBluetoothLogs();
 
   return (
     <DashboardItem
       icon="bluetooth"
-      primaryColor={
-        isLight ? colors.default.bluetooth[400] : colors.default.bluetooth[300]
-      }
-      title="Bluetooth"
+      title="Wireless"
       color="bluetooth"
       logs={logs}
     />
   );
 };
 
-const FailedPersonalLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
+const FailedPersonalLogs = () => {
   const { logs } = useUserFailedLogs();
 
   return (
     <DashboardItem
       icon="close-circle"
-      primaryColor={
-        isLight ? colors.default.secondary[400] : colors.default.secondary[300]
-      }
       title="Failed"
       color="secondary"
       logs={logs}

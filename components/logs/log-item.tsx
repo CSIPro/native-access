@@ -79,7 +79,7 @@ export const LogItem: FC<LogItemProps> = ({
       ? bluetooth
         ? colors.default.bluetooth[200]
         : colors.default.tint[200]
-      : colors.default.secondary[200]
+      : colors.default.secondary[100]
     : colors.default.black[50];
 
   const textColor = isLight
@@ -94,9 +94,9 @@ export const LogItem: FC<LogItemProps> = ({
     ? accessed
       ? bluetooth
         ? colors.default.bluetooth[200]
-        : colors.default.tint[200]
+        : colors.default.tint[100]
       : colors.default.secondary[200]
-    : colors.default.white[100];
+    : colors.default.gray.translucid[800];
 
   return (
     <LogItemContext.Provider value={{ textColor }}>

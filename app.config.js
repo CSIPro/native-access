@@ -7,6 +7,9 @@ export default {
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
+    experiments: {
+      tsconfigPaths: true,
+    },
     splash: {
       image: "./assets/splash.png",
       resizeMode: "contain",

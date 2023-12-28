@@ -86,7 +86,16 @@ export const ProfileCard = () => {
         ]}
       >
         <View style={[styles.row]}>
-          <View style={[styles.photoContainer]}>
+          <View
+            style={[
+              styles.photoContainer,
+              {
+                borderColor: isLight
+                  ? colors.default.tint[300]
+                  : colors.default.tint[100],
+              },
+            ]}
+          >
             <Image source={authUserData.photoURL} style={[styles.photo]} />
           </View>
           <View style={[{ gap: -8 }]}>
@@ -242,6 +251,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 100,
     overflow: "hidden",
+    borderWidth: 2,
   },
   photo: {
     width: "100%",

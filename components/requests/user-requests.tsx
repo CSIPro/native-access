@@ -1,3 +1,6 @@
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
+import { useUserRequests } from "@/hooks/use-requests";
 import {
   ActivityIndicator,
   FlatList,
@@ -6,37 +9,31 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import colors from "../../constants/colors";
-import { useRoomRequests } from "../../hooks/use-requests";
-import fonts from "../../constants/fonts";
 import { RequestItem } from "./request-item";
-import { RoomPicker } from "../room-picker/room-picker";
 
-export const RequestsPage = () => {
-  const { status: reqStatus, data: requests } = useRoomRequests();
+export const UserRequests = () => {
   const colorScheme = useColorScheme();
-
   const isLight = colorScheme === "light";
+
+  const { status, data } = useUserRequests();
 
   const tint = isLight ? colors.default.tint[400] : colors.default.tint[200];
   const textColor = isLight
     ? colors.default.black[400]
     : colors.default.white[100];
 
-  if (reqStatus === "loading") {
+  if (status === "loading") {
     return (
-      <View style={[styles.centered]}>
+      <View style={[styles.main, styles.centered]}>
         <ActivityIndicator size="large" color={tint} />
       </View>
     );
   }
 
-  if (reqStatus === "error") {
+  if (status === "error") {
     return (
-      <View style={[styles.centered]}>
-        <Text style={[styles.errorText, { color: textColor }]}>
-          Error loading requests
-        </Text>
+      <View style={[styles.main, styles.centered]}>
+        <Text style={[styles.errorText, { color: textColor }]}>Error</Text>
       </View>
     );
   }
@@ -44,19 +41,16 @@ export const RequestsPage = () => {
   return (
     <View
       style={[
+        styles.main,
         {
-          flex: 1,
           backgroundColor: isLight
             ? colors.default.white[100]
             : colors.default.black[400],
         },
       ]}
     >
-      <View style={[styles.roomPickerWrapper]}>
-        <RoomPicker />
-      </View>
       <FlatList
-        data={requests}
+        data={data}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ flexGrow: 1, padding: 4, gap: 4 }}
         renderItem={({ item: request }) => <RequestItem request={request} />}
@@ -73,6 +67,10 @@ export const RequestsPage = () => {
 };
 
 const styles = StyleSheet.create({
+  main: {
+    flex: 1,
+    width: "100%",
+  },
   centered: {
     flex: 1,
     justifyContent: "center",
@@ -80,14 +78,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontFamily: fonts.poppins,
-    fontSize: 18,
+    fontSize: 16,
+    textAlign: "center",
   },
-  main: {
-    flex: 1,
-  },
-  roomPickerWrapper: {
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-    width: "100%",
+  text: {
+    paddingTop: 4,
+    fontFamily: fonts.poppins,
+    fontSize: 16,
   },
 });

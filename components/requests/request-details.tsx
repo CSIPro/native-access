@@ -18,6 +18,7 @@ import { useRoles } from "../../hooks/use-roles";
 interface Props {
   isPending?: boolean;
   open: boolean;
+  userId: string;
   onClose: () => void;
   onApprove: () => void;
   onReject: () => void;
@@ -27,6 +28,7 @@ interface Props {
 export const RequestDetails: FC<Props> = ({
   children,
   open,
+  userId,
   isPending = false,
   onClose,
   onApprove,
@@ -39,8 +41,10 @@ export const RequestDetails: FC<Props> = ({
   const isLight = colorScheme === "light";
 
   const canHandleRequests =
-    roles?.find((role) => role.id === userData?.role?.roleId)
-      ?.canHandleRequests || userData.isRoot;
+    userData.isRoot ||
+    (userData.id !== userId &&
+      roles?.find((role) => role.id === userData?.role?.roleId)
+        ?.canHandleRequests);
 
   const approveBg = isLight
     ? colors.default.tint.translucid[100]

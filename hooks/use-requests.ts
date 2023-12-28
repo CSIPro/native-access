@@ -25,18 +25,18 @@ enum RequestStatus {
 export const RequestStatusEnum = z.nativeEnum(RequestStatus);
 export type RequestStatusEnum = z.infer<typeof RequestStatusEnum>;
 
-export const requestSchema = z.object({
+export const Request = z.object({
   id: z.string(),
   status: RequestStatusEnum,
   userId: z.string(),
   roomId: z.string(),
-  adminId: z.string().optional(),
-  userComment: z.string().optional(),
-  adminComment: z.string().optional(),
+  adminId: z.string().nullable().optional(),
+  userComment: z.string().nullable().optional(),
+  adminComment: z.string().nullable().optional(),
   createdAt: z.custom<Timestamp>(),
   updatedAt: z.custom<Timestamp>(),
 });
-export type Request = z.infer<typeof requestSchema>;
+export type Request = z.infer<typeof Request>;
 
 export const useRoomRequests = () => {
   const roomCtx = useRoomContext();
@@ -53,9 +53,60 @@ export const useRoomRequests = () => {
     idField: "id",
   });
 
+  if (status === "loading") {
+    return { status };
+  }
+
+  if (status === "error") {
+    return { status };
+  }
+
+  const requests = data.map((doc) => {
+    const requestSafeParse = Request.safeParse(doc);
+    const request = requestSafeParse.success ? requestSafeParse.data : null;
+
+    return request;
+  });
+
   return {
     status,
-    data: data as Request[],
+    data: requests,
+  };
+};
+
+export const useUserRequests = () => {
+  const firestore = useFirestore();
+  const user = useUser();
+
+  const requestsCol = collection(firestore, "requests");
+  const requestsQuery = query(
+    requestsCol,
+    where("userId", "==", user.data?.uid || "invalid"),
+    orderBy("createdAt", "desc")
+  );
+
+  const { status, data } = useFirestoreCollectionData(requestsQuery, {
+    idField: "id",
+  });
+
+  if (status === "loading") {
+    return { status };
+  }
+
+  if (status === "error") {
+    return { status };
+  }
+
+  const requests = data.map((doc) => {
+    const requestSafeParse = Request.safeParse(doc);
+    const request = requestSafeParse.success ? requestSafeParse.data : null;
+
+    return request;
+  });
+
+  return {
+    status,
+    data: requests,
   };
 };
 

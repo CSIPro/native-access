@@ -146,6 +146,7 @@ export const RequestItem: FC<Props> = ({ request }) => {
       </Pressable>
       <RequestDetails
         isPending={request.status === RequestStatusEnum.enum.pending}
+        userId={request.userId}
         open={openDetails}
         onClose={handleCloseDetails}
         onApprove={handleApprove}

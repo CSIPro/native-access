@@ -1,3 +1,4 @@
+import * as LocalAuthentication from "expo-local-authentication";
 import { FC, ReactNode, useState } from "react";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import fonts from "../../constants/fonts";
@@ -54,6 +55,16 @@ export const MemberCard: FC<Props> = ({
 
   const handleKick = async () => {
     try {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to kick a member",
+        cancelLabel: "Cancel",
+      });
+
+      if (!auth.success) {
+        closeKickModal();
+        return;
+      }
+
       await deleteDoc(doc);
     } catch (error) {
       console.error(error);

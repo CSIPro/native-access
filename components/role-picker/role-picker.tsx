@@ -1,4 +1,5 @@
-import { FC, ReactNode, useState } from "react";
+import * as LocalAuthentication from "expo-local-authentication";
+import { FC, useState } from "react";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { DocumentData, DocumentReference, updateDoc } from "firebase/firestore";
 import { UserRoomRole } from "../../hooks/use-user-data";
@@ -49,6 +50,12 @@ export const RolePicker: FC<Props> = ({
 
   const handleSubmit = async () => {
     try {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Confirm your identity",
+      });
+
+      if (!auth.success) return;
+
       await updateDoc(doc, { roleId: selectedRole });
     } catch (error) {
       console.error(error);

@@ -15,9 +15,7 @@ export interface BleSlice {
   scanState: ScanState;
   devices: Device[];
   openPasscodeModal: boolean;
-  // connectedDevice: Device | null;
   connect: (device: Device) => void;
-  // disconnect: () => void;
   scan: () => void;
   stopScan: ({ immediate }: { immediate: boolean }) => void;
   onClosePasscodeModal: () => void;
@@ -162,7 +160,9 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
           return connectedDevice.discoverAllServicesAndCharacteristics();
         })
         .then((connectedDevice) => {
-          LocalAuthentication.authenticateAsync()
+          LocalAuthentication.authenticateAsync({
+            promptMessage: "Confirm your identity",
+          })
             .then((result) => {
               if (!result.success) {
                 throw new Error("Authentication failed.");
@@ -172,8 +172,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
                 .then((crypt) => {
                   connectedDevice
                     .writeCharacteristicWithResponseForService(
-                      "4655318c-0b41-4725-9c64-44f9fb6098a2",
-                      "4d493467-5cd5-4a9c-8389-2e569f68bb10",
+                      Constants.expoConfig.extra?.bleServiceUuid,
+                      Constants.expoConfig.extra?.bleCharUuid,
                       Buffer.from(crypt).toString("base64"),
                       "access-attempt"
                     )

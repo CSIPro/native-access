@@ -1,5 +1,4 @@
-import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
-import { useRoomContext } from "../context/room-context";
+import * as LocalAuthentication from "expo-local-authentication";
 import {
   Timestamp,
   collection,
@@ -10,8 +9,12 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { z } from "zod";
+
 import { useRoles } from "./use-roles";
+
+import { useRoomContext } from "../context/room-context";
 
 enum RequestStatus {
   pending,
@@ -66,6 +69,14 @@ export const useRequestHelpers = (request: Request) => {
     if (user.data === null) return;
 
     try {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to approve request",
+      });
+
+      if (!auth.success) {
+        throw new Error("Authentication failed");
+      }
+
       const guestRole = roles?.find((role) => role.name === "Guest");
       if (!guestRole) {
         throw new Error("Guest role not found");
@@ -99,6 +110,14 @@ export const useRequestHelpers = (request: Request) => {
     if (user.data === null) return;
 
     try {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to reject request",
+      });
+
+      if (!auth.success) {
+        throw new Error("Authentication failed");
+      }
+
       await updateDoc(requestDoc, {
         status: RequestStatusEnum.enum.rejected,
         adminId: user.data?.uid,

@@ -99,6 +99,7 @@ const TabsLayoutNav = () => {
   return (
     <View style={[{ flex: 1 }]}>
       <Tabs
+        initialRouteName="index"
         screenOptions={{
           tabBarActiveTintColor: isLight
             ? colors.default.tint[400]
@@ -114,6 +115,7 @@ const TabsLayoutNav = () => {
             fontFamily: fonts.poppinsMedium,
             color: colors.default.white[100],
           },
+          headerShown: false,
           tabBarLabel: ({ color, focused, children }) => {
             return focused ? (
               <Text

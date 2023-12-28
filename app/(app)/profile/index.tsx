@@ -1,4 +1,10 @@
-import { Pressable, Text, View, useColorScheme } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 import { useAuth } from "reactfire";
 
 import { ProfileCard } from "../../../components/profile-card/profile-card";
@@ -7,6 +13,7 @@ import colors from "../../../constants/colors";
 import fonts from "../../../constants/fonts";
 import { Link, Stack } from "expo-router";
 import { IonIcon } from "../../../components/icons/ion";
+import { ProfileMenu } from "@/components/profile-menu/profile-menu";
 
 export default function Settings() {
   const auth = useAuth();
@@ -48,41 +55,26 @@ export default function Settings() {
         }}
       />
       <ProfileCard />
-      <Link href="/(app)/profile/requests" asChild>
-        <Pressable
-          style={[
-            {
-              backgroundColor: isLight
-                ? colors.default.tint.translucid[100]
-                : colors.default.tint.translucid[400],
-              padding: 8,
-              borderRadius: 8,
-              width: "100%",
-            },
-          ]}
-        >
-          <Text
-            style={[
-              {
-                fontFamily: fonts.poppinsMedium,
-                color: isLight
-                  ? colors.default.tint[400]
-                  : colors.default.tint[200],
-                fontSize: 16,
-              },
-            ]}
-          >
-            Your requests
-          </Text>
-        </Pressable>
-      </Link>
+      <ProfileMenu />
       <Pressable
         onPress={() => auth.signOut()}
-        style={[{ padding: 8, backgroundColor: "#7145d6" }]}
+        style={[
+          styles.buttonWrapper,
+          {
+            backgroundColor: isLight
+              ? colors.default.secondary.translucid[400]
+              : colors.default.secondary.translucid[200],
+          },
+        ]}
       >
         <Text
           style={[
-            { fontFamily: fonts.poppinsMedium, fontSize: 16, color: "#fff" },
+            styles.buttonText,
+            {
+              color: isLight
+                ? colors.default.secondary[300]
+                : colors.default.secondary[500],
+            },
           ]}
         >
           Log out
@@ -91,3 +83,17 @@ export default function Settings() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  buttonWrapper: {
+    alignSelf: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  buttonText: {
+    paddingTop: 4,
+    fontFamily: fonts.poppinsMedium,
+    fontSize: 16,
+  },
+});

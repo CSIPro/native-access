@@ -71,15 +71,15 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
     );
   }
 
-  const rooms = roomsData?.filter((room) =>
+  const rooms = [...roomsData]?.filter((room) =>
     userRoomsData.some((userRoom) => userRoom.id === room.id)
   );
 
   const providerValue = {
     selectedRoom: selectedRoom || rooms.at(0)?.id,
     setSelectedRoom,
-    rooms: roomsData,
-    userRooms: rooms,
+    rooms: [...roomsData],
+    userRooms: [...rooms],
   };
 
   return (

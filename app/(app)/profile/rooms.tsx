@@ -1,15 +1,19 @@
+import { RoomList } from "@/components/rooms/room-list";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { Stack } from "expo-router";
-import { View } from "react-native";
+import { View, useColorScheme } from "react-native";
 
 export default function Rooms() {
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const pageBg = isLight
+    ? colors.default.white[100]
+    : colors.default.black[400];
+
   return (
-    <View
-      style={[
-        { backgroundColor: colors.default.tint[400], flex: 1, width: "100%" },
-      ]}
-    >
+    <View style={[{ backgroundColor: pageBg, flex: 1, width: "100%" }]}>
       <Stack.Screen
         options={{
           headerTitle: "Your rooms",
@@ -22,6 +26,7 @@ export default function Rooms() {
           },
         }}
       />
+      <RoomList />
     </View>
   );
 }

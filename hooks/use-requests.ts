@@ -1,6 +1,7 @@
 import * as LocalAuthentication from "expo-local-authentication";
 import {
   Timestamp,
+  addDoc,
   collection,
   doc,
   orderBy,
@@ -97,12 +98,13 @@ export const useUserRequests = () => {
     return { status };
   }
 
-  const requests = data.map((doc) => {
-    const requestSafeParse = Request.safeParse(doc);
-    const request = requestSafeParse.success ? requestSafeParse.data : null;
+  const requests =
+    data?.map((doc) => {
+      const requestSafeParse = Request.safeParse(doc);
+      const request = requestSafeParse.success ? requestSafeParse.data : null;
 
-    return request;
-  });
+      return request;
+    }) ?? [];
 
   return {
     status,
@@ -110,11 +112,11 @@ export const useUserRequests = () => {
   };
 };
 
-export const useRequestHelpers = (request: Request) => {
+export const useRequestHelpers = (request?: Request) => {
   const user = useUser();
   const firestore = useFirestore();
   const { data: roles } = useRoles();
-  const requestDoc = doc(firestore, "requests", request.id);
+  const requestDoc = doc(firestore, "requests", request?.id ?? "invalid");
 
   const approveRequest = async () => {
     if (user.data === null) return;
@@ -179,8 +181,34 @@ export const useRequestHelpers = (request: Request) => {
     }
   };
 
-  return {
-    approveRequest,
-    rejectRequest,
+  const createRequest = async (roomId: string) => {
+    if (user.data === null) throw new Error("User not found");
+
+    try {
+      const requestsCol = collection(firestore, "requests");
+      const timestamp = Timestamp.now();
+
+      await addDoc(requestsCol, {
+        status: RequestStatusEnum.enum.pending,
+        userId: user.data.uid,
+        roomId,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      });
+    } catch (error) {
+      console.error(error);
+
+      throw new Error("Failed to create request, please try again later");
+    }
   };
+
+  return !!request
+    ? ({
+        approveRequest: approveRequest,
+        rejectRequest: rejectRequest,
+        createRequest,
+      } as const)
+    : ({
+        createRequest,
+      } as const);
 };

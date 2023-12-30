@@ -36,7 +36,11 @@ export default function Settings() {
         options={{
           headerRight: (props) => {
             return (
-              <Link {...props} href="/(app)/profile/settings">
+              <Link
+                {...props}
+                href="/(app)/profile/settings"
+                style={[{ padding: 4 }]}
+              >
                 <IonIcon
                   name="settings-outline"
                   size={24}

@@ -22,6 +22,7 @@ export default {
       config: {
         usesNonExemptEncryption: false,
       },
+      userInterfaceStyle: "automatic",
     },
     android: {
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
@@ -36,6 +37,7 @@ export default {
         "android.permission.BLUETOOTH_CONNECT",
       ],
       package: "com.csipro.nativeAccess",
+      userInterfaceStyle: "automatic",
     },
     web: {
       favicon: "./assets/favicon.png",

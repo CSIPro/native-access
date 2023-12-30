@@ -1,15 +1,25 @@
-import { View } from "react-native";
-import colors from "../../../constants/colors";
 import { Stack } from "expo-router";
-import fonts from "../../../constants/fonts";
+import { View, useColorScheme } from "react-native";
 
-//TODO: App theme preferences
+import { ThemePicker } from "@/components/theme-picker/theme-picker";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
+
 //TODO: App language preferences
 export default function Settings() {
+  const isLight = useColorScheme() === "light";
+
   return (
     <View
       style={[
-        { backgroundColor: colors.default.tint[400], flex: 1, width: "100%" },
+        {
+          backgroundColor: isLight
+            ? colors.default.white[100]
+            : colors.default.black[400],
+          flex: 1,
+          width: "100%",
+        },
       ]}
     >
       <Stack.Screen
@@ -24,6 +34,7 @@ export default function Settings() {
           },
         }}
       />
+      <ThemePicker />
     </View>
   );
 }

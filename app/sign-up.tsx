@@ -1,26 +1,53 @@
+import { IonIcon } from "@/components/icons/ion";
+import { MaterialIcon } from "@/components/icons/material";
+import { Input } from "@/components/ui/input";
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
+import { Stack } from "expo-router";
 import { Text, View, useColorScheme } from "react-native";
 
-import { CustomSafeArea } from "../components/custom-safe-area/custom-safe-area";
-import colors from "../constants/colors";
-import fonts from "../constants/fonts";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUp() {
-  const colorSchemeValue = useColorScheme();
+  const isLight = useColorScheme() === "light";
 
-  const colorScheme = colorSchemeValue ?? "light";
+  const backgroundColor = isLight
+    ? colors.default.white[100]
+    : colors.default.black[400];
 
   return (
-    <SafeAreaView>
-      <View style={{ flex: 1, backgroundColor: colors[colorScheme].tint }}>
-        <Text
-          style={{
-            color: colors[colorScheme].text,
-            fontFamily: fonts.poppinsBold,
-          }}
-        >
-          Sign Up screen
-        </Text>
+    <SafeAreaView style={{ flex: 1, width: "100%", backgroundColor }}>
+      <Stack.Screen
+        options={{
+          headerTitle: "Sign up",
+          headerTitleStyle: {
+            fontFamily: fonts.poppinsMedium,
+            color: colors.default.white[100],
+          },
+          headerStyle: {
+            backgroundColor: colors.default.tint[400],
+          },
+        }}
+      />
+      <View style={[{ padding: 4 }]}>
+        <Input
+          label="Name"
+          icon={
+            <IonIcon name="person" size={24} color={colors.default.tint[400]} />
+          }
+        />
+      </View>
+      <View style={[{ padding: 4 }]}>
+        <Input
+          label="UniSon ID"
+          icon={
+            <MaterialIcon
+              name="badge"
+              size={24}
+              color={colors.default.tint[400]}
+            />
+          }
+        />
       </View>
     </SafeAreaView>
   );

@@ -102,7 +102,9 @@ export const RoomPicker = () => {
           />
         </Pressable>
         <BSModal ref={sheetRef} snapPoints={["32%"]}>
-          <BSMHeader>Pick a room</BSMHeader>
+          <BSMHeader>
+            <Text>Pick a room</Text>
+          </BSMHeader>
           <View style={{ flex: 1, padding: 4 }}>
             <Picker
               items={items}

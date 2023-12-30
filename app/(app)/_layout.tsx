@@ -20,7 +20,6 @@ import { Image } from "expo-image";
 import fonts from "../../constants/fonts";
 import { StatusBar } from "expo-status-bar";
 import { useRoles } from "../../hooks/use-roles";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 export default function TabsLayout() {
   const {
@@ -42,15 +41,13 @@ export default function TabsLayout() {
   }
 
   return (
-    <BottomSheetModalProvider>
-      <RoomProvider>
-        <RoleProvider>
-          <UserContextProvider>
-            <TabsLayoutNav />
-          </UserContextProvider>
-        </RoleProvider>
-      </RoomProvider>
-    </BottomSheetModalProvider>
+    <RoomProvider>
+      <RoleProvider>
+        <UserContextProvider>
+          <TabsLayoutNav />
+        </UserContextProvider>
+      </RoleProvider>
+    </RoomProvider>
   );
 }
 

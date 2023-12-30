@@ -1,5 +1,6 @@
 import { FC, ReactNode, forwardRef } from "react";
 import {
+  Pressable,
   StyleProp,
   StyleSheet,
   Text,
@@ -49,12 +50,16 @@ interface BSMHeaderProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  action?: () => void;
+  actionLabel?: string;
 }
 
 export const BSMHeader: FC<BSMHeaderProps> = ({
   children,
   style,
   textStyle,
+  action,
+  actionLabel = "Done",
 }) => {
   const isLight = useColorScheme() === "light";
 
@@ -64,11 +69,31 @@ export const BSMHeader: FC<BSMHeaderProps> = ({
     ? colors.default.gray[400]
     : colors.default.black[100];
 
+  const actionBg = colors.default.tint.translucid[100];
+  const actionText = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
+
   return (
     <View style={[styles.header, { borderBottomColor }, style]}>
       <Text style={[styles.text, styles.headerTitle, { color }, textStyle]}>
         {children}
       </Text>
+      {action && (
+        <Pressable
+          onPress={action}
+          style={[styles.textButton, { backgroundColor: actionBg }]}
+        >
+          <Text
+            style={[
+              styles.text,
+              { fontFamily: fonts.poppinsMedium, color: actionText },
+            ]}
+          >
+            {actionLabel}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 };
@@ -130,5 +155,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     gap: 8,
+  },
+  textButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
   },
 });

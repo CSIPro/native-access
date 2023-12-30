@@ -21,6 +21,7 @@ import {
 import { firebaseApp, firebaseAuth, firestore } from "../lib/firebase-config";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 const queryClient = new QueryClient();
 
@@ -63,17 +64,19 @@ function RootLayoutNav() {
           <FirestoreProvider sdk={firestore}>
             <QueryClientProvider client={queryClient}>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <Stack initialRouteName="(app)">
-                  <Stack.Screen
-                    name="sign-in"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(app)"
-                    options={{ headerShown: false }}
-                    initialParams={{ initialRouteName: "index" }}
-                  />
-                </Stack>
+                <BottomSheetModalProvider>
+                  <Stack initialRouteName="(app)">
+                    <Stack.Screen
+                      name="sign-in"
+                      options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                      name="(app)"
+                      options={{ headerShown: false }}
+                      initialParams={{ initialRouteName: "index" }}
+                    />
+                  </Stack>
+                </BottomSheetModalProvider>
               </GestureHandlerRootView>
             </QueryClientProvider>
           </FirestoreProvider>

@@ -26,13 +26,17 @@ export const useRooms = () => {
     }
   );
 
-  if (roomsStatus === "error") {
-    return { status: "error", data: [] };
-  }
+  const rooms = roomsData?.map((room) => {
+    const roomSafeParse = Room.safeParse(room);
+
+    if (roomSafeParse.success) {
+      return roomSafeParse.data;
+    }
+  });
 
   return {
     status: roomsStatus,
-    data: roomsData as z.infer<typeof Room>[],
+    data: rooms,
   };
 };
 

@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -16,100 +16,109 @@ import Animated, {
 } from "react-native-reanimated";
 import { z } from "zod";
 
-import fonts from "../../constants/fonts";
-import colors from "../../constants/colors";
-import { IonIcon } from "../icons/ion";
-import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
+import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet";
 
-const itemSchema = z.object({
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
+import { BSMHeader, BSModal } from "./bottom-sheet";
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
+import { IonIcon } from "../icons/ion";
+import { MaterialIcon } from "../icons/material";
+
+export const DropdownItemType = z.object({
   label: z.string(),
   value: z.string(),
   key: z.string().optional(),
 });
 
-export type DropdownItemType = z.infer<typeof itemSchema>;
+export type DropdownItemType = z.infer<typeof DropdownItemType>;
 
 interface Props {
   items?: DropdownItemType[];
   value: string;
-  // label: (item: DropdownItemType) => string;
+  label: string;
   onChange: (value: string) => void;
+  sheetTitle: string;
 }
 
-export const Dropdown: FC<Props> = ({ items = [], value, onChange }) => {
+export const Dropdown: FC<Props> = ({
+  sheetTitle,
+  items = [],
+  value,
+  label,
+  onChange,
+}) => {
+  const sheetRef = useRef<BottomSheetModal>(null);
   const [selectedRoom, setSelectedRoom] = useState(value);
-  const [open, setOpen] = useState(false);
-  const colorScheme = useColorScheme();
+  const isLight = useColorScheme() === "light";
 
-  const isLight = colorScheme === "light";
+  useEffect(() => {
+    setSelectedRoom(value);
+  }, [value]);
 
-  const submitBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[100];
-  const submitText = isLight
+  const handleDone = () => {
+    onChange(selectedRoom);
+    sheetRef.current?.dismiss();
+  };
+
+  const color = isLight ? colors.default.black[400] : colors.default.white[100];
+  const backgroundColor = isLight
+    ? colors.default.gray.translucid[100]
+    : colors.default.gray.translucid[50];
+  const borderColor = isLight
+    ? colors.default.tint.translucid[500]
+    : colors.default.tint.translucid[600];
+  const iconColor = isLight
     ? colors.default.tint[400]
-    : colors.default.tint[100];
+    : colors.default.tint[200];
 
   return (
-    <View
-      style={[
-        styles.wrapper,
-        {
-          borderColor: colors.default.tint[400],
-          backgroundColor: isLight ? submitBg : colors.default.tint[400],
-        },
-      ]}
-    >
-      <Pressable onPress={() => setOpen(true)} style={[styles.dropdown]}>
-        <Text
-          numberOfLines={1}
-          style={[
-            styles.dropdownLabel,
-            {
-              fontFamily: fonts.poppinsMedium,
-              color: isLight
-                ? colors.default.tint[400]
-                : colors.default.white[100],
-            },
-          ]}
-        >
+    <View style={[styles.wrapper]}>
+      <View style={[styles.labelWrapper]}>
+        <Text style={[styles.text, { color }]}>{label}</Text>
+      </View>
+      <Pressable
+        onPress={() => sheetRef.current?.present()}
+        style={[
+          styles.dropdown,
+          {
+            borderColor,
+            backgroundColor,
+          },
+        ]}
+      >
+        <View style={[styles.iconWrapper]}>
+          <MaterialIcon name="room" size={24} color={iconColor} />
+        </View>
+        <Text numberOfLines={1} style={[styles.dropdownLabel, { color }]}>
           {items.find((item) => item.value === value)?.label ?? "Loading..."}
         </Text>
-        <IonIcon
-          name="chevron-down"
-          color={isLight ? colors.default.tint[400] : colors.default.white[100]}
-          size={16}
-        />
+        <View style={[styles.iconWrapper]}>
+          <IonIcon
+            name="chevron-down"
+            color={
+              isLight ? colors.default.tint[400] : colors.default.white[100]
+            }
+            size={24}
+          />
+        </View>
       </Pressable>
 
-      <Modal visible={open} onClose={() => setOpen(false)}>
-        <ModalHeader>Select a room</ModalHeader>
-        <ModalBody>
-          <FlatList
-            data={items}
-            keyExtractor={(item) => item.key ?? item.value}
-            renderItem={({ item }) => (
-              <DropdownItem
-                item={item}
-                selectedRoom={selectedRoom}
-                setSelectedRoom={setSelectedRoom}
-              />
-            )}
-            contentContainerStyle={[styles.list]}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Pressable
-            onPress={() => {
-              onChange(selectedRoom);
-              setOpen(false);
-            }}
-            style={[styles.textButton, { backgroundColor: submitBg }]}
-          >
-            <Text style={[styles.text, { color: submitText }]}>OK</Text>
-          </Pressable>
-        </ModalFooter>
-      </Modal>
+      <BSModal ref={sheetRef} snapPoints={["32%", "40%"]}>
+        <BSMHeader action={handleDone}>{sheetTitle}</BSMHeader>
+        <BottomSheetFlatList
+          data={items}
+          keyExtractor={(item) => item.key ?? item.value}
+          renderItem={({ item }) => (
+            <DropdownItem
+              item={item}
+              selectedRoom={selectedRoom}
+              setSelectedRoom={setSelectedRoom}
+            />
+          )}
+          contentContainerStyle={[styles.list]}
+        />
+      </BSModal>
     </View>
   );
 };
@@ -181,8 +190,7 @@ const DropdownItem: FC<DropdownItemProps> = ({
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
-    borderWidth: 2,
-    borderRadius: 12,
+    gap: -4,
   },
   dropdown: {
     width: "100%",
@@ -190,38 +198,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.24)",
-  },
-  modal: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContainer: {
-    width: "80%",
     borderRadius: 8,
-    backgroundColor: "#fff",
-  },
-  modalHeader: {
-    padding: 8,
-    width: "100%",
-    borderBottomColor: "#e1e1e1",
-    borderBottomWidth: 1,
-  },
-  modalBody: {
-    padding: 8,
+    borderWidth: 2,
     gap: 8,
-    width: "100%",
   },
   list: {
     gap: 8,
+    padding: 4,
   },
   dropdownItem: {
     width: "100%",
@@ -232,10 +215,20 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     fontFamily: fonts.poppins,
     fontSize: 16,
+    flexGrow: 1,
+  },
+  labelWrapper: {
+    paddingHorizontal: 8,
+  },
+  iconWrapper: {
+    width: 24,
+    aspectRatio: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   text: {
     paddingTop: 4,
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.poppins,
     fontSize: 16,
   },
   textButton: {

@@ -63,32 +63,57 @@ export const Input = forwardRef<TextInput, Props>(function (
     };
   });
 
+  const labelStyles = useAnimatedStyle(() => {
+    const color = interpolateColor(
+      progress.value,
+      [0, 1],
+      [
+        isLight ? colors.default.black[400] : colors.default.white[100],
+        isLight ? colors.default.tint[300] : colors.default.tint[100],
+      ]
+    );
+
+    return { color };
+  });
+
   const color = isLight ? colors.default.black[400] : colors.default.white[100];
+
+  const placeholderColor = isLight
+    ? colors.default.gray[600]
+    : colors.default.gray.translucid[500];
 
   const selectionColor = isLight
     ? colors.default.secondary.translucid[400]
-    : colors.default.secondary.translucid[300];
+    : colors.default.secondary.translucid[500];
 
   return (
-    <>
+    <View style={[styles.wrapper]}>
       <View style={[styles.labelWrapper]}>
-        <Text style={[styles.text, { color }]}>{label}</Text>
+        <Animated.Text style={[styles.text, labelStyles]}>
+          {label}
+        </Animated.Text>
       </View>
       <Animated.View style={[styles.inputWrapper, viewStyles]}>
         {!!Icon && <View style={[styles.iconWrapper]}>{Icon}</View>}
         <TextInput
+          ref={ref}
           {...props}
           selectionColor={selectionColor}
           onFocus={(_) => setFocused(true)}
           onBlur={(_) => setFocused(false)}
           style={[styles.input, styles.text, { color }]}
+          placeholderTextColor={placeholderColor}
         />
       </Animated.View>
-    </>
+    </View>
   );
 });
 
 const styles = StyleSheet.create({
+  wrapper: {
+    width: "100%",
+    gap: -4,
+  },
   inputWrapper: {
     padding: 8,
     borderWidth: 2,

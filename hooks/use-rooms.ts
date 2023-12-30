@@ -7,14 +7,14 @@ import {
   useUser,
 } from "reactfire";
 
-const roomSchema = z.object({
+export const Room = z.object({
   id: z.string(),
   name: z.string(),
   room: z.string(),
   building: z.string(),
 });
 
-export type Room = z.infer<typeof roomSchema>;
+export type Room = z.infer<typeof Room>;
 
 export const useRooms = () => {
   const firestore = useFirestore();
@@ -32,7 +32,7 @@ export const useRooms = () => {
 
   return {
     status: roomsStatus,
-    data: roomsData as z.infer<typeof roomSchema>[],
+    data: roomsData as z.infer<typeof Room>[],
   };
 };
 
@@ -49,7 +49,7 @@ export const useRoom = (roomId: string) => {
 
   return {
     status: roomStatus,
-    data: roomData as z.infer<typeof roomSchema>,
+    data: roomData as z.infer<typeof Room>,
   };
 };
 

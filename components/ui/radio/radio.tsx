@@ -66,12 +66,14 @@ export const RadioButton: FC<RadioButtonProps> = ({ value, children }) => {
 
   const isSelected = groupValue === value;
 
-  const progress = useDerivedValue(() =>
-    isSelected ? withTiming(1) : withTiming(0)
+  const progress = useDerivedValue(
+    () => (isSelected ? withTiming(1) : withTiming(0)),
+    [isSelected]
   );
 
-  const scale = useDerivedValue(() =>
-    isSelected ? withSpring(1) : withTiming(0)
+  const scale = useDerivedValue(
+    () => (isSelected ? withSpring(1) : withTiming(0)),
+    [isSelected]
   );
 
   const itemStyle = useAnimatedStyle(() => {

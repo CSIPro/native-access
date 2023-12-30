@@ -1,3 +1,5 @@
+import { StatusBar } from "expo-status-bar";
+import { FC, useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -5,7 +7,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -14,9 +16,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { PibleScanner } from "../../components/pible/pible-scanner";
+import { PasscodePromptModal } from "@/components/passcode-prompt/passcode-prompt";
+import { PibleScanner } from "@/components/pible/pible-scanner";
+import { RoomPicker } from "@/components/room-picker/room-picker";
+import { DashboardItem } from "@/components/ui/dashboard/item";
 
-import colors from "../../constants/colors";
 import {
   useBluetoothLogs,
   useFailedLogs,
@@ -25,17 +29,14 @@ import {
   useUserBluetoothLogs,
   useUserFailedLogs,
   useUserSuccessfulLogs,
-} from "../../hooks/use-logs";
-import fonts from "../../constants/fonts";
-import { PasscodePromptModal } from "../../components/passcode-prompt/passcode-prompt";
-import { FC, useEffect } from "react";
-import { RoomPicker } from "../../components/room-picker/room-picker";
-import { DashboardItem } from "../../components/ui/dashboard/item";
-import { StatusBar } from "expo-status-bar";
-import { useStore } from "../../store/store";
+} from "@/hooks/use-logs";
+
+import { useStore } from "@/store/store";
+
+import fonts from "@/constants/fonts";
+import colors from "@/constants/colors";
 
 export default function Home() {
-  const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const openModal = useStore((state) => state.openPasscodeModal);
   const closeModal = useStore((state) => state.onClosePasscodeModal);
@@ -45,14 +46,10 @@ export default function Home() {
   const isLight = colorScheme === "light";
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: palette.tint,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
         gap: 8,
       }}
     >
@@ -116,7 +113,7 @@ export default function Home() {
       </View>
       <PasscodePromptModal isOpen={openModal} onClose={closeModal} />
       <StatusBar style="light" />
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,5 +1,11 @@
 import * as SecureStore from "expo-secure-store";
-import { storageKeys } from "../constants/storage-keys";
+
+import { storageKeys } from "@/constants/storage-keys";
+import { Room } from "@/hooks/use-rooms";
+
+export const formatRoomName = (room: Room) => {
+  return `${room.name} (${room.building}-${room.room})`;
+};
 
 export const generateNonce = (length: number) => {
   const possible =

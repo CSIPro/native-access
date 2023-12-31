@@ -209,6 +209,9 @@ export default function SignUp() {
                   placeholder="Pick a room"
                   label="Room"
                   value={value}
+                  icon={
+                    <MaterialIcon name="room" size={24} color={iconColor} />
+                  }
                 />
                 {errors.room && (
                   <InputErrorText>{errors.room?.message}</InputErrorText>

@@ -117,65 +117,32 @@ export const createUser = async ({
   }
 
   try {
-    const uid = `test-${authUser.uid}`;
+    const token = await authUser.getIdToken();
 
-    const res = await fetch(
-      "http://192.168.100.24:5173/api/users/passcode-encrypt",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          passcode,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const res = await fetch("http://192.168.100.24:5173/api/users/add", {
+      method: "POST",
+      body: JSON.stringify({
+        name,
+        unisonId,
+        passcode,
+        dateOfBirth,
+        roomId: room,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    const { encryptedPasscode } = await res.json();
+    const data = await res.json();
 
-    if (await unisonIdExists(unisonId)) {
+    if (!res.ok) {
       throw new Error(
-        "UniSon ID already exists. Please, enter a different one."
+        data.message ?? "Something went wrong while creating the user"
       );
     }
 
-    const nextId = await getNextId();
-
-    const userSafeParse = AccessUser.safeParse({
-      name,
-      unisonId,
-      passcode: encryptedPasscode,
-      dateOfBirth: Timestamp.fromDate(dateOfBirth),
-      createdAt: serverTimestamp(),
-      csiId: nextId,
-      id: uid,
-    });
-
-    if (!userSafeParse.success) {
-      throw userSafeParse;
-    }
-
-    const userData = userSafeParse.data;
-    delete userData.id;
-    delete userData.isRoot;
-
-    const userDoc = doc(firestore, "users", uid);
-    const userRolesDoc = doc(firestore, "user_roles", uid);
-
-    await setDoc(userDoc, userData);
-    await setDoc(userRolesDoc, { key: uid });
-
-    const requestsCol = collection(firestore, "requests");
-
-    await addDoc(requestsCol, {
-      status: 0,
-      userId: uid,
-      roomId: room,
-      userComment: "Sign up request from Native Access",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
+    return data;
   } catch (error) {
     throw new Error(error);
   }

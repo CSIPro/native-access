@@ -23,6 +23,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { useUserContext } from "@/context/user-context";
 import { useRoomContext } from "@/context/room-context";
+import { Dropdown } from "../ui/dropdown";
+import { formatRoomName } from "@/lib/utils";
+import { MaterialIcon } from "../icons/material";
 
 export const RoomPicker = () => {
   const sheetRef = useRef<BottomSheetModal>(null);
@@ -53,79 +56,36 @@ export const RoomPicker = () => {
   const submitBg = isLight
     ? colors.default.tint.translucid[100]
     : colors.default.tint.translucid[200];
-
   const submitText = isLight
     ? colors.default.tint[400]
     : colors.default.tint[100];
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[200];
 
   const items = user.isRoot ? rooms : userRooms;
 
   const currentRoom = items.find((item) => item.id === selectedRoom);
 
-  const displayValue = `${currentRoom?.name} (${currentRoom?.building}-${currentRoom?.room})`;
+  const displayValue = !!currentRoom
+    ? `${currentRoom.name} (${currentRoom.building}-${currentRoom.room})`
+    : "Pick a room";
 
   return (
     <>
-      <View
-        style={[
-          styles.wrapper,
-          {
-            borderColor: colors.default.tint[400],
-            backgroundColor: isLight ? "transparent" : colors.default.tint[400],
-          },
-        ]}
-      >
-        <Pressable
-          onPress={() => sheetRef.current?.present()}
-          style={[styles.dropdown]}
-        >
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.text,
-              {
-                fontFamily: fonts.poppinsMedium,
-                color: isLight
-                  ? colors.default.tint[400]
-                  : colors.default.white[100],
-              },
-            ]}
-          >
-            {displayValue}
-          </Text>
-          <IonIcon
-            name="chevron-down"
-            color={
-              isLight ? colors.default.tint[400] : colors.default.white[100]
-            }
-            size={16}
-          />
-        </Pressable>
-        <BSModal ref={sheetRef} snapPoints={["32%"]}>
-          <BSMHeader>
-            <Text>Pick a room</Text>
-          </BSMHeader>
-          <View style={{ flex: 1, padding: 4 }}>
-            <Picker
-              items={items}
-              localValue={localValue}
-              onChange={setLocalValue}
-            />
-          </View>
-          <BSMFooter>
-            <Pressable
-              onPress={handleSubmit}
-              style={[styles.textButton, { backgroundColor: submitBg }]}
-            >
-              <Text
-                style={[styles.text, styles.mediumText, { color: submitText }]}
-              >
-                OK
-              </Text>
-            </Pressable>
-          </BSMFooter>
-        </BSModal>
-      </View>
+      <Dropdown
+        items={items.map((i) => ({
+          key: i.id,
+          value: i.id,
+          label: formatRoomName(i),
+        }))}
+        onChange={setSelectedRoom}
+        sheetTitle="Pick a room"
+        value={selectedRoom}
+        icon={<MaterialIcon name="room" size={24} color={iconColor} />}
+        style={[{ borderRadius: 12, borderColor: iconColor }]}
+        valueStyle={[{ fontFamily: fonts.poppinsMedium }]}
+      />
     </>
   );
 };

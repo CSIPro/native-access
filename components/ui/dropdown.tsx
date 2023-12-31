@@ -1,10 +1,13 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   View,
+  ViewStyle,
   useColorScheme,
 } from "react-native";
 import Animated, {
@@ -36,10 +39,13 @@ export type DropdownItemType = z.infer<typeof DropdownItemType>;
 interface Props {
   items?: DropdownItemType[];
   value: string;
-  label: string;
+  label?: string;
   onChange: (value: string) => void;
   sheetTitle: string;
   placeholder?: string;
+  icon?: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  valueStyle?: StyleProp<TextStyle>;
 }
 
 export const Dropdown: FC<Props> = ({
@@ -49,6 +55,9 @@ export const Dropdown: FC<Props> = ({
   value,
   label,
   onChange,
+  icon: Icon,
+  style,
+  valueStyle,
 }) => {
   const sheetRef = useRef<BottomSheetModal>(null);
   const [selectedRoom, setSelectedRoom] = useState(value);
@@ -76,9 +85,11 @@ export const Dropdown: FC<Props> = ({
 
   return (
     <View style={[styles.wrapper]}>
-      <View style={[styles.labelWrapper]}>
-        <Text style={[styles.text, { color }]}>{label}</Text>
-      </View>
+      {!!label && (
+        <View style={[styles.labelWrapper]}>
+          <Text style={[styles.text, { color }]}>{label}</Text>
+        </View>
+      )}
       <Pressable
         onPress={() => sheetRef.current?.present()}
         style={[
@@ -87,12 +98,14 @@ export const Dropdown: FC<Props> = ({
             borderColor,
             backgroundColor,
           },
+          style,
         ]}
       >
-        <View style={[styles.iconWrapper]}>
-          <MaterialIcon name="room" size={24} color={iconColor} />
-        </View>
-        <Text numberOfLines={1} style={[styles.dropdownLabel, { color }]}>
+        {!!Icon && <View style={[styles.iconWrapper]}>{Icon}</View>}
+        <Text
+          numberOfLines={1}
+          style={[styles.dropdownLabel, { color }, valueStyle]}
+        >
           {items.find((item) => item.value === value)?.label ?? placeholder}
         </Text>
         <View style={[styles.iconWrapper]}>

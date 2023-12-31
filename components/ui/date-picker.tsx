@@ -21,8 +21,9 @@ import fonts from "@/constants/fonts";
 
 import { IonIcon } from "../icons/ion";
 
-interface Props extends AndroidNativeProps {
+interface Props extends Omit<AndroidNativeProps, "onChange"> {
   label?: string;
+  onChange: (date: Date) => void;
 }
 
 export const DatePicker: FC<Props> = ({
@@ -40,7 +41,7 @@ export const DatePicker: FC<Props> = ({
 
   const handleChange = (e: DateTimePickerEvent, selectedDate?: Date) => {
     if (!selectedDate) return;
-    onChange(e, selectedDate);
+    onChange(selectedDate);
     setShow(false);
   };
 

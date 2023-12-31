@@ -39,11 +39,13 @@ interface Props {
   label: string;
   onChange: (value: string) => void;
   sheetTitle: string;
+  placeholder?: string;
 }
 
 export const Dropdown: FC<Props> = ({
   sheetTitle,
   items = [],
+  placeholder = "Pick one",
   value,
   label,
   onChange,
@@ -91,7 +93,7 @@ export const Dropdown: FC<Props> = ({
           <MaterialIcon name="room" size={24} color={iconColor} />
         </View>
         <Text numberOfLines={1} style={[styles.dropdownLabel, { color }]}>
-          {items.find((item) => item.value === value)?.label ?? "Loading..."}
+          {items.find((item) => item.value === value)?.label ?? placeholder}
         </Text>
         <View style={[styles.iconWrapper]}>
           <IonIcon

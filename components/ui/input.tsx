@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef, useState } from "react";
+import { FC, ReactNode, forwardRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -20,10 +20,12 @@ import fonts from "@/constants/fonts";
 interface Props extends TextInputProps {
   label: string;
   icon?: ReactNode;
+  helperText?: string;
+  errorText?: string;
 }
 
 export const Input = forwardRef<TextInput, Props>(function (
-  { label, icon: Icon, ...props },
+  { label, icon: Icon, helperText, errorText, style, ...props },
   ref
 ) {
   const [focused, setFocused] = useState(false);
@@ -81,7 +83,6 @@ export const Input = forwardRef<TextInput, Props>(function (
   const placeholderColor = isLight
     ? colors.default.gray[600]
     : colors.default.gray.translucid[500];
-
   const selectionColor = isLight
     ? colors.default.secondary.translucid[400]
     : colors.default.secondary.translucid[500];
@@ -99,15 +100,54 @@ export const Input = forwardRef<TextInput, Props>(function (
           ref={ref}
           {...props}
           selectionColor={selectionColor}
+          placeholderTextColor={placeholderColor}
           onFocus={(_) => setFocused(true)}
           onBlur={(_) => setFocused(false)}
-          style={[styles.input, styles.text, { color }]}
-          placeholderTextColor={placeholderColor}
+          style={[styles.input, styles.text, { color }, style]}
         />
       </Animated.View>
+      {!!errorText ? (
+        <InputErrorText>{errorText}</InputErrorText>
+      ) : (
+        !!helperText && <InputHelperText>{helperText}</InputHelperText>
+      )}
     </View>
   );
 });
+
+export const InputHelperText: FC<{ children: ReactNode }> = ({ children }) => {
+  const isLight = useColorScheme() === "light";
+
+  const helperTextColor = isLight
+    ? colors.default.black.translucid[600]
+    : colors.default.gray.translucid[800];
+
+  return (
+    <View style={[styles.infoWrapper]}>
+      <Text
+        style={[styles.text, styles.helperText, { color: helperTextColor }]}
+      >
+        {children}
+      </Text>
+    </View>
+  );
+};
+
+export const InputErrorText: FC<{ children: ReactNode }> = ({ children }) => {
+  const isLight = useColorScheme() === "light";
+
+  const errorTextColor = isLight
+    ? colors.default.secondary[400]
+    : colors.default.secondary[200];
+
+  return (
+    <View style={[styles.infoWrapper]}>
+      <Text style={[styles.text, styles.errorText, { color: errorTextColor }]}>
+        {children}
+      </Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -138,5 +178,17 @@ const styles = StyleSheet.create({
     fontFamily: fonts.poppins,
     fontSize: 16,
     paddingTop: 4,
+  },
+  infoWrapper: {
+    paddingTop: 4,
+    paddingHorizontal: 8,
+  },
+  helperText: {
+    fontSize: 14,
+    fontFamily: fonts.poppinsLight,
+  },
+  errorText: {
+    fontSize: 14,
+    fontFamily: fonts.poppinsLight,
   },
 });

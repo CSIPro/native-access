@@ -67,10 +67,6 @@ export const RoomPicker = () => {
 
   const currentRoom = items.find((item) => item.id === selectedRoom);
 
-  const displayValue = !!currentRoom
-    ? `${currentRoom.name} (${currentRoom.building}-${currentRoom.room})`
-    : "Pick a room";
-
   return (
     <>
       <Dropdown

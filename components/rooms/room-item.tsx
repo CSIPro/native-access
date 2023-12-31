@@ -18,9 +18,10 @@ import {
   useRequestHelpers,
   useUserRequests,
 } from "@/hooks/use-requests";
-import { useUserContext } from "@/context/user-context";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { router } from "expo-router";
+import { TextButton } from "../ui/text-button";
+import { formatRoomName } from "@/lib/utils";
 
 type DialogContent = {
   title: string;
@@ -36,7 +37,6 @@ interface Props {
 export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
   const [dialogContent, setDialogContent] = useState<DialogContent>();
 
-  const { user } = useUserContext();
   const { status: requestsStatus, data: userRequests } = useUserRequests();
   const { createRequest } = useRequestHelpers();
   const mutation = useMutation({
@@ -84,22 +84,6 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
     ? colors.default.black[400]
     : colors.default.white[100];
 
-  const primaryButtonBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[200];
-
-  const secondaryButtonBg = isLight
-    ? colors.default.secondary.translucid[100]
-    : colors.default.secondary.translucid[200];
-
-  const primaryButtonText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
-  const secondaryButtonText = isLight
-    ? colors.default.secondary[400]
-    : colors.default.secondary[300];
-
   const canRequest =
     (isAvailable &&
       !userRequests?.some(
@@ -125,10 +109,9 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
           locations={[0.4, 1]}
           style={[styles.wrapper]}
         >
-          <Text
-            numberOfLines={1}
-            style={[styles.text]}
-          >{`${room.name} (${room.building}-${room.room})`}</Text>
+          <Text numberOfLines={1} style={[styles.text]}>
+            {formatRoomName(room)}
+          </Text>
           <View style={[styles.actionWrapper]}>
             {requestsStatus === "loading" || mutation.status === "loading" ? (
               <ActivityIndicator
@@ -157,49 +140,23 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
         </ModalBody>
         <ModalFooter>
           {dialogContent?.status === "success" && (
-            <Pressable
-              style={[
-                styles.textButton,
-                {
-                  backgroundColor: primaryButtonBg,
-                },
-              ]}
+            <TextButton
               onPress={() => {
                 setDialogContent(null);
                 router.push("/(app)/profile/requests");
               }}
             >
-              <Text style={[styles.text, { color: primaryButtonText }]}>
-                Go to Requests
-              </Text>
-            </Pressable>
+              Go to Requests
+            </TextButton>
           )}
-          <Pressable
-            style={[
-              styles.textButton,
-              {
-                backgroundColor:
-                  dialogContent?.status === "success"
-                    ? secondaryButtonBg
-                    : primaryButtonBg,
-              },
-            ]}
+          <TextButton
+            variant={
+              dialogContent?.status === "success" ? "secondary" : "default"
+            }
             onPress={() => setDialogContent(null)}
           >
-            <Text
-              style={[
-                styles.text,
-                {
-                  color:
-                    dialogContent?.status === "success"
-                      ? secondaryButtonText
-                      : primaryButtonText,
-                },
-              ]}
-            >
-              OK
-            </Text>
-          </Pressable>
+            OK
+          </TextButton>
         </ModalFooter>
       </Modal>
     </>

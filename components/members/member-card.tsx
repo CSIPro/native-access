@@ -16,6 +16,7 @@ import { FAIcon } from "../icons/font-awesome";
 import { RolePicker } from "../role-picker/role-picker";
 import { DocumentData, DocumentReference, deleteDoc } from "firebase/firestore";
 import { UserRoomRole } from "../../hooks/use-user-data";
+import { TextButton } from "../ui/text-button";
 
 interface Props {
   open: boolean;
@@ -34,24 +35,7 @@ export const MemberCard: FC<Props> = ({
 }) => {
   const [openKickModal, setOpenKickModal] = useState(false);
 
-  const colorScheme = useColorScheme();
-  const isLight = colorScheme === "light";
-
   const closeKickModal = () => setOpenKickModal(false);
-
-  const okayBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[100];
-  const okayText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
-  const kickBg = isLight
-    ? colors.default.secondary.translucid[100]
-    : colors.default.secondary.translucid[100];
-  const kickText = isLight
-    ? colors.default.secondary[400]
-    : colors.default.secondary[100];
 
   const handleKick = async () => {
     try {
@@ -78,19 +62,14 @@ export const MemberCard: FC<Props> = ({
         <ModalBody>{children}</ModalBody>
         <ModalFooter>
           {kickable && (
-            <Pressable
+            <TextButton
+              variant="secondary"
               onPress={() => setOpenKickModal(true)}
-              style={[styles.textButton, { backgroundColor: kickBg }]}
             >
-              <Text style={[styles.text, { color: kickText }]}>Kick</Text>
-            </Pressable>
+              Kick
+            </TextButton>
           )}
-          <Pressable
-            onPress={onClose}
-            style={[styles.textButton, { backgroundColor: okayBg }]}
-          >
-            <Text style={[styles.text, { color: okayText }]}>Okay</Text>
-          </Pressable>
+          <TextButton onPress={onClose}>Okay</TextButton>
         </ModalFooter>
       </Modal>
       <KickModal
@@ -189,13 +168,6 @@ export const MemberCardRole: FC<MemberCardRoleProps> = ({
 
   const handleClosePicker = () => setOpenPicker(false);
 
-  const buttonBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[100];
-  const buttonText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
   const textColor = isLight
     ? colors.default.black[400]
     : colors.default.white[100];
@@ -211,14 +183,12 @@ export const MemberCardRole: FC<MemberCardRoleProps> = ({
       <Text style={[styles.text, { color: textColor }]}>{children}</Text>
       {canSetRoles && (
         <>
-          <Pressable
+          <TextButton
             onPress={() => setOpenPicker(true)}
-            style={[styles.textButton, { backgroundColor: buttonBg }]}
+            textStyle={[{ fontSize: 14 }]}
           >
-            <Text style={[styles.text, { fontSize: 14, color: buttonText }]}>
-              Change
-            </Text>
-          </Pressable>
+            Change
+          </TextButton>
           <RolePicker
             open={openPicker}
             onClose={handleClosePicker}
@@ -237,13 +207,6 @@ export const MemberCardAuthorized: FC<{ authorized: boolean }> = ({
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
 
-  const bgColor = isLight
-    ? authorized
-      ? colors.default.tint.translucid[400]
-      : colors.default.secondary.translucid[400]
-    : authorized
-    ? colors.default.tint.translucid[300]
-    : colors.default.secondary.translucid[300];
   const textColor = isLight
     ? authorized
       ? colors.default.tint[400]
@@ -292,20 +255,6 @@ const KickModal: FC<KickModalProps> = ({ open, onClose, onKick }) => {
     ? colors.default.black[400]
     : colors.default.white[100];
 
-  const cancelBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[100];
-  const cancelText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
-  const kickBg = isLight
-    ? colors.default.secondary.translucid[100]
-    : colors.default.secondary.translucid[100];
-  const kickText = isLight
-    ? colors.default.secondary[400]
-    : colors.default.secondary[100];
-
   return (
     <Modal visible={open} onClose={onClose}>
       <ModalHeader>Kick member</ModalHeader>
@@ -315,18 +264,10 @@ const KickModal: FC<KickModalProps> = ({ open, onClose, onKick }) => {
         </Text>
       </ModalBody>
       <ModalFooter>
-        <Pressable
-          onPress={onKick}
-          style={[styles.textButton, { backgroundColor: kickBg }]}
-        >
-          <Text style={[styles.text, { color: kickText }]}>Kick</Text>
-        </Pressable>
-        <Pressable
-          onPress={onClose}
-          style={[styles.textButton, { backgroundColor: cancelBg }]}
-        >
-          <Text style={[styles.text, { color: cancelText }]}>Cancel</Text>
-        </Pressable>
+        <TextButton variant="secondary" onPress={onKick}>
+          Kick
+        </TextButton>
+        <TextButton onPress={onClose}>Cancel</TextButton>
       </ModalFooter>
     </Modal>
   );

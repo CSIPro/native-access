@@ -7,18 +7,28 @@ import { Appearance } from "react-native";
 export const Theme = z.enum(["system", "light", "dark"]);
 export type Theme = z.infer<typeof Theme>;
 
-export interface ThemeSlice {
+export interface ConfigSlice {
   theme: Theme;
+  seenOnboarding: boolean;
   setTheme: (theme: Theme) => void;
+  setSeenOnboarding: (seenOnboarding: boolean) => void;
 }
 
-export const createThemeSlice: StateCreator<ThemeSlice> = (set, get) => {
+export const createConfigSlice: StateCreator<ConfigSlice> = (set, get) => {
   getFromStorage("THEME").then((theme) => {
     if (theme) {
       const themeSafeParse = Theme.safeParse(theme);
       if (themeSafeParse.success) {
         get().setTheme(themeSafeParse.data);
       }
+    }
+  });
+
+  getFromStorage("FIRST_TIME_USER").then((seenOnboarding) => {
+    if (seenOnboarding) {
+      const value = seenOnboarding === "true";
+
+      set({ seenOnboarding: value });
     }
   });
 
@@ -33,8 +43,15 @@ export const createThemeSlice: StateCreator<ThemeSlice> = (set, get) => {
     saveToStorage("THEME", theme);
   };
 
+  const setSeenOnboarding = (seenOnboarding: boolean) => {
+    set({ seenOnboarding });
+    saveToStorage("FIRST_TIME_USER", seenOnboarding ? "true" : "false");
+  };
+
   return {
     theme: "system",
+    seenOnboarding: false,
     setTheme,
+    setSeenOnboarding,
   };
 };

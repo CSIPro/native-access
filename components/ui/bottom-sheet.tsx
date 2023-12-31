@@ -14,6 +14,7 @@ import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { TextButton } from "./text-button";
 
 interface Props {
   snapPoints?: string[];
@@ -69,31 +70,12 @@ export const BSMHeader: FC<BSMHeaderProps> = ({
     ? colors.default.gray[400]
     : colors.default.black[100];
 
-  const actionBg = colors.default.tint.translucid[100];
-  const actionText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
   return (
     <View style={[styles.header, { borderBottomColor }, style]}>
       <Text style={[styles.text, styles.headerTitle, { color }, textStyle]}>
         {children}
       </Text>
-      {action && (
-        <Pressable
-          onPress={action}
-          style={[styles.textButton, { backgroundColor: actionBg }]}
-        >
-          <Text
-            style={[
-              styles.text,
-              { fontFamily: fonts.poppinsMedium, color: actionText },
-            ]}
-          >
-            {actionLabel}
-          </Text>
-        </Pressable>
-      )}
+      {action && <TextButton onPress={action}>{actionLabel}</TextButton>}
     </View>
   );
 };

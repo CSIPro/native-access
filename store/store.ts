@@ -1,9 +1,9 @@
 import { create } from "zustand";
 
 import { BleSlice, createBleSlice } from "./ble-slice";
-import { ThemeSlice, createThemeSlice } from "./theme-slice";
+import { ConfigSlice, createConfigSlice } from "./theme-slice";
 
-export const useStore = create<BleSlice & ThemeSlice>()((...stateFn) => ({
+export const useStore = create<BleSlice & ConfigSlice>()((...stateFn) => ({
   ...createBleSlice(...stateFn),
-  ...createThemeSlice(...stateFn),
+  ...createConfigSlice(...stateFn),
 }));

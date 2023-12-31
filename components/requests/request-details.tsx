@@ -14,6 +14,7 @@ import fonts from "../../constants/fonts";
 import { MaterialIcon } from "../icons/material";
 import { useUserData } from "../../hooks/use-user-data";
 import { useRoles } from "../../hooks/use-roles";
+import { TextButton } from "../ui/text-button";
 
 interface Props {
   isPending?: boolean;
@@ -66,28 +67,10 @@ export const RequestDetails: FC<Props> = ({
       <ModalBody>{children}</ModalBody>
       {isPending && canHandleRequests && (
         <ModalFooter>
-          <Pressable
-            style={[
-              styles.textButton,
-              {
-                backgroundColor: approveBg,
-              },
-            ]}
-            onPress={onApprove}
-          >
-            <Text style={[styles.text, { color: approveText }]}>Approve</Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.textButton,
-              {
-                backgroundColor: rejectBg,
-              },
-            ]}
-            onPress={onReject}
-          >
-            <Text style={[styles.text, { color: rejectText }]}>Reject</Text>
-          </Pressable>
+          <TextButton onPress={onApprove}>Approve</TextButton>
+          <TextButton variant="secondary" onPress={onReject}>
+            Reject
+          </TextButton>
         </ModalFooter>
       )}
     </Modal>

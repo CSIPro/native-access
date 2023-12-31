@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import fonts from "../../constants/fonts";
 import colors from "../../constants/colors";
+import { TextButton } from "../ui/text-button";
 
 interface Props {
   open: boolean;
@@ -79,18 +80,10 @@ export const RolePicker: FC<Props> = ({
         />
       </ModalBody>
       <ModalFooter>
-        <Pressable
-          onPress={handleSubmit}
-          style={[styles.textButton, { backgroundColor: submitBg }]}
-        >
-          <Text style={[styles.text, { color: submitText }]}>Submit</Text>
-        </Pressable>
-        <Pressable
-          onPress={onClose}
-          style={[styles.textButton, { backgroundColor: cancelBg }]}
-        >
-          <Text style={[styles.text, { color: cancelText }]}>Cancel</Text>
-        </Pressable>
+        <TextButton onPress={handleSubmit}>Submit</TextButton>
+        <TextButton variant="secondary" onPress={onClose}>
+          Cancel
+        </TextButton>
       </ModalFooter>
     </Modal>
   );

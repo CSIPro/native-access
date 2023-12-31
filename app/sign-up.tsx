@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -33,11 +33,15 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@/components/modal/modal";
+import { TextButton } from "@/components/ui/text-button";
 
 export default function SignUp() {
   const mutation = useMutation<void, Error, SignUpForm>({
     mutationFn: (data: SignUpForm) => {
       return createUser(data);
+    },
+    onSuccess: () => {
+      router.replace("/onboarding");
     },
   });
 
@@ -81,13 +85,6 @@ export default function SignUp() {
   const iconColor = isLight
     ? colors.default.tint[400]
     : colors.default.tint[200];
-
-  const textButtonBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[200];
-  const textButtonColor = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
 
   return (
     <ScrollView style={{ flex: 1, width: "100%", backgroundColor }}>
@@ -224,20 +221,7 @@ export default function SignUp() {
         {mutation.isLoading ? (
           <ActivityIndicator size="large" color={iconColor} />
         ) : (
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            style={[styles.textButton, { backgroundColor: textButtonBg }]}
-          >
-            <Text
-              style={[
-                styles.text,
-                styles.mediumText,
-                { color: textButtonColor },
-              ]}
-            >
-              Sign up
-            </Text>
-          </Pressable>
+          <TextButton onPress={handleSubmit(onSubmit)}>Sign up</TextButton>
         )}
         {mutation.isError && (
           <Modal visible={true} onClose={() => mutation.reset()}>
@@ -248,20 +232,7 @@ export default function SignUp() {
               </Text>
             </ModalBody>
             <ModalFooter>
-              <Pressable
-                onPress={() => mutation.reset()}
-                style={[styles.textButton, { backgroundColor: textButtonBg }]}
-              >
-                <Text
-                  style={[
-                    styles.text,
-                    styles.mediumText,
-                    { color: textButtonColor },
-                  ]}
-                >
-                  OK
-                </Text>
-              </Pressable>
+              <TextButton onPress={() => mutation.reset()}>OK</TextButton>
             </ModalFooter>
           </Modal>
         )}

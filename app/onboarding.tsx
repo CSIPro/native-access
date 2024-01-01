@@ -5,7 +5,7 @@ import { slides } from "@/constants/slides";
 import { useStore } from "@/store/store";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { FC, useState } from "react";
+import { FC, ReactNode, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -25,27 +25,28 @@ import Animated, {
 } from "react-native-reanimated";
 import { TextButton } from "@/components/ui/text-button";
 import { IonIcon } from "@/components/icons/ion";
+import { OnboardingIndicator } from "@/components/onboarding/onboarding-indicator";
 
 export default function Onboarding() {
   const aRef =
     useAnimatedRef<
       Animated.FlatList<{ id: string; title: string; description: string }>
     >();
-  const scroll = useSharedValue(0);
+
+  const [index, setIndex] = useState(0);
+  const scroll = useDerivedValue(() => index, [index]);
   const { width } = useWindowDimensions();
 
   useDerivedValue(() => scrollTo(aRef, scroll.value * width, 0, true));
 
   const setOnboarding = useStore((state) => state.setSeenOnboarding);
-  const [index, setIndex] = useState(0);
 
   const handleBack = () => {
-    scroll.value = scroll.value - 1 < 0 ? scroll.value : scroll.value - 1;
+    setIndex((prev) => (prev - 1 < 0 ? prev : prev - 1));
   };
 
   const handleNext = () => {
-    scroll.value =
-      scroll.value + 1 >= slides.length ? scroll.value : scroll.value + 1;
+    setIndex((prev) => (prev + 1 >= slides.length ? prev : prev + 1));
   };
 
   const handleFinishOnboarding = () => {
@@ -55,9 +56,7 @@ export default function Onboarding() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.main, { backgroundColor: colors.default.black[400] }]}
-    >
+    <SafeAreaView style={[styles.main]}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={[{ flex: 5 }]}>
         <Animated.FlatList
@@ -73,9 +72,12 @@ export default function Onboarding() {
         />
       </View>
       <View style={[styles.actions, { width }]}>
+        <OnboardingIndicator length={slides.length} value={index} />
         <View style={[styles.navigation]}>
           <BackButton onPress={handleBack} />
-          <NextButton onPress={handleNext} />
+          <NextButton onPress={handleNext}>
+            {index === slides.length - 1 ? "Get started" : "Next"}
+          </NextButton>
         </View>
         <SkipButton onPress={handleFinishOnboarding} />
       </View>
@@ -84,7 +86,10 @@ export default function Onboarding() {
   );
 }
 
-const NextButton: FC<{ onPress: () => void }> = ({ onPress }) => {
+const NextButton: FC<{ onPress: () => void; children: ReactNode }> = ({
+  onPress,
+  children,
+}) => {
   const isLight = useColorScheme() === "light";
 
   const backgroundColor = colors.default.tint.translucid[100];
@@ -95,7 +100,7 @@ const NextButton: FC<{ onPress: () => void }> = ({ onPress }) => {
       onPress={onPress}
       style={[styles.nextButton, { backgroundColor }]}
     >
-      <Text style={[styles.text, { color, fontSize: 20 }]}>Next</Text>
+      <Text style={[styles.text, { color, fontSize: 20 }]}>{children}</Text>
     </Pressable>
   );
 };
@@ -131,6 +136,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: colors.default.black[400],
+    paddingVertical: 16,
   },
   text: {
     fontFamily: fonts.poppins,
@@ -146,7 +153,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flex: 1,
-    gap: 12,
+    gap: 8,
     alignItems: "center",
   },
   navigation: {

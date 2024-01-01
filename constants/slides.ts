@@ -1,7 +1,7 @@
 export const slides = [
   {
     id: "fd152317-ab39-4618-b5c5-7c2bf9c24b3a",
-    title: "ONE-TAP Access",
+    title: "One-Tap Access",
     description:
       "CSI PRO ACCESS will automatically scan for nearby devices and allow you to enter with just one tap",
   },

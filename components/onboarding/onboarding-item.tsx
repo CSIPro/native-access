@@ -17,7 +17,7 @@ export const OnboardingItem: FC<Props> = ({ item }) => {
   return (
     <View style={[styles.wrapper, { width }]}>
       <View style={[styles.imageContainer]}></View>
-      <View style={[{ flex: 1, gap: 8 }]}>
+      <View style={[{ flex: 1, gap: 8, paddingHorizontal: 16 }]}>
         <Text style={[styles.text, styles.centeredText, styles.title]}>
           {item.title}
         </Text>

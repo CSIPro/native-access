@@ -11,7 +11,7 @@ export default {
       tsconfigPaths: true,
     },
     splash: {
-      image: "./assets/splash.png",
+      image: "./assets/access-splash.png",
       resizeMode: "contain",
       backgroundColor: "#7145d6",
     },

@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -7,11 +7,8 @@ import {
   useColorScheme,
 } from "react-native";
 
-import { BottomSheetModal, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
-import { BSMFooter, BSMBody, BSModal, BSMHeader } from "../ui/bottom-sheet";
-
-import { IonIcon } from "../icons/ion";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { Room } from "@/hooks/use-rooms";
@@ -28,17 +25,11 @@ import { formatRoomName } from "@/lib/utils";
 import { MaterialIcon } from "../icons/material";
 
 export const RoomPicker = () => {
-  const sheetRef = useRef<BottomSheetModal>(null);
   const isLight = useColorScheme() === "light";
 
   const { status: userStatus, user } = useUserContext();
   const { status, selectedRoom, setSelectedRoom, rooms, userRooms } =
     useRoomContext();
-  const [localValue, setLocalValue] = useState<string>(selectedRoom);
-
-  useEffect(() => {
-    setLocalValue(selectedRoom);
-  }, [selectedRoom]);
 
   if (status === "loading" || userStatus === "loading") {
     return null;
@@ -48,24 +39,12 @@ export const RoomPicker = () => {
     return null;
   }
 
-  const handleSubmit = () => {
-    setSelectedRoom(localValue);
-    sheetRef.current?.dismiss();
-  };
-
-  const submitBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[200];
-  const submitText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
+  const color = isLight ? colors.default.black[400] : colors.default.white[100];
   const iconColor = isLight
     ? colors.default.tint[400]
     : colors.default.tint[200];
 
   const items = user.isRoot ? rooms : userRooms;
-
-  const currentRoom = items.find((item) => item.id === selectedRoom);
 
   return (
     <>
@@ -81,6 +60,17 @@ export const RoomPicker = () => {
         icon={<MaterialIcon name="room" size={24} color={iconColor} />}
         style={[{ borderRadius: 12, borderColor: iconColor }]}
         valueStyle={[{ fontFamily: fonts.poppinsMedium }]}
+        ListEmptyComponent={
+          <View
+            style={[
+              { flex: 1, justifyContent: "center", alignItems: "center" },
+            ]}
+          >
+            <Text style={[styles.text, { textAlign: "center", color }]}>
+              You're not a member of any rooms yet
+            </Text>
+          </View>
+        }
       />
     </>
   );

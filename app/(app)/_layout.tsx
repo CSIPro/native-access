@@ -20,6 +20,7 @@ import { Image } from "expo-image";
 import fonts from "../../constants/fonts";
 import { StatusBar } from "expo-status-bar";
 import { useRoles } from "../../hooks/use-roles";
+import { useStore } from "@/store/store";
 
 export default function TabsLayout() {
   const {
@@ -58,6 +59,8 @@ const TabsLayoutNav = () => {
   const { status: userDataStatus, data: userData } = useUserData();
   const { status: rolesStatus, data: rolesData } = useRoles();
 
+  const seenOnboarding = useStore((state) => state.seenOnboarding);
+
   const isLight = colorScheme === "light";
 
   if (
@@ -88,6 +91,10 @@ const TabsLayoutNav = () => {
     return (
       <SplashScreen message="Something went wrong. Please, try again later" />
     );
+  }
+
+  if (!seenOnboarding) {
+    return <Redirect href="/onboarding" />;
   }
 
   const userRole = rolesData.find((role) => role.id === userData.role?.roleId);

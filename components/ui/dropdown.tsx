@@ -27,6 +27,7 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { IonIcon } from "../icons/ion";
 import { MaterialIcon } from "../icons/material";
+import { BottomSheetFlatListProps } from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheetScrollable/types";
 
 export const DropdownItemType = z.object({
   label: z.string(),
@@ -43,6 +44,7 @@ interface Props {
   onChange: (value: string) => void;
   sheetTitle: string;
   placeholder?: string;
+  ListEmptyComponent?: BottomSheetFlatListProps<DropdownItemType>["ListEmptyComponent"];
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
   valueStyle?: StyleProp<TextStyle>;
@@ -58,6 +60,7 @@ export const Dropdown: FC<Props> = ({
   icon: Icon,
   style,
   valueStyle,
+  ListEmptyComponent,
 }) => {
   const sheetRef = useRef<BottomSheetModal>(null);
   const [selectedRoom, setSelectedRoom] = useState(value);
@@ -79,9 +82,6 @@ export const Dropdown: FC<Props> = ({
   const borderColor = isLight
     ? colors.default.tint.translucid[500]
     : colors.default.tint.translucid[600];
-  const iconColor = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[200];
 
   return (
     <View style={[styles.wrapper]}>
@@ -132,6 +132,7 @@ export const Dropdown: FC<Props> = ({
             />
           )}
           contentContainerStyle={[styles.list]}
+          ListEmptyComponent={ListEmptyComponent}
         />
       </BSModal>
     </View>

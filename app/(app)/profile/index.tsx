@@ -1,10 +1,4 @@
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
+import { View, useColorScheme } from "react-native";
 import { useAuth } from "reactfire";
 
 import { ProfileCard } from "../../../components/profile-card/profile-card";
@@ -14,6 +8,7 @@ import fonts from "../../../constants/fonts";
 import { Link, Stack } from "expo-router";
 import { IonIcon } from "../../../components/icons/ion";
 import { ProfileMenu } from "@/components/profile-menu/profile-menu";
+import { TextButton } from "@/components/ui/text-button";
 
 export default function Settings() {
   const auth = useAuth();
@@ -60,44 +55,13 @@ export default function Settings() {
       />
       <ProfileCard />
       <ProfileMenu />
-      <Pressable
+      <TextButton
+        variant="secondary"
         onPress={() => auth.signOut()}
-        style={[
-          styles.buttonWrapper,
-          {
-            backgroundColor: isLight
-              ? colors.default.secondary.translucid[400]
-              : colors.default.secondary.translucid[200],
-          },
-        ]}
+        style={[{ alignSelf: "center" }]}
       >
-        <Text
-          style={[
-            styles.buttonText,
-            {
-              color: isLight
-                ? colors.default.secondary[300]
-                : colors.default.secondary[500],
-            },
-          ]}
-        >
-          Log out
-        </Text>
-      </Pressable>
+        Log out
+      </TextButton>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonWrapper: {
-    alignSelf: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  buttonText: {
-    paddingTop: 4,
-    fontFamily: fonts.poppinsMedium,
-    fontSize: 16,
-  },
-});

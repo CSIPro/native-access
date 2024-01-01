@@ -22,6 +22,7 @@ import { firebaseApp, firebaseAuth, firestore } from "../lib/firebase-config";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { SplashScreen as Splash } from "@/components/splash/splash";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +49,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <Splash loading message="Loading assets" />;
   }
 
   return <RootLayoutNav />;

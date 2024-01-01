@@ -1,30 +1,21 @@
-import { Link, Redirect, router } from "expo-router";
+import { Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Image } from "expo-image";
-
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
-
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-
-import { CustomSafeArea } from "../components/custom-safe-area/custom-safe-area";
-
-import colors from "../constants/colors";
-import { firebaseAuth } from "../lib/firebase-config";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 import {
   GoogleSigninButton,
   GoogleSignin,
 } from "@react-native-google-signin/google-signin";
-import { useSigninCheck } from "reactfire";
-import { SplashScreen } from "../components/splash/splash";
 import { SafeAreaView } from "react-native-safe-area-context";
-import fonts from "../constants/fonts";
+import { useSigninCheck } from "reactfire";
+
+import { SplashScreen } from "@/components/splash/splash";
+
+import { firebaseAuth } from "@/lib/firebase-config";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 const accessLogo = require("../assets/access-logo.svg");
 
@@ -93,7 +84,7 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   logo: {
-    width: "70%",
+    width: "40%",
     aspectRatio: 1,
   },
   titleContainer: {

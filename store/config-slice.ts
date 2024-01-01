@@ -24,7 +24,7 @@ export const createConfigSlice: StateCreator<ConfigSlice> = (set, get) => {
     }
   });
 
-  getFromStorage("FIRST_TIME_USER").then((seenOnboarding) => {
+  getFromStorage("SEEN_ONBOARDING").then((seenOnboarding) => {
     if (seenOnboarding) {
       const value = seenOnboarding === "true";
 
@@ -45,7 +45,7 @@ export const createConfigSlice: StateCreator<ConfigSlice> = (set, get) => {
 
   const setSeenOnboarding = (seenOnboarding: boolean) => {
     set({ seenOnboarding });
-    saveToStorage("FIRST_TIME_USER", seenOnboarding ? "true" : "false");
+    saveToStorage("SEEN_ONBOARDING", seenOnboarding ? "true" : "false");
   };
 
   return {

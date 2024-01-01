@@ -1,16 +1,10 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
+import { Image } from "expo-image";
+import { FC } from "react";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import colors from "../../constants/colors";
-import { FC } from "react";
-import fonts from "../../constants/fonts";
-import { Image } from "expo-image";
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 const accessLogo = require("../../assets/access-logo.svg");
 
@@ -20,19 +14,11 @@ interface Props {
 }
 
 export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
-  const colorScheme = useColorScheme();
-  const isLight = colorScheme === "light";
-
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: colors.default.tint[400] }}
     >
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: colors[colorScheme].tint },
-        ]}
-      >
+      <View style={[styles.container]}>
         <View style={[styles.centered]}>
           <Image source={accessLogo} style={[styles.logo]} />
         </View>
@@ -63,7 +49,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   logo: {
-    width: "70%",
+    width: "50%",
     aspectRatio: 1,
   },
   feedback: {

@@ -7,7 +7,6 @@ import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { FC, ReactNode, useState } from "react";
 import {
-  FlatList,
   Pressable,
   StyleSheet,
   Text,
@@ -19,11 +18,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   scrollTo,
   useAnimatedRef,
-  useAnimatedScrollHandler,
   useDerivedValue,
-  useSharedValue,
 } from "react-native-reanimated";
-import { TextButton } from "@/components/ui/text-button";
 import { IonIcon } from "@/components/icons/ion";
 import { OnboardingIndicator } from "@/components/onboarding/onboarding-indicator";
 
@@ -55,10 +51,12 @@ export default function Onboarding() {
     router.replace("/(app)");
   };
 
+  const finished = index === slides.length - 1;
+
   return (
     <SafeAreaView style={[styles.main]}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={[{ flex: 5 }]}>
+      <View style={[{ flex: 4 }]}>
         <Animated.FlatList
           ref={aRef}
           data={slides}
@@ -75,8 +73,8 @@ export default function Onboarding() {
         <OnboardingIndicator length={slides.length} value={index} />
         <View style={[styles.navigation]}>
           <BackButton onPress={handleBack} />
-          <NextButton onPress={handleNext}>
-            {index === slides.length - 1 ? "Get started" : "Next"}
+          <NextButton onPress={finished ? handleFinishOnboarding : handleNext}>
+            {finished ? "Get started" : "Next"}
           </NextButton>
         </View>
         <SkipButton onPress={handleFinishOnboarding} />
@@ -152,7 +150,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   actions: {
-    flex: 1,
     gap: 8,
     alignItems: "center",
   },

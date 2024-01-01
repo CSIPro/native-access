@@ -16,6 +16,7 @@ import { z } from "zod";
 import { useRoles } from "./use-roles";
 
 import { useRoomContext } from "../context/room-context";
+import { useCallback } from "react";
 
 enum RequestStatus {
   pending,
@@ -118,7 +119,7 @@ export const useRequestHelpers = (request?: Request) => {
   const { data: roles } = useRoles();
   const requestDoc = doc(firestore, "requests", request?.id ?? "invalid");
 
-  const approveRequest = async () => {
+  const approveRequest = useCallback(async () => {
     if (user.data === null) return;
 
     try {
@@ -157,9 +158,9 @@ export const useRequestHelpers = (request?: Request) => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [user.data, request, roles, firestore, requestDoc]);
 
-  const rejectRequest = async () => {
+  const rejectRequest = useCallback(async () => {
     if (user.data === null) return;
 
     try {
@@ -179,28 +180,31 @@ export const useRequestHelpers = (request?: Request) => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [user.data, request, firestore, requestDoc]);
 
-  const createRequest = async (roomId: string) => {
-    if (user.data === null) throw new Error("User not found");
+  const createRequest = useCallback(
+    async (roomId: string) => {
+      if (user.data === null) throw new Error("User not found");
 
-    try {
-      const requestsCol = collection(firestore, "requests");
-      const timestamp = Timestamp.now();
+      try {
+        const requestsCol = collection(firestore, "requests");
+        const timestamp = Timestamp.now();
 
-      await addDoc(requestsCol, {
-        status: RequestStatusEnum.enum.pending,
-        userId: user.data.uid,
-        roomId,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      });
-    } catch (error) {
-      console.error(error);
+        await addDoc(requestsCol, {
+          status: RequestStatusEnum.enum.pending,
+          userId: user.data.uid,
+          roomId,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
+      } catch (error) {
+        console.error(error);
 
-      throw new Error("Failed to create request, please try again later");
-    }
-  };
+        throw new Error("Failed to create request, please try again later");
+      }
+    },
+    [user.data, firestore]
+  );
 
   return !!request
     ? ({

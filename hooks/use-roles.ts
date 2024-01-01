@@ -2,7 +2,7 @@ import { collection, orderBy, query } from "firebase/firestore";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import { z } from "zod";
 
-export const roleSchema = z.object({
+export const Role = z.object({
   id: z.string(),
   name: z.string(),
   level: z.number(),
@@ -14,7 +14,7 @@ export const roleSchema = z.object({
   canKickMembers: z.boolean().default(false),
 });
 
-export type Role = z.infer<typeof roleSchema>;
+export type Role = z.infer<typeof Role>;
 
 export const useRoles = () => {
   const firestore = useFirestore();
@@ -27,6 +27,6 @@ export const useRoles = () => {
 
   return {
     status,
-    data: data as z.infer<typeof roleSchema>[],
+    data: data as z.infer<typeof Role>[],
   };
 };

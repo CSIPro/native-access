@@ -6,6 +6,7 @@ import {
   useFirestoreDocData,
   useUser,
 } from "reactfire";
+import { useCallback } from "react";
 
 export const Room = z.object({
   id: z.string(),
@@ -26,13 +27,17 @@ export const useRooms = () => {
     }
   );
 
-  const rooms = roomsData?.map((room) => {
-    const roomSafeParse = Room.safeParse(room);
+  const rooms = useCallback(
+    () =>
+      roomsData?.map((room) => {
+        const roomSafeParse = Room.safeParse(room);
 
-    if (roomSafeParse.success) {
-      return roomSafeParse.data;
-    }
-  });
+        if (roomSafeParse.success) {
+          return roomSafeParse.data;
+        }
+      }),
+    [roomsData]
+  )();
 
   return {
     status: roomsStatus,

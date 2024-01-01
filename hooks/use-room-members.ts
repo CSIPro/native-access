@@ -1,5 +1,12 @@
-import { collectionGroup, query, where } from "firebase/firestore";
-import { useContext } from "react";
+import {
+  DocumentData,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
+  collectionGroup,
+  query,
+  where,
+} from "firebase/firestore";
+import { useCallback, useContext } from "react";
 import { useFirestore, useFirestoreCollection } from "reactfire";
 
 import { RoomContext } from "../context/room-context";
@@ -72,6 +79,38 @@ export const useReducedMembersByRole = (roles: Role[]) => {
     idField: "id",
   });
 
+  const reduceMembers = useCallback(
+    (data: QuerySnapshot<DocumentData>) => {
+      const reducedData = data.docs.reduce(
+        (acc, doc) => {
+          const { roleId } = doc.data();
+          const userId = doc.ref.parent.parent?.id;
+
+          return {
+            ...acc,
+            [roleId]: [...(acc[roleId] || []), userId],
+          };
+        },
+        roleIds.reduce((acc, roleId) => ({ ...acc, [roleId]: [] }), {})
+      );
+
+      const reducedDataArray = Object.entries(reducedData).map(
+        ([key, value]) => ({
+          title: key,
+          data: value as string[],
+          roleData: roles.find((role) => role.id === key),
+        })
+      );
+
+      reducedDataArray.sort((a, b) => {
+        return a.roleData?.level - b.roleData?.level ?? 0;
+      });
+
+      return reducedDataArray;
+    },
+    [roleIds, roles]
+  );
+
   if (status === "loading") {
     return { status: "loading" };
   }
@@ -80,28 +119,7 @@ export const useReducedMembersByRole = (roles: Role[]) => {
     return { status: "error" };
   }
 
-  const reducedData = data.docs.reduce(
-    (acc, doc) => {
-      const { roleId } = doc.data();
-      const userId = doc.ref.parent.parent?.id;
-
-      return {
-        ...acc,
-        [roleId]: [...(acc[roleId] || []), userId],
-      };
-    },
-    roleIds.reduce((acc, roleId) => ({ ...acc, [roleId]: [] }), {})
-  );
-
-  const reducedDataArray = Object.entries(reducedData).map(([key, value]) => ({
-    title: key,
-    data: value as string[],
-    roleData: roles.find((role) => role.id === key),
-  }));
-
-  reducedDataArray.sort((a, b) => {
-    return a.roleData?.level - b.roleData?.level ?? 0;
-  });
+  const reducedDataArray = reduceMembers(data);
 
   return {
     status,

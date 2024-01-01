@@ -11,7 +11,7 @@ import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { z } from "zod";
 import { useRoomContext } from "../context/room-context";
 
-const logSchema = z.object({
+export const Log = z.object({
   accessed: z.boolean(),
   bluetooth: z.boolean(),
   room: z.string(),
@@ -25,7 +25,7 @@ const logSchema = z.object({
     .optional(),
 });
 
-export type Log = z.infer<typeof logSchema>;
+export type Log = z.infer<typeof Log>;
 
 interface UseLogsProps {
   today?: boolean;

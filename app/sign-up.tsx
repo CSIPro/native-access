@@ -1,10 +1,9 @@
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,9 +16,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { IonIcon } from "@/components/icons/ion";
 import { MaterialIcon } from "@/components/icons/material";
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "@/components/modal/modal";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Input, InputErrorText } from "@/components/ui/input";
+import { TextButton } from "@/components/ui/text-button";
 
 import { useRooms } from "@/hooks/use-rooms";
 
@@ -27,13 +33,6 @@ import { SignUpForm, createUser } from "@/lib/signup-utils";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import {
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "@/components/modal/modal";
-import { TextButton } from "@/components/ui/text-button";
 
 export default function SignUp() {
   const mutation = useMutation<void, Error, SignUpForm>({

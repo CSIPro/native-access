@@ -5,11 +5,13 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { useRoleContext } from "../../../context/role-context";
-import colors from "../../../constants/colors";
-import { RoleList } from "../../../components/members/role-list";
-import fonts from "../../../constants/fonts";
-import { SafeAreaView } from "react-native-safe-area-context";
+
+import { RoleList } from "@/components/members/role-list";
+
+import { useRoleContext } from "@/context/role-context";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 export default function Members() {
   const colorScheme = useColorScheme();

@@ -1,14 +1,14 @@
+import { Link, Stack } from "expo-router";
 import { View, useColorScheme } from "react-native";
 import { useAuth } from "reactfire";
 
-import { ProfileCard } from "../../../components/profile-card/profile-card";
-
-import colors from "../../../constants/colors";
-import fonts from "../../../constants/fonts";
-import { Link, Stack } from "expo-router";
-import { IonIcon } from "../../../components/icons/ion";
+import { IonIcon } from "@/components/icons/ion";
+import { ProfileCard } from "@/components/profile-card/profile-card";
 import { ProfileMenu } from "@/components/profile-menu/profile-menu";
 import { TextButton } from "@/components/ui/text-button";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 export default function Settings() {
   const auth = useAuth();

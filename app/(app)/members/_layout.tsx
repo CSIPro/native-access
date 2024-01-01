@@ -1,11 +1,12 @@
-import { View } from "react-native";
-import { SceneMap, TabBar, TabView } from "react-native-tab-view";
-import colors from "../../../constants/colors";
-import fonts from "../../../constants/fonts";
 import { useState } from "react";
+import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MembersPage } from "../../../components/members/members-page";
-import { RequestsPage } from "../../../components/requests/requests-page";
+
+import { MembersPage } from "@/components/members/members-page";
+import { RequestsPage } from "@/components/requests/requests-page";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 const renderScene = SceneMap({
   members: MembersPage,

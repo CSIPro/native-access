@@ -1,8 +1,10 @@
-import { RoomList } from "@/components/rooms/room-list";
-import colors from "@/constants/colors";
-import fonts from "@/constants/fonts";
 import { Stack } from "expo-router";
 import { View, useColorScheme } from "react-native";
+
+import { RoomList } from "@/components/rooms/room-list";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 export default function Rooms() {
   const colorScheme = useColorScheme();

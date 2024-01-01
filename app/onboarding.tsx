@@ -1,8 +1,3 @@
-import { OnboardingItem } from "@/components/onboarding/onboarding-item";
-import colors from "@/constants/colors";
-import fonts from "@/constants/fonts";
-import { slides } from "@/constants/slides";
-import { useStore } from "@/store/store";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { FC, ReactNode, useState } from "react";
@@ -20,8 +15,16 @@ import Animated, {
   useAnimatedRef,
   useDerivedValue,
 } from "react-native-reanimated";
+
 import { IonIcon } from "@/components/icons/ion";
 import { OnboardingIndicator } from "@/components/onboarding/onboarding-indicator";
+import { OnboardingItem } from "@/components/onboarding/onboarding-item";
+
+import { useStore } from "@/store/store";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
+import { slides } from "@/constants/slides";
 
 export default function Onboarding() {
   const aRef =

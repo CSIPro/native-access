@@ -6,17 +6,19 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { useLogs } from "../../hooks/use-logs";
-import colors from "../../constants/colors";
-import fonts from "../../constants/fonts";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import {
   LogItem,
   LogItemTimestamp,
   LogItemTitle,
-} from "../../components/logs/log-item";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { RoomPicker } from "../../components/room-picker/room-picker";
-import { StatusBar } from "expo-status-bar";
+} from "@/components/logs/log-item";
+import { RoomPicker } from "@/components/room-picker/room-picker";
+
+import { useLogs } from "@/hooks/use-logs";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 export default function AccessLogs() {
   const colorScheme = useColorScheme();

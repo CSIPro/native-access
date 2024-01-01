@@ -1,26 +1,23 @@
-import { Redirect, Tabs } from "expo-router";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
-
-import { IonIcon } from "../../components/icons/ion";
-
-import colors from "../../constants/colors";
-import { useSigninCheck, useUser } from "reactfire";
-import { SplashScreen } from "../../components/splash/splash";
-import { useUserData } from "../../hooks/use-user-data";
-import { RoomProvider } from "../../context/room-context";
-import { RoleProvider } from "../../context/role-context";
-import { UserContextProvider } from "../../context/user-context";
 import { Image } from "expo-image";
-import fonts from "../../constants/fonts";
+import { Redirect, Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useRoles } from "../../hooks/use-roles";
+
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { useSigninCheck, useUser } from "reactfire";
+
+import { IonIcon } from "@/components/icons/ion";
+import { SplashScreen } from "@/components/splash/splash";
+
+import { RoleProvider } from "@/context/role-context";
+import { RoomProvider } from "@/context/room-context";
+import { UserContextProvider } from "@/context/user-context";
+import { useRoles } from "@/hooks/use-roles";
+import { useUserData } from "@/hooks/use-user-data";
+
 import { useStore } from "@/store/store";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 export default function TabsLayout() {
   const {

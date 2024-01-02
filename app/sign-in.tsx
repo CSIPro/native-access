@@ -2,7 +2,13 @@ import { Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Image } from "expo-image";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 import {
   GoogleSigninButton,
   GoogleSignin,
@@ -16,8 +22,11 @@ import { firebaseAuth } from "@/lib/firebase-config";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { IonIcon } from "@/components/icons/ion";
 
 const accessLogo = require("../assets/access-logo.svg");
+const googleLogo = require("../assets/auth/google-g.png");
+const githubLogo = require("../assets/auth/github-mark.png");
 
 GoogleSignin.configure({
   webClientId:
@@ -64,6 +73,12 @@ export default function SignIn() {
           </View>
           <Image source={accessLogo} style={[styles.logo]} />
         </View>
+        <Pressable style={[styles.button]}>
+          <View style={[styles.iconWrapper]}>
+            <Image source={googleLogo} />
+          </View>
+          <Text>Sign in with Google</Text>
+        </Pressable>
         <GoogleSigninButton onPress={handleGoogleSignIn} />
       </View>
       <StatusBar style="light" />
@@ -105,5 +120,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 4,
     paddingTop: 4,
+  },
+  button: {
+    width: 300,
+    height: 52,
+    borderRadius: 9999,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.default.white[100],
+  },
+  iconWrapper: {
+    position: "absolute",
+    left: 12,
   },
 });

@@ -1,34 +1,27 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
   useColorScheme,
 } from "react-native";
-import colors from "../../constants/colors";
-import fonts from "../../constants/fonts";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { saveToStorage } from "../../lib/utils";
-import { storageKeys } from "../../constants/storage-keys";
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
+import { useMutation } from "react-query";
+import { useUserContext } from "@/context/user-context";
+import { useUserData } from "@/hooks/use-user-data";
+import { saveToStorage } from "@/lib/utils";
+import colors from "@/constants/colors";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
-import { AccessUser, useUserData } from "../../hooks/use-user-data";
-import { useUserContext } from "../../context/user-context";
-import { useMutation, useQuery } from "react-query";
+import { Input } from "../ui/input";
+import { IonIcon } from "../icons/ion";
+import { TextButton } from "../ui/text-button";
+import fonts from "@/constants/fonts";
 
 const formSchema = z.object({
-  passcode: z
-    .string({ required_error: "Passcode is required" })
-    .min(4, { message: "Passcode must be at least 4 characters long" })
-    .max(10, { message: "Passcode must be at most 10 characters long" })
-    .regex(/^(?=.*[\d])(?=.*[A-D])[\dA-D]{4,10}$/gi, {
-      message: "Passcode must be a combination of letters A-D and numbers 0-9",
-    }),
+  passcode: z.string({ required_error: "Passcode is required" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,15 +33,12 @@ interface ModalProps {
 
 export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
   const { submitPasscode } = useUserContext();
-  const {
-    mutateAsync,
-    data: mutationData,
-    isLoading,
-    isError,
-    error,
-  } = useMutation<boolean, Error, string>(submitPasscode, {
-    onError: (error) => console.log(error),
-  });
+  const { mutateAsync, isLoading, error } = useMutation<boolean, Error, string>(
+    submitPasscode,
+    {
+      onError: (error) => console.log(error),
+    }
+  );
   const { status, data } = useUserData();
 
   const {
@@ -83,6 +73,10 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
 
   const palette = colors[colorScheme];
   const isLight = colorScheme === "light";
+
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
 
   return (
     <Modal visible={isOpen} onClose={closeModal}>
@@ -129,61 +123,33 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
               <Controller
                 control={control}
                 name="passcode"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    onBlur={onBlur}
-                    onChangeText={onChange}
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label="Passcode"
                     value={value}
-                    placeholder="Passcode"
-                    placeholderTextColor={
-                      isLight
-                        ? colors.default.black[400]
-                        : colors.default.white[100]
+                    onChangeText={onChange}
+                    placeholder="e.g. A1B2C3"
+                    icon={
+                      <IonIcon
+                        name="md-code-working-outline"
+                        size={24}
+                        color={iconColor}
+                      />
                     }
-                    textContentType="password"
+                    errorText={errors.passcode?.message || error?.message}
                     secureTextEntry={true}
-                    style={[
-                      styles.input,
-                      {
-                        color: isLight
-                          ? colors.default.black[400]
-                          : colors.default.white[100],
-                        borderColor: isLight
-                          ? colors.default.black[400]
-                          : colors.default.white[100],
-                      },
-                    ]}
                   />
                 )}
               />
-              {errors.passcode && (
-                <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
-                  {errors.passcode.message}
-                </Text>
-              )}
-              <View>
-                {isError && (
-                  <Text style={[styles.prompt, { fontSize: 12, color: "red" }]}>
-                    {error?.message}
-                  </Text>
-                )}
-              </View>
             </ModalBody>
             <ModalFooter>
-              <Pressable
-                disabled={isLoading}
-                onPress={handleSubmit(submit)}
-                style={[
-                  styles.submitButton,
-                  { backgroundColor: palette.tint, alignSelf: "center" },
-                ]}
-              >
+              <TextButton onPress={handleSubmit(submit)}>
                 {isLoading ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={iconColor} />
                 ) : (
-                  <Text style={[styles.buttonText]}>Submit</Text>
+                  "Submit"
                 )}
-              </Pressable>
+              </TextButton>
             </ModalFooter>
           </View>
         )}

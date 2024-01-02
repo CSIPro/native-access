@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { FC, useEffect } from "react";
+import { useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -117,11 +117,8 @@ export default function Home() {
   );
 }
 
-interface DashboardItemProps {
-  isLight?: boolean;
-}
-
-const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
+const SuccessfulLogs = () => {
+  const isLight = useColorScheme() === "light";
   const { logs } = useSuccessfulLogs();
   const sv = useSharedValue(0);
 
@@ -140,7 +137,7 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
           ? colors.default.tint.translucid[500]
           : colors.default.tint.translucid[100],
         isLight
-          ? colors.default.tint.translucid[800]
+          ? colors.default.tint.translucid[400]
           : colors.default.tint.translucid[400],
       ]
     );
@@ -156,13 +153,8 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
         styles.successContainer,
         animatedItem,
         {
-          // backgroundColor: isLight
-          //   ? colors.default.tint.translucid[100]
-          //   : colors.default.tint.translucid[100],
           borderWidth: 2,
-          borderColor: isLight
-            ? colors.default.tint[400]
-            : colors.default.tint[400],
+          borderColor: colors.default.tint[400],
         },
       ]}
     >
@@ -170,9 +162,7 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
         style={[
           styles.bubbleText,
           {
-            color: isLight
-              ? colors.default.tint[500]
-              : colors.default.tint[200],
+            color: colors.default.white[100],
             fontSize: 72,
             fontFamily: fonts.poppins,
           },
@@ -185,8 +175,8 @@ const SuccessfulLogs: FC<DashboardItemProps> = ({ isLight = false }) => {
           styles.bubbleText,
           {
             color: isLight
-              ? colors.default.tint[300]
-              : colors.default.tint[200],
+              ? colors.default.white[100]
+              : colors.default.white.translucid[900],
             fontSize: 16,
           },
         ]}

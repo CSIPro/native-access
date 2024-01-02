@@ -48,9 +48,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
     };
   });
 
-  const iconColor = isLight
-    ? colors.default[color].translucid[600]
-    : colors.default[color].translucid[600];
+  const iconColor = colors.default[color].translucid[600];
 
   return (
     <Animated.View
@@ -58,9 +56,6 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
         styles.dataContainer,
         animatedItem,
         {
-          // backgroundColor: isLight
-          //   ? colors.default[color].translucid[500]
-          //   : colors.default[color].translucid[100],
           borderWidth: 2,
           borderColor: colors.default[color][400],
         },
@@ -85,9 +80,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
             styles.bubbleText,
             {
               fontSize: 40,
-              color: isLight
-                ? colors.default.white[100]
-                : colors.default.white[100],
+              color: colors.default.white[100],
             },
           ]}
         >

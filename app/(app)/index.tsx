@@ -1,3 +1,4 @@
+import * as Linking from "expo-linking";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import {
@@ -37,6 +38,7 @@ import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
 export default function Home() {
+  const url = Linking.useURL();
   const colorScheme = useColorScheme();
   const openModal = useStore((state) => state.openPasscodeModal);
   const closeModal = useStore((state) => state.onClosePasscodeModal);
@@ -44,6 +46,8 @@ export default function Home() {
   const palette = colors[colorScheme];
 
   const isLight = colorScheme === "light";
+
+  console.log(url);
 
   return (
     <SafeAreaView

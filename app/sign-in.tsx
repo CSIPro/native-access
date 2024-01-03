@@ -1,7 +1,13 @@
+import Constants from "expo-constants";
+import * as Linking from "expo-linking";
 import { Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Image } from "expo-image";
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from "firebase/auth";
 import {
   Pressable,
   StyleSheet,
@@ -19,6 +25,8 @@ import { firebaseAuth } from "@/lib/firebase-config";
 
 import colors from "@/constants/colors";
 import { Branding } from "@/components/branding/branding";
+import { useEffect } from "react";
+import { z } from "zod";
 
 const accessBanner = require("../assets/banner.png");
 const accessLogo = require("../assets/access-logo.svg");
@@ -30,9 +38,37 @@ GoogleSignin.configure({
     "1050055617140-39t9pnkben51i9dlsj472p6vug65p0sk.apps.googleusercontent.com",
 });
 
+const githubBaseUrl = "https://github.com/login/oauth/authorize";
+
+const GithubResponse = z.object({
+  accessToken: z.string(),
+});
+type GithubResponse = z.infer<typeof GithubResponse>;
+
 export default function SignIn() {
   const { status, data } = useSigninCheck();
   const colorSchemeValue = useColorScheme();
+
+  Linking.addEventListener("url", (event) => {
+    handleURL(event.url);
+  });
+
+  const handleURL = (url: string) => {
+    if (url) {
+      const { queryParams } = Linking.parse(url);
+
+      const params = GithubResponse.parse(queryParams);
+
+      const token = params.accessToken;
+
+      if (!token) {
+        throw new Error("No token provided");
+      }
+
+      const credential = GithubAuthProvider.credential(token);
+      signInWithCredential(firebaseAuth, credential);
+    }
+  };
 
   const colorScheme = colorSchemeValue ?? "light";
 
@@ -44,6 +80,20 @@ export default function SignIn() {
     const credential = GoogleAuthProvider.credential(userData.idToken);
 
     await signInWithCredential(firebaseAuth, credential);
+  };
+
+  const handleGithubSignIn = async () => {
+    const clientId = Constants.expoConfig.extra?.githubClientId;
+    const apiUrl = Constants.expoConfig.extra?.apiUrl;
+    const redirectUri = `${apiUrl}oauth/callback/native`;
+    console.log(redirectUri);
+
+    if (!clientId) {
+      throw new Error("No GitHub client ID provided");
+    }
+
+    const githubAuthUrl = `${githubBaseUrl}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`;
+    Linking.openURL(githubAuthUrl);
   };
 
   if (status === "loading") {
@@ -78,7 +128,7 @@ export default function SignIn() {
             </View>
             <Text style={[styles.googleLabel]}>Sign in with Google</Text>
           </Pressable>
-          <Pressable onPress={handleGoogleSignIn} style={[styles.button]}>
+          <Pressable onPress={handleGithubSignIn} style={[styles.button]}>
             <View style={[styles.iconWrapper]}>
               <Image
                 source={githubLogo}

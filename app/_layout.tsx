@@ -76,6 +76,10 @@ function RootLayoutNav() {
                       options={{ headerShown: false }}
                       initialParams={{ initialRouteName: "index" }}
                     />
+                    <Stack.Screen
+                      name="(oauth)/github"
+                      options={{ headerShown: false }}
+                    />
                   </Stack>
                 </BottomSheetModalProvider>
               </GestureHandlerRootView>

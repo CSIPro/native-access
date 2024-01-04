@@ -25,7 +25,6 @@ import { firebaseAuth } from "@/lib/firebase-config";
 
 import colors from "@/constants/colors";
 import { Branding } from "@/components/branding/branding";
-import { useEffect } from "react";
 import { z } from "zod";
 
 const accessBanner = require("../assets/banner.png");
@@ -86,7 +85,6 @@ export default function SignIn() {
     const clientId = Constants.expoConfig.extra?.githubClientId;
     const apiUrl = Constants.expoConfig.extra?.authApiUrl;
     const redirectUri = `${apiUrl}oauth/callback/native`;
-    console.log(redirectUri);
 
     if (!clientId) {
       throw new Error("No GitHub client ID provided");

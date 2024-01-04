@@ -1,28 +1,30 @@
 import {
   ActivityIndicator,
-  FlatList,
   SectionList,
   StyleSheet,
   Text,
   View,
   useColorScheme,
 } from "react-native";
-import { useRoleContext } from "../../context/role-context";
-import colors from "../../constants/colors";
-import { MembersList } from "./members-list";
-import fonts from "../../constants/fonts";
 import { FC } from "react";
-import { useReducedMembersByRole } from "../../hooks/use-room-members";
+
 import { MemberItem } from "./member-item";
-import { Role } from "../../hooks/use-roles";
+
+import { Role } from "@/hooks/use-roles";
+import { useMembersQuery } from "@/hooks/use-room-members";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   roles: Role[];
+  userRole: Role;
+  isRoot: boolean;
 }
 
-export const RoleList: FC<Props> = ({ roles }) => {
+export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
   const colorScheme = useColorScheme();
-  const { status, data } = useReducedMembersByRole(roles);
+  const { status, data } = useMembersQuery(roles);
 
   const isLight = colorScheme === "light";
 
@@ -61,9 +63,14 @@ export const RoleList: FC<Props> = ({ roles }) => {
       <SectionList
         sections={data}
         keyExtractor={(item) => item}
-        renderItem={({ item }) => (
+        renderItem={({ item, section: { roleData } }) => (
           <View style={[{ paddingHorizontal: 4 }]}>
-            <MemberItem uid={item} />
+            <MemberItem
+              uid={item}
+              role={roleData}
+              userRole={userRole}
+              isRoot={isRoot}
+            />
           </View>
         )}
         renderSectionHeader={({ section: { roleData } }) => (

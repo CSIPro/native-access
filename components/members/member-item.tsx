@@ -1,4 +1,5 @@
-import { FC, ReactNode, useState } from "react";
+import { format } from "date-fns/esm";
+import { FC, ReactNode, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -14,15 +15,7 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
-import {
-  useUserData,
-  useUserDataWithId,
-  useUserRoleWithId,
-} from "../../hooks/use-user-data";
-import colors from "../../constants/colors";
-import fonts from "../../constants/fonts";
-import { updateDoc } from "firebase/firestore";
-import { useRoleContext } from "../../context/role-context";
+
 import {
   MemberCard,
   MemberCardAuthorized,
@@ -31,36 +24,49 @@ import {
   MemberCardRole,
   MemberCardUniSonId,
 } from "./member-card";
-import { format } from "date-fns/esm";
 import { MaterialIcon } from "../icons/material";
+
+import { Role } from "@/hooks/use-roles";
+import { useAccessUpdate, useMemberQuery } from "@/hooks/use-user-data";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   uid?: string;
+  role: Role;
+  userRole: Role;
+  isRoot: boolean;
 }
 
-export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
+export const MemberItem: FC<Props> = ({
+  uid = "invalid",
+  role,
+  userRole,
+  isRoot,
+}) => {
   const [openDetails, setOpenDetails] = useState(false);
+  const [localAccess, setLocalAccess] = useState(false);
 
   const colorScheme = useColorScheme();
-  const { status: rolesStatus, roles } = useRoleContext();
-  const { status: userStatus, data: userData } = useUserData();
-  const { status: memberStatus, data: memberData } = useUserDataWithId(uid);
   const {
-    status: memberRoleStatus,
-    data: memberRoleData,
-    doc: memberRoleDoc,
-  } = useUserRoleWithId(uid);
+    status: memberStatus,
+    data: memberData,
+    doc: memberDoc,
+  } = useMemberQuery(uid);
+  const { accessMutation } = useAccessUpdate(uid);
 
   const isLight = colorScheme === "light";
 
   const handleCloseDetails = () => setOpenDetails(false);
 
-  if (
-    memberStatus === "loading" ||
-    memberRoleStatus === "loading" ||
-    rolesStatus === "loading" ||
-    userStatus === "loading"
-  ) {
+  useEffect(() => {
+    if (memberStatus !== "success") return;
+
+    setLocalAccess(memberData?.role?.accessGranted ?? false);
+  }, [memberStatus, memberData]);
+
+  if (memberStatus === "loading") {
     return (
       <View>
         <View style={[styles.memberItem, { justifyContent: "center" }]}>
@@ -75,12 +81,7 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
     );
   }
 
-  if (
-    memberStatus === "error" ||
-    memberRoleStatus === "error" ||
-    rolesStatus === "error" ||
-    userStatus === "error"
-  ) {
+  if (memberStatus === "error") {
     return (
       <View>
         <View style={[styles.memberItem]}>
@@ -94,80 +95,80 @@ export const MemberItem: FC<Props> = ({ uid = "invalid" }) => {
     );
   }
 
-  const memberHasAccess = !!memberRoleData?.accessGranted ?? false;
-
   const iconColor = isLight
-    ? memberHasAccess
+    ? localAccess
       ? colors.default.tint[600]
       : colors.default.secondary[600]
-    : memberHasAccess
+    : localAccess
     ? colors.default.tint[200]
     : colors.default.secondary[200];
 
-  const isRoot = userData?.isRoot ?? false;
-  const memberRole = roles.find((role) => role?.id === memberRoleData?.roleId);
-  const userRole = roles.find((role) => role?.id === userData?.role?.roleId);
   const canSetAccess =
     isRoot ||
-    ((userRole?.canGrantOrRevokeAccess ?? false) &&
-      userRole?.level > memberRole?.level);
+    ((userRole.canGrantOrRevokeAccess ?? false) &&
+      userRole.level > role?.level);
   const canSetRoles =
-    isRoot ||
-    ((userRole?.canSetRoles ?? false) && userRole?.level > memberRole?.level);
+    isRoot || ((userRole.canSetRoles ?? false) && userRole.level > role?.level);
   const canKickMembers =
     isRoot ||
-    ((userRole?.canKickMembers ?? false) &&
-      userRole?.level > memberRole?.level);
+    ((userRole.canKickMembers ?? false) && userRole.level > role?.level);
 
   const handleUpdateAccess = async (value: boolean) => {
-    if (!memberRoleDoc || !canSetAccess) return;
+    if (!memberDoc || !canSetAccess) return;
 
     try {
-      await updateDoc(memberRoleDoc, { accessGranted: value });
+      setLocalAccess(value);
+      accessMutation.mutate(value);
     } catch (error) {
+      setLocalAccess(!value);
       console.error(error);
     }
   };
 
   return (
     <View style={{ paddingHorizontal: 4 }}>
-      <Pressable onPress={() => setOpenDetails(true)}>
-        <MemberWrapper memberHasAccess={memberHasAccess}>
+      <MemberWrapper memberHasAccess={localAccess}>
+        <Pressable
+          onPress={() => setOpenDetails(true)}
+          style={[{ padding: 4 }]}
+        >
           <View style={[styles.iconWrapper]}>
             <MaterialIcon name="visibility" size={24} color={iconColor} />
           </View>
-          <MemberName>{memberData?.name ?? "Unknown"}</MemberName>
-          <MemberAccess
-            accessGranted={!!memberRoleData?.accessGranted}
-            setAccess={handleUpdateAccess}
-            disabled={!canSetAccess}
-          />
-        </MemberWrapper>
-      </Pressable>
-      <MemberCard
-        open={openDetails}
-        onClose={handleCloseDetails}
-        kickable={canKickMembers}
-        doc={memberRoleDoc}
-      >
-        <MemberCardName>
-          {memberData?.name}
-          {" \u2022 "}
-          {memberData?.csiId}
-        </MemberCardName>
-        <MemberCardUniSonId>{memberData?.unisonId}</MemberCardUniSonId>
-        <MemberCardBirthday>
-          {format(memberData?.dateOfBirth.toDate(), "MMMM dd")}
-        </MemberCardBirthday>
-        <MemberCardRole
-          canSetRoles={canSetRoles}
-          roleDoc={memberRoleDoc}
-          roleData={memberRoleData}
+        </Pressable>
+        <MemberName>{memberData?.name ?? "Unknown"}</MemberName>
+        <MemberAccess
+          accessGranted={localAccess}
+          setAccess={handleUpdateAccess}
+          disabled={!canSetAccess}
+        />
+      </MemberWrapper>
+      {openDetails && (
+        <MemberCard
+          open={openDetails}
+          onClose={handleCloseDetails}
+          kickable={canKickMembers}
+          doc={memberDoc}
         >
-          {memberRole?.name}
-        </MemberCardRole>
-        <MemberCardAuthorized authorized={memberHasAccess} />
-      </MemberCard>
+          <MemberCardName>
+            {memberData?.name}
+            {" \u2022 "}
+            {memberData?.csiId}
+          </MemberCardName>
+          <MemberCardUniSonId>{memberData?.unisonId}</MemberCardUniSonId>
+          <MemberCardBirthday>
+            {format(memberData?.dateOfBirth.toDate(), "MMMM dd")}
+          </MemberCardBirthday>
+          <MemberCardRole
+            canSetRoles={canSetRoles}
+            roleDoc={memberDoc}
+            roleData={memberData}
+          >
+            {role?.name}
+          </MemberCardRole>
+          <MemberCardAuthorized authorized={localAccess} />
+        </MemberCard>
+      )}
     </View>
   );
 };
@@ -214,22 +215,6 @@ const MemberWrapper: FC<MemberWrapperProps> = ({
 
     return { backgroundColor, borderColor };
   });
-
-  const backgroundColor = isLight
-    ? memberHasAccess
-      ? colors.default.tint.translucid[700]
-      : colors.default.secondary.translucid[600]
-    : memberHasAccess
-    ? colors.default.tint.translucid[200]
-    : colors.default.secondary.translucid[200];
-
-  const borderColor = isLight
-    ? memberHasAccess
-      ? colors.default.tint[600]
-      : colors.default.secondary[600]
-    : memberHasAccess
-    ? colors.default.tint[300]
-    : colors.default.secondary[300];
 
   return (
     <Animated.View

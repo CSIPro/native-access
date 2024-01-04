@@ -1,10 +1,18 @@
-import { Timestamp, doc } from "firebase/firestore";
+import {
+  DocumentData,
+  DocumentReference,
+  Timestamp,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 import { z } from "zod";
 
 import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
 import { useRoomContext } from "../context/room-context";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const UserRoomRole = z.object({
   id: z.string(),
@@ -129,6 +137,98 @@ export const useUserDataWithId = (uid: string | undefined) => {
     status: userStatus,
     data: mergedData,
   };
+};
+
+export const useMemberQuery = (uid: string | undefined) => {
+  const firestore = useFirestore();
+  const { selectedRoom } = useRoomContext();
+  const userDoc = doc(firestore, "users", uid ?? "undefined");
+  const userRoomRoleDoc = doc(
+    firestore,
+    "user_roles",
+    uid ?? "undefined",
+    "room_roles",
+    selectedRoom || "invalid"
+  );
+
+  const { status, data, error } = useQuery({
+    queryKey: ["member", uid],
+    queryFn: async () => {
+      const user = await getDoc(userDoc);
+      const userRoomRole = await getDoc(userRoomRoleDoc);
+
+      const userSafeParse = AccessUser.safeParse({
+        ...user.data(),
+        id: user.id,
+        role: { ...userRoomRole.data(), id: userRoomRole.id },
+      });
+
+      if (userSafeParse.success) {
+        return userSafeParse.data;
+      } else {
+        console.error(userSafeParse);
+        throw new Error("Something went wrong while retrieving user data");
+      }
+    },
+  });
+
+  return {
+    status,
+    data,
+    error,
+    doc: userRoomRoleDoc,
+  };
+};
+
+export const useAccessUpdate = (uid: string) => {
+  const queryClient = useQueryClient();
+  const firestore = useFirestore();
+  const { selectedRoom } = useRoomContext();
+  const userRoomRoleDoc = doc(
+    firestore,
+    "user_roles",
+    uid,
+    "room_roles",
+    selectedRoom || "invalid"
+  );
+
+  const accessMutation = useMutation({
+    mutationFn: async (accessGranted: boolean) => {
+      await updateDoc(userRoomRoleDoc, {
+        accessGranted,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["member", uid]);
+    },
+  });
+
+  return {
+    accessMutation,
+  };
+};
+
+export const useRoleUpdate = () => {
+  const { selectedRoom } = useRoomContext();
+  const queryClient = useQueryClient();
+  const roleMutation = useMutation({
+    mutationFn: async ({
+      doc,
+      roleId,
+    }: {
+      doc: DocumentReference<DocumentData>;
+      roleId: string;
+    }) => {
+      await updateDoc(doc, {
+        roleId,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["members", selectedRoom]);
+    },
+  });
+
+  return { roleMutation };
 };
 
 export const useUserRole = () => {

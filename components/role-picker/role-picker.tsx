@@ -1,20 +1,22 @@
 import * as LocalAuthentication from "expo-local-authentication";
+import { DocumentData, DocumentReference } from "firebase/firestore";
 import { FC, useState } from "react";
-import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
-import { DocumentData, DocumentReference, updateDoc } from "firebase/firestore";
-import { UserRoomRole } from "../../hooks/use-user-data";
-import { Role, useRoles } from "../../hooks/use-roles";
 import {
   FlatList,
   Pressable,
   StyleSheet,
   Text,
-  View,
   useColorScheme,
 } from "react-native";
-import fonts from "../../constants/fonts";
-import colors from "../../constants/colors";
+
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { TextButton } from "../ui/text-button";
+
+import { Role, useRoles } from "@/hooks/use-roles";
+import { UserRoomRole, useRoleUpdate } from "@/hooks/use-user-data";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   open: boolean;
@@ -29,25 +31,9 @@ export const RolePicker: FC<Props> = ({
   currentDoc: doc,
   currentData: data,
 }) => {
+  const { roleMutation } = useRoleUpdate();
   const [selectedRole, setSelectedRole] = useState(data.roleId);
   const { data: roles } = useRoles();
-
-  const colorScheme = useColorScheme();
-  const isLight = colorScheme === "light";
-
-  const submitBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[100];
-  const submitText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
-  const cancelBg = isLight
-    ? colors.default.secondary.translucid[100]
-    : colors.default.secondary.translucid[100];
-  const cancelText = isLight
-    ? colors.default.secondary[400]
-    : colors.default.secondary[100];
 
   const handleSubmit = async () => {
     try {
@@ -57,7 +43,8 @@ export const RolePicker: FC<Props> = ({
 
       if (!auth.success) return;
 
-      await updateDoc(doc, { roleId: selectedRole });
+      roleMutation.mutate({ doc: doc, roleId: selectedRole });
+      onClose();
     } catch (error) {
       console.error(error);
     }

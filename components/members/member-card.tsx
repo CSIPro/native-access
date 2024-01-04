@@ -1,22 +1,19 @@
 import * as LocalAuthentication from "expo-local-authentication";
 import { FC, ReactNode, useState } from "react";
-import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
-import fonts from "../../constants/fonts";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
-import colors from "../../constants/colors";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { DocumentData, DocumentReference, deleteDoc } from "firebase/firestore";
+
 import { IonIcon } from "../icons/ion";
 import { MaterialIcon } from "../icons/material";
 import { FAIcon } from "../icons/font-awesome";
+import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { RolePicker } from "../role-picker/role-picker";
-import { DocumentData, DocumentReference, deleteDoc } from "firebase/firestore";
-import { UserRoomRole } from "../../hooks/use-user-data";
 import { TextButton } from "../ui/text-button";
+
+import { UserRoomRole } from "@/hooks/use-user-data";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   open: boolean;

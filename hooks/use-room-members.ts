@@ -1,8 +1,8 @@
 import {
   DocumentData,
-  QueryDocumentSnapshot,
   QuerySnapshot,
   collectionGroup,
+  getDocs,
   query,
   where,
 } from "firebase/firestore";
@@ -11,6 +11,7 @@ import { useFirestore, useFirestoreCollection } from "reactfire";
 
 import { RoomContext } from "../context/room-context";
 import { Role } from "./use-roles";
+import { useQuery } from "react-query";
 
 export const useRoomMembers = () => {
   const { selectedRoom } = useContext(RoomContext);
@@ -124,5 +125,56 @@ export const useReducedMembersByRole = (roles: Role[]) => {
   return {
     status,
     data: reducedDataArray,
+  };
+};
+
+export const useMembersQuery = (roles: Role[]) => {
+  const firestore = useFirestore();
+  const { selectedRoom } = useContext(RoomContext);
+  const roleIds = roles.map((role) => role.id);
+  const { status, data, error } = useQuery({
+    queryKey: ["members", selectedRoom],
+    queryFn: async () => {
+      const roomRoles = collectionGroup(firestore, "room_roles");
+      const roomRolesQuery = query(
+        roomRoles,
+        where("key", "==", selectedRoom),
+        where("roleId", "in", roleIds)
+      );
+
+      const docs = (await getDocs(roomRolesQuery)).docs;
+      const reducedData = docs.reduce(
+        (acc, doc) => {
+          const { roleId } = doc.data();
+          const userId = doc.ref.parent.parent?.id;
+
+          return {
+            ...acc,
+            [roleId]: [...(acc[roleId] || []), userId],
+          };
+        },
+        roleIds.reduce((acc, roleId) => ({ ...acc, [roleId]: [] }), {})
+      );
+
+      const reducedDataArray = Object.entries(reducedData).map(
+        ([key, value]) => ({
+          title: key,
+          data: value as string[],
+          roleData: roles.find((role) => role.id === key),
+        })
+      );
+
+      reducedDataArray.sort((a, b) => {
+        return a.roleData?.level - b.roleData?.level ?? 0;
+      });
+
+      return reducedDataArray;
+    },
+  });
+
+  return {
+    status,
+    data,
+    error,
   };
 };

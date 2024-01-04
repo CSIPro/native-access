@@ -5,19 +5,24 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { useRoleContext } from "../../context/role-context";
-import colors from "../../constants/colors";
+
 import { RoleList } from "./role-list";
-import fonts from "../../constants/fonts";
 import { RoomPicker } from "../room-picker/room-picker";
+
+import { useRoleContext } from "@/context/role-context";
+import { useUserData } from "@/hooks/use-user-data";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 export const MembersPage = () => {
   const colorScheme = useColorScheme();
   const { status, roles } = useRoleContext();
+  const { status: userStatus, data: userData } = useUserData();
 
   const isLight = colorScheme === "light";
 
-  if (status === "loading") {
+  if (status === "loading" || userStatus === "loading") {
     return (
       <View style={[styles.centered]}>
         <ActivityIndicator
@@ -28,7 +33,7 @@ export const MembersPage = () => {
     );
   }
 
-  if (status === "error") {
+  if (status === "error" || userStatus === "error") {
     return (
       <View style={[styles.centered]}>
         <Text
@@ -47,6 +52,9 @@ export const MembersPage = () => {
     );
   }
 
+  const userRole = roles.find((role) => role.id === userData?.role?.id);
+  const isRoot = userData?.isRoot ?? false;
+
   return (
     <View
       style={{
@@ -59,7 +67,7 @@ export const MembersPage = () => {
       <View style={[styles.roomPickerWrapper]}>
         <RoomPicker />
       </View>
-      <RoleList roles={roles} />
+      <RoleList roles={roles} userRole={userRole} isRoot={isRoot} />
     </View>
   );
 };

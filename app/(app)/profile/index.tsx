@@ -9,12 +9,18 @@ import { TextButton } from "@/components/ui/text-button";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { deleteAllFromStorage } from "@/lib/utils";
 
 export default function Settings() {
   const auth = useAuth();
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";
+
+  const handleSignOut = () => {
+    deleteAllFromStorage();
+    auth.signOut();
+  };
 
   return (
     <View
@@ -57,7 +63,7 @@ export default function Settings() {
       <ProfileMenu />
       <TextButton
         variant="secondary"
-        onPress={() => auth.signOut()}
+        onPress={handleSignOut}
         style={[{ alignSelf: "center" }]}
       >
         Log out

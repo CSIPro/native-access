@@ -29,7 +29,12 @@ import { slides } from "@/constants/slides";
 export default function Onboarding() {
   const aRef =
     useAnimatedRef<
-      Animated.FlatList<{ id: string; title: string; description: string }>
+      Animated.FlatList<{
+        id: string;
+        title: string;
+        description: string;
+        image: number;
+      }>
     >();
 
   const [index, setIndex] = useState(0);

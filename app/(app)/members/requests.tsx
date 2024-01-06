@@ -6,13 +6,16 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import colors from "../../constants/colors";
-import { useRoomRequests } from "../../hooks/use-requests";
-import fonts from "../../constants/fonts";
-import { RequestItem } from "./request-item";
-import { RoomPicker } from "../room-picker/room-picker";
 
-export const RequestsPage = () => {
+import { RequestItem } from "@/components/requests/request-item";
+import { RoomPicker } from "@/components/room-picker/room-picker";
+
+import { useRoomRequests } from "@/hooks/use-requests";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
+
+export default function RequestsPage() {
   const { status: reqStatus, data: requests } = useRoomRequests();
   const colorScheme = useColorScheme();
 

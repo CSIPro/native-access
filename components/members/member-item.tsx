@@ -105,13 +105,13 @@ export const MemberItem: FC<Props> = ({
 
   const canSetAccess =
     isRoot ||
-    ((userRole.canGrantOrRevokeAccess ?? false) &&
-      userRole.level > role?.level);
+    ((userRole?.canGrantOrRevokeAccess ?? false) &&
+      userRole?.level > role?.level);
   const canSetRoles =
-    isRoot || ((userRole.canSetRoles ?? false) && userRole.level > role?.level);
+    isRoot || ((userRole?.canSetRoles ?? false) && userRole.level > role?.level);
   const canKickMembers =
     isRoot ||
-    ((userRole.canKickMembers ?? false) && userRole.level > role?.level);
+    ((userRole?.canKickMembers ?? false) && userRole.level > role?.level);
 
   const handleUpdateAccess = async (value: boolean) => {
     if (!memberDoc || !canSetAccess) return;

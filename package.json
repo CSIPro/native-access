@@ -56,7 +56,8 @@
     "zod": "^3.22.4",
     "zustand": "^4.4.7",
     "@react-native-community/datetimepicker": "7.2.0",
-    "expo-notifications": "~0.20.1"
+    "expo-notifications": "~0.20.1",
+    "expo-device": "~5.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

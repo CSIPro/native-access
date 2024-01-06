@@ -58,6 +58,13 @@ export default {
           faceIDPermission: "Allow $(PRODUCT_NAME) to use Face ID",
         },
       ],
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/icon.png",
+          color: "#7145d6",
+        },
+      ],
     ],
     updates: {
       url: "https://u.expo.dev/9ca4842f-91b6-4a15-8832-b5f4b1270f63",

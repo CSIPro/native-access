@@ -124,7 +124,7 @@ export default function SignIn() {
                 style={[{ height: 24, aspectRatio: 1 }]}
               />
             </View>
-            <Text style={[styles.googleLabel]}>Sign in with Google</Text>
+            <Text style={[styles.signinLabel]}>Sign in with Google</Text>
           </Pressable>
           <Pressable onPress={handleGithubSignIn} style={[styles.button]}>
             <View style={[styles.iconWrapper]}>
@@ -133,7 +133,7 @@ export default function SignIn() {
                 style={[{ height: 24, aspectRatio: 1 }]}
               />
             </View>
-            <Text>Sign in with GitHub</Text>
+            <Text style={[styles.signinLabel]}>Sign in with GitHub</Text>
           </Pressable>
         </View>
       </View>
@@ -179,8 +179,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.default.white[100],
+    borderWidth: 1,
+    borderColor: "#747775",
   },
-  googleLabel: {
+  signinLabel: {
+    fontSize: 16,
     fontWeight: "500",
   },
   iconWrapper: {

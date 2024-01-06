@@ -170,6 +170,7 @@ export const useMembersQuery = (roles: Role[]) => {
 
       return reducedDataArray;
     },
+    refetchInterval: 60000,
   });
 
   return {

@@ -170,6 +170,7 @@ export const useMemberQuery = (uid: string | undefined) => {
         throw new Error("Something went wrong while retrieving user data");
       }
     },
+    refetchInterval: 10000,
   });
 
   return {

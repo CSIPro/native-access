@@ -1,8 +1,5 @@
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
-import { IonIcon } from "../../icons/ion";
-import colors from "../../../constants/colors";
-import fonts from "../../../constants/fonts";
 import { ComponentProps, FC, useEffect } from "react";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -10,6 +7,11 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+
+import { IonIcon } from "@/components/icons/ion";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   logs: number;
@@ -65,14 +67,17 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
         style={[
           {
             ...StyleSheet.absoluteFillObject,
-            top: 12,
-            left: 24,
+            height: "160%",
+            width: "175%",
+            // backgroundColor: "red",
+            // top: 12,
+            // left: 24,
             alignItems: "center",
             justifyContent: "center",
           },
         ]}
       >
-        <IonIcon name={icon} color={iconColor} size={96} />
+        <IonIcon name={icon} color={iconColor} size={112} />
       </View>
       <View style={[styles.dataTextContainer]}>
         <Text
@@ -87,6 +92,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
           {logs}
         </Text>
         <Text
+          numberOfLines={1}
           style={[
             styles.bubbleText,
             {
@@ -162,12 +168,12 @@ const styles = StyleSheet.create({
     position: "relative",
     justifyContent: "center",
     alignItems: "center",
-    width: 100,
+    // width: 100,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    flex: 1,
+    padding: 8,
     overflow: "hidden",
-    aspectRatio: 1,
+    // aspectRatio: 1,
   },
   dataTextContainer: {
     alignItems: "center",
@@ -181,6 +187,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   bubbleText: {
+    textAlign: "center",
     fontFamily: fonts.poppinsMedium,
     fontSize: 14,
   },

@@ -302,6 +302,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   dashboardRow: {
+    gap: 12,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",

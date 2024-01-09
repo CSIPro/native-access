@@ -119,6 +119,7 @@ export const createUser = async ({
   try {
     const token = await authUser.getIdToken();
 
+    //TODO: Update the sign-up API
     const res = await fetch("http://192.168.100.24:5173/api/users/add", {
       method: "POST",
       body: JSON.stringify({

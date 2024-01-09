@@ -10,14 +10,16 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-
-import colors from "../../constants/colors";
 import { State } from "react-native-ble-plx";
-import fonts from "../../constants/fonts";
+
 import { PibleItem } from "./pible-item";
 import { IonIcon } from "../icons/ion";
-import { useStore } from "../../store/store";
-import { ScanState } from "../../store/ble-slice";
+
+import { ScanState } from "@/store/ble-slice";
+import { useStore } from "@/store/store";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
   if (state === ScanState.enum.idle) {
@@ -53,6 +55,14 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
   return (
     <Pressable style={[styles.scanControlButton]} onPress={handlePress}>
       {icon}
+      <Text
+        style={[
+          styles.stateLabel,
+          { paddingTop: 2, color: colors.default.tint[400] },
+        ]}
+      >
+        {state === ScanState.enum.idle ? "start" : "stop"}
+      </Text>
     </Pressable>
   );
 };
@@ -92,7 +102,12 @@ export const PibleScanner = () => {
           `${item.id}-${item.localName}-${item.rssi}-${index}`
         }
         renderItem={({ item }) => <PibleItem device={item} />}
-        contentContainerStyle={{ flexGrow: 1, gap: 8, paddingHorizontal: 8 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          gap: 4,
+          paddingHorizontal: 8,
+          alignItems: "center",
+        }}
         ListEmptyComponent={
           <View style={[styles.emptyList, { flex: 1 }]}>
             <Text style={[styles.stateLabel]}>No rooms available</Text>
@@ -154,12 +169,14 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   scanControlButton: {
+    gap: 4,
+    flexDirection: "row",
     borderRadius: 4,
     backgroundColor: "#fff",
     padding: 4,
+    paddingRight: 6,
     height: "100%",
     maxHeight: 32,
-    aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
   },

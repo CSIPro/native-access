@@ -84,7 +84,7 @@ export default function SignIn() {
   const handleGithubSignIn = async () => {
     const clientId = Constants.expoConfig.extra?.githubClientId;
     const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-    const redirectUri = `${apiUrl}oauth/callback/native`;
+    const redirectUri = `${apiUrl}/oauth/callback/native`;
 
     if (!clientId) {
       throw new Error("No GitHub client ID provided");

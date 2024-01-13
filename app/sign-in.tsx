@@ -40,7 +40,7 @@ GoogleSignin.configure({
 const githubBaseUrl = "https://github.com/login/oauth/authorize";
 
 const GithubResponse = z.object({
-  accessToken: z.string(),
+  access_token: z.string(),
 });
 type GithubResponse = z.infer<typeof GithubResponse>;
 
@@ -58,7 +58,7 @@ export default function SignIn() {
 
       const params = GithubResponse.parse(queryParams);
 
-      const token = params.accessToken;
+      const token = params.access_token;
 
       if (!token) {
         throw new Error("No token provided");
@@ -84,7 +84,7 @@ export default function SignIn() {
   const handleGithubSignIn = async () => {
     const clientId = Constants.expoConfig.extra?.githubClientId;
     const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-    const redirectUri = `${apiUrl}oauth/callback/native`;
+    const redirectUri = `${apiUrl}/auth/oauth/callback/native`;
 
     if (!clientId) {
       throw new Error("No GitHub client ID provided");

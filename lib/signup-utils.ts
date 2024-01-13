@@ -1,14 +1,10 @@
+import Constants from "expo-constants";
 import {
-  Timestamp,
-  addDoc,
   collection,
-  doc,
   getDocs,
   limit,
   orderBy,
   query,
-  serverTimestamp,
-  setDoc,
   where,
 } from "firebase/firestore";
 import { z } from "zod";
@@ -118,9 +114,10 @@ export const createUser = async ({
 
   try {
     const token = await authUser.getIdToken();
+    const apiUrl = Constants.expoConfig.extra?.authApiUrl;
 
     //TODO: Update the sign-up API
-    const res = await fetch("http://192.168.100.24:5173/api/users/add", {
+    const res = await fetch(`${apiUrl}/users/add`, {
       method: "POST",
       body: JSON.stringify({
         name,

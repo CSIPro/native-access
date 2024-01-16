@@ -1,6 +1,7 @@
-import { Stack, router } from "expo-router";
+import { Stack, router, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useRef } from "react";
+import { useAuth } from "reactfire";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -30,11 +31,14 @@ import { TextButton } from "@/components/ui/text-button";
 import { useRooms } from "@/hooks/use-rooms";
 
 import { SignUpForm, createUser } from "@/lib/signup-utils";
+import { deleteAllFromStorage } from "@/lib/utils";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 
 export default function SignUp() {
+  const auth = useAuth();
+  const router = useRouter();
   const mutation = useMutation<void, Error, SignUpForm>({
     mutationFn: (data: SignUpForm) => {
       return createUser(data);
@@ -75,6 +79,12 @@ export default function SignUp() {
     const normalizedDob = new Date(offsetDob.setHours(0, 0, 0, 0));
 
     mutation.mutate({ ...data, dateOfBirth: normalizedDob });
+  };
+
+  const handleSignOut = () => {
+    deleteAllFromStorage();
+    auth.signOut();
+    router.replace("/sign-in");
   };
 
   const backgroundColor = isLight
@@ -216,12 +226,22 @@ export default function SignUp() {
             )}
           />
         )}
-        <View style={[{ paddingVertical: 4 }]} />
-        {mutation.isLoading ? (
-          <ActivityIndicator size="large" color={iconColor} />
-        ) : (
-          <TextButton onPress={handleSubmit(onSubmit)}>Sign up</TextButton>
-        )}
+        <View style={[styles.controls]}>
+          {mutation.isLoading ? (
+            <ActivityIndicator size="large" color={iconColor} />
+          ) : (
+            <>
+              <TextButton onPress={handleSubmit(onSubmit)}>Sign up</TextButton>
+              <TextButton
+                variant="secondary"
+                onPress={handleSignOut}
+                style={[{ alignSelf: "center" }]}
+              >
+                Log out
+              </TextButton>
+            </>
+          )}
+        </View>
         {mutation.isError && (
           <Modal visible={true} onClose={() => mutation.reset()}>
             <ModalHeader>Error</ModalHeader>
@@ -273,5 +293,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
+  },
+  controls: {
+    paddingVertical: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
 });

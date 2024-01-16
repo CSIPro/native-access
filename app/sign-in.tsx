@@ -74,7 +74,9 @@ export default function SignIn() {
   const palette = colors[colorScheme];
 
   const handleGoogleSignIn = async () => {
-    await GoogleSignin.hasPlayServices();
+    const hasPlayServices = await GoogleSignin.hasPlayServices();
+    if (!hasPlayServices) return;
+
     const userData = await GoogleSignin.signIn();
     const credential = GoogleAuthProvider.credential(userData.idToken);
 

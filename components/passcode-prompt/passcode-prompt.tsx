@@ -61,7 +61,7 @@ export const PasscodePromptModal: FC<ModalProps> = ({ isOpen, onClose }) => {
     const valid = await mutateAsync(formData.passcode);
 
     if (valid) {
-      await saveToStorage("PASSCODE", formData.passcode);
+      await saveToStorage("PASSCODE", formData.passcode.toUpperCase());
       closeModal();
     }
   };

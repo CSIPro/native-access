@@ -204,11 +204,14 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   const encryptData = async () => {
+    const currentDate = new Date();
     const nonce = Buffer.from(generateNonce(16)).toString("base64");
     const uid = await getFromStorage("FIREBASE_UID");
     const passcode = await getFromStorage("PASSCODE");
-    const expiration = new Date().getTime() + 15 * 1000;
+    const expiration = currentDate.getTime() + 45 * 1000;
     const concat = `${nonce}:${uid}:${passcode}:${expiration}`;
+
+    console.log(currentDate.getTime(), expiration);
 
     const crypt = Buffer.from(
       await AES.encrypt(

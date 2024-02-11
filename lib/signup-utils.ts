@@ -116,7 +116,6 @@ export const createUser = async ({
     const token = await authUser.getIdToken();
     const apiUrl = Constants.expoConfig.extra?.authApiUrl;
 
-    //TODO: Update the sign-up API
     const res = await fetch(`${apiUrl}/users/add`, {
       method: "POST",
       body: JSON.stringify({

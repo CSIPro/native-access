@@ -141,13 +141,6 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   const connect = async (device: Device) => {
-    const passcode = await getFromStorage("PASSCODE");
-
-    if (!passcode) {
-      set({ openPasscodeModal: true });
-      return;
-    }
-
     set({ scanState: ScanState.enum.connecting });
 
     setTimeout(() => {
@@ -207,11 +200,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     const currentDate = new Date();
     const nonce = Buffer.from(generateNonce(16)).toString("base64");
     const uid = await getFromStorage("FIREBASE_UID");
-    const passcode = await getFromStorage("PASSCODE");
     const expiration = currentDate.getTime() + 45 * 1000;
-    const concat = `${nonce}:${uid}:${passcode}:${expiration}`;
-
-    console.log(currentDate.getTime(), expiration);
+    const concat = `${nonce}:${uid}:${expiration}`;
 
     const crypt = Buffer.from(
       await AES.encrypt(

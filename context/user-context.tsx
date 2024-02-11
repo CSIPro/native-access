@@ -1,14 +1,16 @@
+import Constants from "expo-constants";
+import * as LocalAuthentication from "expo-local-authentication";
 import { FC, ReactNode, createContext, useContext } from "react";
 
-import bcrypt from "bcryptjs";
+import { AccessUser, useUserData } from "@/hooks/use-user-data";
 
-import { AccessUser, useUserData } from "../hooks/use-user-data";
-import { saveToStorage } from "../lib/utils";
+import { firebaseAuth } from "@/lib/firebase-config";
+import { saveToStorage } from "@/lib/utils";
 
 interface UserContextProps {
   status: "loading" | "error" | "success" | string;
   user?: AccessUser;
-  submitPasscode: (passcode: string) => Promise<boolean>;
+  submitPasscode: (passcode: string) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextProps | null>(null);
@@ -23,23 +25,48 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
       throw new Error("No user data found");
     }
 
-    passcode = passcode.toUpperCase();
-    const user = data as AccessUser;
-
-    return new Promise<boolean>((resolve, reject) => {
-      bcrypt.compare(passcode, user.passcode, (err: Error, res: boolean) => {
-        if (err) {
-          console.log(err);
-          reject(err);
-        }
-
-        if (res === true) {
-          resolve(res);
-        } else {
-          reject(new Error("Incorrect passcode"));
-        }
-      });
+    const authed = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Please authenticate to continue",
     });
+    
+    if (!authed.success) {
+      throw new Error("Authentication failed");
+    }
+
+    passcode = passcode.toUpperCase();
+
+    try {
+      const authUser = firebaseAuth.currentUser;
+      if (!authUser) {
+        throw new Error("No user found");
+      }
+
+      const token = await authUser.getIdToken();
+      const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+
+      const res = await fetch(`${apiUrl}/users/update-passcode`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          passcode,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+
+        throw new Error(
+          data.message ?? "Something went wrong while creating the user"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   };
 
   if (status === "loading") {

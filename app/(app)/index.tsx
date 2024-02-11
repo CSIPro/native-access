@@ -16,7 +16,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { PasscodePromptModal } from "@/components/passcode-prompt/passcode-prompt";
 import { PibleScanner } from "@/components/pible/pible-scanner";
 import { RoomPicker } from "@/components/room-picker/room-picker";
 import { DashboardItem } from "@/components/ui/dashboard/item";
@@ -31,15 +30,11 @@ import {
   useUserSuccessfulLogs,
 } from "@/hooks/use-logs";
 
-import { useStore } from "@/store/store";
-
 import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
 export default function Home() {
   const colorScheme = useColorScheme();
-  const openModal = useStore((state) => state.openPasscodeModal);
-  const closeModal = useStore((state) => state.onClosePasscodeModal);
 
   const palette = colors[colorScheme];
 
@@ -111,7 +106,6 @@ export default function Home() {
           </View>
         </ScrollView>
       </View>
-      <PasscodePromptModal isOpen={openModal} onClose={closeModal} />
       <StatusBar style="light" />
     </SafeAreaView>
   );

@@ -15,6 +15,9 @@ import { MaterialIcon } from "../icons/material";
 import { FAIcon } from "../icons/font-awesome";
 import format from "date-fns/format";
 
+const googleLogo = require("@/assets/auth/google-g.png");
+const githubLogo = require("@/assets/auth/github-mark.png");
+
 export const ProfileCard = () => {
   const colorScheme = useColorScheme();
   const { status: authUserStatus, data: authUserData } = useUser();
@@ -71,6 +74,12 @@ export const ProfileCard = () => {
   }
 
   const userAccessData = userData as AccessUser;
+  const hasGoogle = authUserData.providerData.some(
+    (provider) => provider.providerId === "google.com"
+  );
+  const hasGithub = authUserData.providerData.some(
+    (provider) => provider.providerId === "github.com"
+  );
 
   return (
     <View style={[styles.cardShadow]}>
@@ -81,7 +90,6 @@ export const ProfileCard = () => {
             backgroundColor: isLight
               ? colors.default.white[100]
               : colors.default.black[300],
-            height: 200,
           },
         ]}
       >
@@ -209,6 +217,29 @@ export const ProfileCard = () => {
           >
             {format(userAccessData.dateOfBirth.toDate(), "MMMM dd")}
           </Text>
+        </View>
+        <View style={[styles.row]}>
+          <View style={[styles.iconWrapper]}>
+            <IonIcon
+              name="at-circle"
+              color={
+                isLight ? colors.default.tint[300] : colors.default.tint[100]
+              }
+              size={24}
+            />
+          </View>
+          {hasGoogle && (
+            <Image
+              source={googleLogo}
+              style={[{ width: 24, aspectRatio: 1 }]}
+            />
+          )}
+          {hasGithub && (
+            <Image
+              source={githubLogo}
+              style={[{ width: 24, aspectRatio: 1 }]}
+            />
+          )}
         </View>
       </View>
     </View>

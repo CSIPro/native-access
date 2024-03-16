@@ -33,8 +33,11 @@ import {
 import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+
 export default function Home() {
   const colorScheme = useColorScheme();
+  const tabsHeight = useBottomTabBarHeight() + 4;
 
   const palette = colors[colorScheme];
 
@@ -44,20 +47,15 @@ export default function Home() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: palette.tint,
-        gap: 8,
+        backgroundColor:
+          colorScheme === "light"
+            ? colors.default.white[100]
+            : colors.default.black[400],
       }}
     >
-      <PibleScanner />
       <View
         style={{
           flex: 3,
-          backgroundColor:
-            colorScheme === "light"
-              ? colors.default.white[100]
-              : colors.default.black[400],
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
         }}
       >
         <ScrollView
@@ -65,6 +63,7 @@ export default function Home() {
             width: "100%",
             alignItems: "center",
             padding: 8,
+            paddingBottom: tabsHeight + 112,
             gap: 4,
           }}
         >
@@ -106,7 +105,8 @@ export default function Home() {
           </View>
         </ScrollView>
       </View>
-      <StatusBar style="light" />
+      <PibleScanner />
+      <StatusBar style="light" backgroundColor={colors.default.tint[400]} />
     </SafeAreaView>
   );
 }

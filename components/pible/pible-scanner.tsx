@@ -20,6 +20,11 @@ import { useStore } from "@/store/store";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { Image } from "expo-image";
+import { BlurView } from "expo-blur";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+
+const accessLogo = require("@/assets/access-logo.svg");
 
 const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
   if (state === ScanState.enum.idle) {
@@ -73,6 +78,7 @@ export const PibleScanner = () => {
   const scanState = useStore((state) => state.scanState);
 
   const colorScheme = useColorScheme();
+  const tabsHeight = useBottomTabBarHeight() + 4;
 
   const btState =
     bleState === State.PoweredOn
@@ -82,13 +88,21 @@ export const PibleScanner = () => {
       : "ERROR";
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: colors[colorScheme ?? "light"].tint },
-      ]}
-    >
-      <View style={[styles.row]}>
+    <View style={[styles.container, { bottom: tabsHeight + 4 }]}>
+      <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+      <View style={[styles.scanButton]}>
+        <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+        <Image
+          source={accessLogo}
+          alt="CSI PRO ACCESS Logo"
+          style={[{ width: "100%", aspectRatio: 1 }]}
+        />
+      </View>
+      <View style={[styles.actionsContainer]}>
+        <View style={[styles.actions]}></View>
+        <View style={[styles.actions]}></View>
+      </View>
+      {/* <View style={[styles.row]}>
         <Text style={[styles.label]}>Nearby Rooms</Text>
         <View style={[styles.scanStateContainer]}>
           <IonIcons name="bluetooth" size={12} color="#fff" />
@@ -128,16 +142,59 @@ export const PibleScanner = () => {
           <Text style={[styles.stateLabel]}>{scanState}</Text>
         </View>
         <ScanControlButton state={scanState} />
-      </View>
+      </View> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: colors.default.tint.translucid[200],
+    position: "absolute",
+    right: 4,
+    left: 4,
+    zIndex: 10,
+    padding: 8,
+    borderRadius: 80,
+    height: 64,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  blur: {
+    ...StyleSheet.absoluteFillObject,
+    overflow: "hidden",
+    alignItems: "center",
+    padding: 8,
+    borderWidth: 2,
+    borderRadius: 80,
+    borderColor: colors.default.tint[400],
+  },
+  scanButton: {
+    position: "absolute",
     flex: 1,
+    top: -40,
+    backgroundColor: colors.default.tint.translucid[200],
+    // borderWidth: 2,
+    // borderColor: colors.default.tint[400],
+    borderRadius: 9999,
+    padding: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 96,
+    aspectRatio: 1,
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     width: "100%",
-    maxHeight: 180,
+    height: "100%",
+    gap: 64,
+  },
+  actions: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "red",
   },
   label: {
     fontFamily: fonts.poppins,

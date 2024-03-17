@@ -1,6 +1,6 @@
 import IonIcons from "@expo/vector-icons/Ionicons";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   useColorScheme,
   StyleSheet,
@@ -23,12 +23,13 @@ import fonts from "@/constants/fonts";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { Checkbox, CheckboxLabel } from "../ui/checkbox";
 
 const accessLogo = require("@/assets/access-logo.svg");
 
 const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
   if (state === ScanState.enum.idle) {
-    return <IonIcon name="stop" color="#fff" size={12} />;
+    return <IonIcon name="stop" color="#fff" size={16} />;
   }
 
   return <ActivityIndicator size="small" color="#fff" />;
@@ -73,11 +74,14 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 };
 
 export const PibleScanner = () => {
+  const [autoConnect, setAutoConnect] = useState(false);
   const devices = useStore((state) => state.devices);
   const bleState = useStore((state) => state.bluetoothState);
   const scanState = useStore((state) => state.scanState);
+  const startScan = useStore((state) => state.scan);
+  const stopScan = useStore((state) => state.stopScan);
 
-  const colorScheme = useColorScheme();
+  const isLight = useColorScheme() === "light";
   const tabsHeight = useBottomTabBarHeight() + 4;
 
   const btState =
@@ -85,22 +89,107 @@ export const PibleScanner = () => {
       ? "ON"
       : bleState === State.PoweredOff
       ? "OFF"
-      : "ERROR";
+      : "ERR";
 
   return (
     <View style={[styles.container, { bottom: tabsHeight + 4 }]}>
       <BlurView intensity={24} tint="dark" style={[styles.blur]} />
-      <View style={[styles.scanButton]}>
-        <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+      <Pressable onPress={startScan} style={[styles.scanButton]}>
+        <BlurView
+          intensity={24}
+          tint="dark"
+          style={[styles.blur, { borderRadius: 9999 }]}
+        />
         <Image
           source={accessLogo}
           alt="CSI PRO ACCESS Logo"
           style={[{ width: "100%", aspectRatio: 1 }]}
         />
-      </View>
+      </Pressable>
       <View style={[styles.actionsContainer]}>
-        <View style={[styles.actions]}></View>
-        <View style={[styles.actions]}></View>
+        <View style={[styles.actions]}>
+          <View
+            style={[
+              styles.actionButton,
+              {
+                width: "100%",
+                flexDirection: "row",
+                gap: 2,
+                alignItems: "center",
+                justifyContent: "center",
+              },
+            ]}
+          >
+            <Checkbox
+              checked={autoConnect}
+              onChange={() => setAutoConnect((prev) => !prev)}
+            >
+              <CheckboxLabel style={[styles.actionLabel]}>
+                Auto-connect
+              </CheckboxLabel>
+            </Checkbox>
+          </View>
+        </View>
+        <View style={[styles.actions]}>
+          <View
+            style={[
+              styles.actionButton,
+              {
+                flexDirection: "row",
+                flex: 2,
+                justifyContent: "flex-start",
+                gap: 4,
+                backgroundColor:
+                  scanState === ScanState.enum.scanning
+                    ? isLight
+                      ? colors.default.tint.translucid[400]
+                      : colors.default.tint.translucid[100]
+                    : "transparent",
+              },
+            ]}
+          >
+            <View
+              style={[
+                { width: 16, alignItems: "center", justifyContent: "center" },
+              ]}
+            >
+              <ScanStateIcon state={scanState} />
+            </View>
+            <Text
+              style={[styles.actionLabel, { color: colors.default.white[100] }]}
+              numberOfLines={1}
+            >
+              {scanState}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.actionButton,
+              {
+                backgroundColor:
+                  bleState === State.PoweredOn
+                    ? isLight
+                      ? colors.default.tint.translucid[400]
+                      : colors.default.tint.translucid[100]
+                    : "transparent",
+                borderTopRightRadius: 24,
+                borderBottomRightRadius: 24,
+              },
+            ]}
+          >
+            <IonIcons
+              name="bluetooth"
+              size={16}
+              color={colors.default.white[100]}
+            />
+            <Text
+              style={[styles.actionLabel, { color: colors.default.white[100] }]}
+              numberOfLines={1}
+            >
+              {btState}
+            </Text>
+          </View>
+        </View>
       </View>
       {/* <View style={[styles.row]}>
         <Text style={[styles.label]}>Nearby Rooms</Text>
@@ -155,7 +244,7 @@ const styles = StyleSheet.create({
     left: 4,
     zIndex: 10,
     padding: 8,
-    borderRadius: 80,
+    borderRadius: 32,
     height: 64,
     flexDirection: "row",
     justifyContent: "center",
@@ -167,16 +256,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     borderWidth: 2,
-    borderRadius: 80,
+    borderRadius: 32,
     borderColor: colors.default.tint[400],
   },
   scanButton: {
     position: "absolute",
-    flex: 1,
+    zIndex: 20,
     top: -40,
     backgroundColor: colors.default.tint.translucid[200],
-    // borderWidth: 2,
-    // borderColor: colors.default.tint[400],
     borderRadius: 9999,
     padding: 12,
     alignItems: "center",
@@ -189,12 +276,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     height: "100%",
-    gap: 64,
+    gap: 100,
   },
   actions: {
+    flexDirection: "row",
     flex: 1,
-    borderWidth: 1,
-    borderColor: "red",
+    gap: 4,
+  },
+  actionButton: {
+    height: "100%",
+    flex: 1,
+    padding: 4,
+    borderRadius: 4,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  actionLabel: {
+    paddingTop: 4,
+    fontFamily: fonts.poppins,
+    fontSize: 10,
+    color: "#fff",
   },
   label: {
     fontFamily: fonts.poppins,

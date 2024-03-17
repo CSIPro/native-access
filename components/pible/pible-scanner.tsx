@@ -81,7 +81,6 @@ export const PibleScanner = () => {
   const stopScan = useStore((state) => state.stopScan);
   const autoConnect = useStore((state) => state.autoConnect);
   const setAutoConnect = useStore((state) => state.setAutoConnect);
-  console.log(useStore((state) => state.selectedRoom));
 
   const isLight = useColorScheme() === "light";
   const tabsHeight = useBottomTabBarHeight() + 4;

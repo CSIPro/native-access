@@ -1,6 +1,6 @@
 import IonIcons from "@expo/vector-icons/Ionicons";
 
-import { FC, useState } from "react";
+import { FC } from "react";
 import {
   useColorScheme,
   StyleSheet,
@@ -74,12 +74,14 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 };
 
 export const PibleScanner = () => {
-  const [autoConnect, setAutoConnect] = useState(false);
   const devices = useStore((state) => state.devices);
   const bleState = useStore((state) => state.bluetoothState);
   const scanState = useStore((state) => state.scanState);
   const startScan = useStore((state) => state.scan);
   const stopScan = useStore((state) => state.stopScan);
+  const autoConnect = useStore((state) => state.autoConnect);
+  const setAutoConnect = useStore((state) => state.setAutoConnect);
+  console.log(useStore((state) => state.selectedRoom));
 
   const isLight = useColorScheme() === "light";
   const tabsHeight = useBottomTabBarHeight() + 4;
@@ -122,7 +124,7 @@ export const PibleScanner = () => {
           >
             <Checkbox
               checked={autoConnect}
-              onChange={() => setAutoConnect((prev) => !prev)}
+              onChange={() => setAutoConnect(!autoConnect)}
             >
               <CheckboxLabel style={[styles.actionLabel]}>
                 Auto-connect

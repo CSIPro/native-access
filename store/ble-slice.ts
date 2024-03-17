@@ -8,9 +8,11 @@ import AES from "react-native-aes-crypto";
 import { z } from "zod";
 import { StateCreator } from "zustand";
 
-import { generateNonce, getFromStorage } from "../lib/utils";
+import { generateNonce, getFromStorage, saveToStorage } from "../lib/utils";
 
 export interface BleSlice {
+  selectedRoom?: string;
+  setSelectedRoom: (roomName: string) => void;
   bluetoothState: State;
   scanState: ScanState;
   devices: Device[];
@@ -19,6 +21,8 @@ export interface BleSlice {
   scan: () => void;
   stopScan: ({ immediate }: { immediate: boolean }) => void;
   onClosePasscodeModal: () => void;
+  autoConnect: boolean;
+  setAutoConnect: (autoConnect: boolean) => void;
 }
 
 export const ScanState = z.enum(["idle", "scanning", "connecting"]);
@@ -30,12 +34,15 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   let scanTimeout: NodeJS.Timeout;
 
   manager.onStateChange((state) => {
-    if (state === State.PoweredOn && get().bluetoothState !== State.PoweredOn) {
-      startScan();
-    }
-
     set({ bluetoothState: state });
   }, true);
+
+  getFromStorage("BLE_AUTO_CONNECT").then((autoConnect) => {
+    if (!!autoConnect) {
+      const value = autoConnect === "true";
+      get().setAutoConnect(value);
+    }
+  });
 
   const startScan = async () => {
     await PermissionsAndroid.request(
@@ -97,6 +104,15 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
         if (!device) {
           return;
+        }
+
+        if (get().autoConnect && get().selectedRoom) {
+          const room = get().selectedRoom;
+          const deviceName = device.localName;
+
+          if (deviceName?.includes(room)) {
+            connect(device);
+          }
         }
 
         set((state) => {
@@ -215,7 +231,15 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     return crypt;
   };
 
+  const setAutoConnect = (autoConnect: boolean) => {
+    set({ autoConnect });
+    saveToStorage("BLE_AUTO_CONNECT", autoConnect ? "true" : "false");
+  };
+
   return {
+    setSelectedRoom: (selectedRoom?: string) => set({ selectedRoom }),
+    autoConnect: false,
+    setAutoConnect,
     bluetoothState: State.Unknown,
     scanState: ScanState.enum.idle,
     devices: [],

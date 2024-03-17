@@ -10,6 +10,7 @@ import { z } from "zod";
 
 import { useRooms, useUserRooms } from "../hooks/use-rooms";
 import { getFromStorage, saveToStorage } from "../lib/utils";
+import { useStore } from "@/store/store";
 
 const roomSchema = z.object({
   id: z.string(),
@@ -32,6 +33,7 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [selectedRoom, setSelectedRoom] = useState<string>();
   const { status: roomsStatus, data: roomsData } = useRooms();
   const { status: userRoomsStatus, data: userRoomsData } = useUserRooms();
+  const setBleRoom = useStore((state) => state.setSelectedRoom);
 
   useEffect(() => {
     const retrieveSelectedRoom = async () => {
@@ -42,6 +44,11 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     if (selectedRoom) {
       saveToStorage("SELECTED_ROOM", selectedRoom);
+
+      const roomData = roomsData.find((room) => room.id === selectedRoom);
+      if (roomData) {
+        setBleRoom(roomData.name);
+      }
     } else if (roomsData) {
       retrieveSelectedRoom();
     }

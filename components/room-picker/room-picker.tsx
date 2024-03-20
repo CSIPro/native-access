@@ -1,9 +1,12 @@
 import { FC } from "react";
 import {
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   View,
+  ViewStyle,
   useColorScheme,
 } from "react-native";
 
@@ -24,7 +27,17 @@ import { Dropdown } from "../ui/dropdown";
 import { formatRoomName } from "@/lib/utils";
 import { MaterialIcon } from "../icons/material";
 
-export const RoomPicker = () => {
+interface Props {
+  compact?: boolean;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+}
+
+export const RoomPicker: FC<Props> = ({
+  compact = false,
+  textStyle,
+  style,
+}) => {
   const isLight = useColorScheme() === "light";
 
   const { status: userStatus, user } = useUserContext();
@@ -52,14 +65,19 @@ export const RoomPicker = () => {
         items={items.map((i) => ({
           key: i.id,
           value: i.id,
-          label: formatRoomName(i),
+          label: compact ? i.name : formatRoomName(i),
         }))}
         onChange={setSelectedRoom}
+        compact={compact}
         sheetTitle="Pick a room"
         value={selectedRoom}
-        icon={<MaterialIcon name="room" size={24} color={iconColor} />}
-        style={[{ borderRadius: 12, borderColor: iconColor }]}
-        valueStyle={[{ fontFamily: fonts.poppinsMedium }]}
+        icon={
+          compact ? null : (
+            <MaterialIcon name="room" size={24} color={iconColor} />
+          )
+        }
+        style={[{ borderRadius: 12, borderColor: iconColor }, style]}
+        valueStyle={[{ fontFamily: fonts.poppinsMedium }, textStyle]}
         ListEmptyComponent={
           <View
             style={[

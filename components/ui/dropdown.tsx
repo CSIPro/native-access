@@ -38,6 +38,7 @@ export const DropdownItemType = z.object({
 export type DropdownItemType = z.infer<typeof DropdownItemType>;
 
 interface Props {
+  compact?: boolean;
   items?: DropdownItemType[];
   value: string;
   label?: string;
@@ -51,6 +52,7 @@ interface Props {
 }
 
 export const Dropdown: FC<Props> = ({
+  compact = false,
   sheetTitle,
   items = [],
   placeholder = "Pick one",
@@ -108,13 +110,13 @@ export const Dropdown: FC<Props> = ({
         >
           {items.find((item) => item.value === value)?.label ?? placeholder}
         </Text>
-        <View style={[styles.iconWrapper]}>
+        <View style={[styles.iconWrapper, compact && { width: 10 }]}>
           <IonIcon
             name="chevron-down"
             color={
               isLight ? colors.default.tint[400] : colors.default.white[100]
             }
-            size={24}
+            size={compact ? 10 : 24}
           />
         </View>
       </Pressable>

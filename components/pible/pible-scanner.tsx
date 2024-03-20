@@ -24,6 +24,7 @@ import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Checkbox, CheckboxLabel } from "../ui/checkbox";
+import { RoomPicker } from "../room-picker/room-picker";
 
 const accessLogo = require("@/assets/access-logo.svg");
 
@@ -132,36 +133,25 @@ export const PibleScanner = () => {
           </View>
         </View>
         <View style={[styles.actions]}>
+          {/* TODO: Replace with a room selector for convenience */}
           <View
             style={[
               styles.actionButton,
-              {
-                flexDirection: "row",
-                flex: 2,
-                justifyContent: "flex-start",
-                gap: 4,
-                backgroundColor:
-                  scanState === ScanState.enum.scanning
-                    ? isLight
-                      ? colors.default.tint.translucid[400]
-                      : colors.default.tint.translucid[100]
-                    : "transparent",
-              },
+              { height: "100%", flex: 2, padding: 0 },
             ]}
           >
-            <View
+            <RoomPicker
+              compact
               style={[
-                { width: 16, alignItems: "center", justifyContent: "center" },
+                {
+                  backgroundColor: colors.default.tint.translucid[100],
+                  borderRadius: 4,
+                  borderWidth: 1,
+                  height: "100%",
+                },
               ]}
-            >
-              <ScanStateIcon state={scanState} />
-            </View>
-            <Text
-              style={[styles.actionLabel, { color: colors.default.white[100] }]}
-              numberOfLines={1}
-            >
-              {scanState}
-            </Text>
+              textStyle={[{ fontSize: 10 }]}
+            />
           </View>
           <View
             style={[
@@ -192,47 +182,6 @@ export const PibleScanner = () => {
           </View>
         </View>
       </View>
-      {/* <View style={[styles.row]}>
-        <Text style={[styles.label]}>Nearby Rooms</Text>
-        <View style={[styles.scanStateContainer]}>
-          <IonIcons name="bluetooth" size={12} color="#fff" />
-          <Text style={[styles.stateLabel]}>{btState}</Text>
-        </View>
-      </View>
-      <FlatList
-        horizontal
-        data={devices}
-        keyExtractor={(item, index) =>
-          `${item.id}-${item.localName}-${item.rssi}-${index}`
-        }
-        renderItem={({ item }) => <PibleItem device={item} />}
-        contentContainerStyle={{
-          flexGrow: 1,
-          gap: 4,
-          paddingHorizontal: 8,
-          alignItems: "center",
-        }}
-        ListEmptyComponent={
-          <View style={[styles.emptyList, { flex: 1 }]}>
-            <Text style={[styles.stateLabel]}>No rooms available</Text>
-          </View>
-        }
-      />
-      <View style={[styles.row]}>
-        <View style={[styles.scanStateContainer]}>
-          <View
-            style={{
-              width: 16,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ScanStateIcon state={scanState} />
-          </View>
-          <Text style={[styles.stateLabel]}>{scanState}</Text>
-        </View>
-        <ScanControlButton state={scanState} />
-      </View> */}
     </View>
   );
 };
@@ -277,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     height: "100%",
-    gap: 100,
+    gap: 104,
   },
   actions: {
     flexDirection: "row",

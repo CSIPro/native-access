@@ -30,7 +30,7 @@ export type ScanState = z.infer<typeof ScanState>;
 
 export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const manager = new BleManager();
-  const scanDuration = 30000;
+  const scanDuration = 10000;
   let scanTimeout: NodeJS.Timeout;
 
   manager.onStateChange((state) => {
@@ -84,7 +84,9 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
       }
     );
 
-    scanForDevices();
+    if (get().scanState === ScanState.enum.idle) {
+      scanForDevices();
+    }
   };
 
   const scanForDevices = () => {
@@ -106,14 +108,14 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
           return;
         }
 
-        if (get().autoConnect && get().selectedRoom) {
-          const room = get().selectedRoom;
-          const deviceName = device.localName;
+        // if (get().autoConnect && get().selectedRoom) {
+        //   const room = get().selectedRoom;
+        //   const deviceName = device.localName;
 
-          if (deviceName?.includes(room)) {
-            connect(device);
-          }
-        }
+        //   if (deviceName?.includes(room)) {
+        //     connect(device);
+        //   }
+        // }
 
         set((state) => {
           if (state.devices.some((d) => d.id === device.id)) {
@@ -135,10 +137,13 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
       }
     );
 
-    scanTimeout = setTimeout(() => {
-      manager.stopDeviceScan();
-      set({ scanState: ScanState.enum.idle });
-    }, scanDuration);
+    scanTimeout = setTimeout(
+      () => {
+        manager.stopDeviceScan();
+        set({ scanState: ScanState.enum.idle, devices: [] });
+      },
+      get().autoConnect ? scanDuration : scanDuration + 5000
+    );
   };
 
   const stopScan = ({ immediate = false }: { immediate?: boolean } = {}) => {
@@ -162,8 +167,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     setTimeout(() => {
       device
         .connect({
-          autoConnect: true,
-          timeout: 5000,
+          autoConnect: false,
+          timeout: 6000,
         })
         .then((connectedDevice) => {
           return connectedDevice.discoverAllServicesAndCharacteristics();
@@ -202,6 +207,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
             })
             .catch((error) => {
               console.log(error);
+              connectedDevice.cancelConnection();
+              stopScan();
               set({ scanState: ScanState.enum.idle });
             });
         })

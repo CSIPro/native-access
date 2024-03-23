@@ -1,6 +1,6 @@
 import IonIcons from "@expo/vector-icons/Ionicons";
 
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import {
   useColorScheme,
   StyleSheet,
@@ -25,6 +25,16 @@ import { BlurView } from "expo-blur";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Checkbox, CheckboxLabel } from "../ui/checkbox";
 import { RoomPicker } from "../room-picker/room-picker";
+import Animated, {
+  FadeOut,
+  StretchInX,
+  StretchOutX,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
 const accessLogo = require("@/assets/access-logo.svg");
 
@@ -75,13 +85,53 @@ const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
 };
 
 export const PibleScanner = () => {
+  const connect = useStore((state) => state.connect);
   const devices = useStore((state) => state.devices);
   const bleState = useStore((state) => state.bluetoothState);
-  const scanState = useStore((state) => state.scanState);
-  const startScan = useStore((state) => state.scan);
-  const stopScan = useStore((state) => state.stopScan);
   const autoConnect = useStore((state) => state.autoConnect);
   const setAutoConnect = useStore((state) => state.setAutoConnect);
+  const selectedRoom = useStore((state) => state.selectedRoom);
+  const scanState = useStore((state) => state.scanState);
+  const isScanning = scanState === "scanning";
+  const isConnecting = scanState === "connecting";
+
+  const sv = useSharedValue(0);
+
+  useEffect(() => {
+    if (isScanning) {
+      sv.value = withRepeat(withTiming(1, { duration: 1500 }), 0, true);
+    } else if (isConnecting) {
+      sv.value = withTiming(1);
+    } else {
+      sv.value = withTiming(0);
+    }
+  }, [isScanning, isConnecting]);
+
+  useEffect(() => {
+    if (autoConnect) {
+      if (devices.length > 0) {
+        setTimeout(() => {
+          const device = devices.find((d) =>
+            d.localName?.includes(selectedRoom)
+          );
+
+          if (device) {
+            connect(device);
+          }
+        }, 750);
+      }
+    }
+  }, [autoConnect, devices]);
+
+  const animatedItemStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
+    );
+
+    return { backgroundColor };
+  });
 
   const isLight = useColorScheme() === "light";
   const tabsHeight = useBottomTabBarHeight() + 4;
@@ -93,10 +143,159 @@ export const PibleScanner = () => {
       ? "OFF"
       : "ERR";
 
+  const showDevices =
+    devices.length > 0 && (isScanning || isConnecting) && !autoConnect;
+
   return (
-    <View style={[styles.container, { bottom: tabsHeight + 4 }]}>
-      <BlurView intensity={24} tint="dark" style={[styles.blur]} />
-      <Pressable onPress={startScan} style={[styles.scanButton]}>
+    <View
+      style={[styles.wrapper, { alignItems: "center", bottom: tabsHeight + 4 }]}
+    >
+      {showDevices ? (
+        <Animated.View
+          entering={StretchInX}
+          exiting={StretchOutX}
+          style={[
+            styles.container,
+            {
+              height: 64,
+              borderWidth: 2,
+              borderColor: colors.default.tint[400],
+            },
+          ]}
+        >
+          <FlatList
+            horizontal
+            data={devices}
+            keyExtractor={(item, index) =>
+              `${item.id}-${item.localName}-${item.rssi}-${index}`
+            }
+            renderItem={({ item }) => <PibleItem device={item} />}
+            contentContainerStyle={{
+              flexGrow: 1,
+              gap: 4,
+              alignItems: "center",
+            }}
+          />
+        </Animated.View>
+      ) : (
+        <View style={[{ height: 64 }]} />
+      )}
+      <Animated.View style={[styles.container, animatedItemStyle]}>
+        <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+        <PibleButton />
+        <View style={[styles.actionsContainer]}>
+          <View style={[styles.actions]}>
+            <View
+              style={[
+                styles.actionButton,
+                {
+                  width: "100%",
+                  flexDirection: "row",
+                  gap: 2,
+                  alignItems: "center",
+                  justifyContent: "center",
+                },
+              ]}
+            >
+              <Checkbox
+                checked={autoConnect}
+                onChange={() => setAutoConnect(!autoConnect)}
+                disabled={scanState !== "idle"}
+              >
+                <CheckboxLabel style={[styles.actionLabel]}>
+                  Auto-connect
+                </CheckboxLabel>
+              </Checkbox>
+            </View>
+          </View>
+          <View style={[styles.actions]}>
+            <View
+              style={[
+                styles.actionButton,
+                { height: "100%", flex: 2, padding: 0 },
+              ]}
+            >
+              <RoomPicker
+                compact
+                style={[
+                  {
+                    backgroundColor: colors.default.tint.translucid[100],
+                    borderRadius: 4,
+                    borderWidth: 1,
+                    height: "100%",
+                  },
+                ]}
+                textStyle={[{ fontSize: 10 }]}
+              />
+            </View>
+            <View
+              style={[
+                styles.actionButton,
+                {
+                  backgroundColor:
+                    bleState === State.PoweredOn
+                      ? isLight
+                        ? colors.default.tint.translucid[400]
+                        : colors.default.tint.translucid[100]
+                      : "transparent",
+                  borderTopRightRadius: 24,
+                  borderBottomRightRadius: 24,
+                },
+              ]}
+            >
+              <IonIcons
+                name="bluetooth"
+                size={16}
+                color={colors.default.white[100]}
+              />
+              <Text
+                style={[
+                  styles.actionLabel,
+                  { color: colors.default.white[100] },
+                ]}
+                numberOfLines={1}
+              >
+                {btState}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Animated.View>
+    </View>
+  );
+};
+
+const PibleButton = () => {
+  const startScan = useStore((state) => state.scan);
+  const scanState = useStore((state) => state.scanState);
+  const isScanning = scanState === "scanning";
+  const isConnecting = scanState === "connecting";
+
+  const sv = useSharedValue(0);
+
+  useEffect(() => {
+    if (isScanning) {
+      sv.value = withRepeat(withTiming(1, { duration: 1500 }), 0, true);
+    } else if (isConnecting) {
+      sv.value = withTiming(1);
+    } else {
+      sv.value = withTiming(0);
+    }
+  }, [isScanning, isConnecting]);
+
+  const animatedItemStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
+    );
+
+    return { backgroundColor };
+  });
+
+  return (
+    <Pressable onPress={startScan} style={[styles.scanButtonWrapper]}>
+      <Animated.View style={[styles.scanButton, animatedItemStyle]}>
         <BlurView
           intensity={24}
           tint="dark"
@@ -107,92 +306,21 @@ export const PibleScanner = () => {
           alt="CSI PRO ACCESS Logo"
           style={[{ width: "100%", aspectRatio: 1 }]}
         />
-      </Pressable>
-      <View style={[styles.actionsContainer]}>
-        <View style={[styles.actions]}>
-          <View
-            style={[
-              styles.actionButton,
-              {
-                width: "100%",
-                flexDirection: "row",
-                gap: 2,
-                alignItems: "center",
-                justifyContent: "center",
-              },
-            ]}
-          >
-            <Checkbox
-              checked={autoConnect}
-              onChange={() => setAutoConnect(!autoConnect)}
-            >
-              <CheckboxLabel style={[styles.actionLabel]}>
-                Auto-connect
-              </CheckboxLabel>
-            </Checkbox>
-          </View>
-        </View>
-        <View style={[styles.actions]}>
-          {/* TODO: Replace with a room selector for convenience */}
-          <View
-            style={[
-              styles.actionButton,
-              { height: "100%", flex: 2, padding: 0 },
-            ]}
-          >
-            <RoomPicker
-              compact
-              style={[
-                {
-                  backgroundColor: colors.default.tint.translucid[100],
-                  borderRadius: 4,
-                  borderWidth: 1,
-                  height: "100%",
-                },
-              ]}
-              textStyle={[{ fontSize: 10 }]}
-            />
-          </View>
-          <View
-            style={[
-              styles.actionButton,
-              {
-                backgroundColor:
-                  bleState === State.PoweredOn
-                    ? isLight
-                      ? colors.default.tint.translucid[400]
-                      : colors.default.tint.translucid[100]
-                    : "transparent",
-                borderTopRightRadius: 24,
-                borderBottomRightRadius: 24,
-              },
-            ]}
-          >
-            <IonIcons
-              name="bluetooth"
-              size={16}
-              color={colors.default.white[100]}
-            />
-            <Text
-              style={[styles.actionLabel, { color: colors.default.white[100] }]}
-              numberOfLines={1}
-            >
-              {btState}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </View>
+      </Animated.View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    position: "relative",
+    width: "100%",
+    gap: 12,
+    paddingHorizontal: 4,
+    zIndex: 10,
+  },
   container: {
     backgroundColor: colors.default.tint.translucid[200],
-    position: "absolute",
-    right: 4,
-    left: 4,
-    zIndex: 10,
     padding: 8,
     borderRadius: 32,
     height: 64,
@@ -209,10 +337,14 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     borderColor: colors.default.tint[400],
   },
-  scanButton: {
+  scanButtonWrapper: {
     position: "absolute",
     zIndex: 20,
     top: -40,
+    borderRadius: 9999,
+    width: 96,
+  },
+  scanButton: {
     backgroundColor: colors.default.tint.translucid[200],
     borderRadius: 9999,
     padding: 12,

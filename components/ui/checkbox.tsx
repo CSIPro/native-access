@@ -13,12 +13,14 @@ import {
 import { IonIcon } from "../icons/ion";
 
 interface CheckboxProps {
+  disabled?: boolean;
   checked?: boolean;
   onChange: () => void;
   children: ReactNode;
 }
 
 export const Checkbox: FC<CheckboxProps> = ({
+  disabled = false,
   checked = false,
   onChange,
   children,
@@ -40,7 +42,10 @@ export const Checkbox: FC<CheckboxProps> = ({
     : colors.default.white[100];
 
   return (
-    <Pressable style={[styles.container]} onPress={onChange}>
+    <Pressable
+      style={[styles.container, disabled && styles.disabled]}
+      onPress={disabled ? null : onChange}
+    >
       <View
         style={[
           styles.checkbox,
@@ -102,5 +107,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.poppins,
     fontSize: 16,
     paddingTop: 2,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

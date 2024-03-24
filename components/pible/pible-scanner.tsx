@@ -225,7 +225,8 @@ export const PibleScanner = () => {
                     height: "100%",
                   },
                 ]}
-                textStyle={[{ fontSize: 10 }]}
+                textStyle={[{ fontSize: 10, color: colors.default.white[100] }]}
+                chevronColor={colors.default.white[100]}
               />
             </View>
             <View

@@ -30,7 +30,7 @@ export const Checkbox: FC<CheckboxProps> = ({
   const borderColor = isLight
     ? checked
       ? colors.default.tint[400]
-      : colors.default.black[400]
+      : colors.default.white[100]
     : checked
     ? colors.default.tint[400]
     : colors.default.white[100];
@@ -38,7 +38,7 @@ export const Checkbox: FC<CheckboxProps> = ({
     ? colors.default.tint.translucid[400]
     : "transparent";
   const iconColor = isLight
-    ? colors.default.black[400]
+    ? colors.default.white[100]
     : colors.default.white[100];
 
   return (

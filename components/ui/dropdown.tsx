@@ -49,6 +49,7 @@ interface Props {
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
   valueStyle?: StyleProp<TextStyle>;
+  chevronColor?: string;
 }
 
 export const Dropdown: FC<Props> = ({
@@ -63,6 +64,7 @@ export const Dropdown: FC<Props> = ({
   style,
   valueStyle,
   ListEmptyComponent,
+  chevronColor,
 }) => {
   const sheetRef = useRef<BottomSheetModal>(null);
   const [selectedRoom, setSelectedRoom] = useState(value);
@@ -114,7 +116,8 @@ export const Dropdown: FC<Props> = ({
           <IonIcon
             name="chevron-down"
             color={
-              isLight ? colors.default.tint[400] : colors.default.white[100]
+              chevronColor ??
+              (isLight ? colors.default.tint[400] : colors.default.white[100])
             }
             size={compact ? 10 : 24}
           />

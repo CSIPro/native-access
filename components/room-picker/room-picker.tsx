@@ -31,12 +31,14 @@ interface Props {
   compact?: boolean;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  chevronColor?: string;
 }
 
 export const RoomPicker: FC<Props> = ({
   compact = false,
   textStyle,
   style,
+  chevronColor,
 }) => {
   const isLight = useColorScheme() === "light";
 
@@ -89,6 +91,7 @@ export const RoomPicker: FC<Props> = ({
             </Text>
           </View>
         }
+        chevronColor={chevronColor}
       />
     </>
   );

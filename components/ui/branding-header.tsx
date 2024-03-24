@@ -14,6 +14,7 @@ import fonts from "@/constants/fonts";
 
 interface Props {
   children: ReactNode;
+  textStyle?: StyleProp<TextStyle>;
   highlight: string;
   highlightStyle?: StyleProp<ViewStyle>;
   highlightTextStyle?: StyleProp<TextStyle>;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export const BrandingHeader: FC<Props> = ({
+  textStyle,
   highlight,
   highlightStyle,
   highlightTextStyle,
@@ -42,6 +44,7 @@ export const BrandingHeader: FC<Props> = ({
               ? colors.default.black[400]
               : colors.default.white[100],
           },
+          textStyle,
         ]}
       >
         {children}

@@ -117,13 +117,12 @@ export default function Home() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: isLight
-          ? colors.default.white[100]
-          : colors.default.tint[400],
+        backgroundColor: colors.default.tint[400],
       }}
     >
       <View style={[{ paddingVertical: 8, alignItems: "center" }]}>
         <BrandingHeader
+          textStyle={[{ color: colors.default.white[100] }]}
           highlight="ACCESS"
           highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
           highlightTextStyle={[

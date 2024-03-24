@@ -116,6 +116,7 @@ export default function SignIn() {
         <View style={[styles.header]}>
           <BrandingHeader
             fontSize={36}
+            textStyle={[{ color: colors.default.white[100] }]}
             highlight="ACCESS"
             highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
             highlightTextStyle={[

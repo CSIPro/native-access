@@ -1,11 +1,12 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   View,
   useColorScheme,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
@@ -15,6 +16,15 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import {
+  Canvas,
+  Group,
+  LinearGradient as SkiaGradient,
+  Rect,
+  RoundedRect,
+  useCanvasRef,
+  vec,
+} from "@shopify/react-native-skia";
 
 import { PibleScanner } from "@/components/pible/pible-scanner";
 import { RoomPicker } from "@/components/room-picker/room-picker";
@@ -34,8 +44,11 @@ import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { LinearGradient } from "expo-linear-gradient";
+import { useUserContext } from "@/context/user-context";
 
 export default function Home() {
+  const { user } = useUserContext();
   const colorScheme = useColorScheme();
   const tabsHeight = useBottomTabBarHeight() + 4;
 
@@ -47,15 +60,31 @@ export default function Home() {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor:
-          colorScheme === "light"
-            ? colors.default.white[100]
-            : colors.default.black[400],
+        backgroundColor: isLight
+          ? colors.default.white[100]
+          : colors.default.tint[400],
       }}
     >
+      {!!user && (
+        <View style={[{ paddingHorizontal: 8 }]}>
+          <Text
+            style={[
+              styles.dashboardTitle,
+              { color: colors.default.white[100] },
+            ]}
+          >
+            Hello there, {user.name.split(" ")[0]}!
+          </Text>
+        </View>
+      )}
       <View
         style={{
-          flex: 3,
+          flex: 1,
+          backgroundColor: isLight
+            ? colors.default.white[100]
+            : colors.default.black[400],
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
         }}
       >
         <ScrollView
@@ -67,7 +96,7 @@ export default function Home() {
             gap: 4,
           }}
         >
-          <RoomPicker />
+          {/* <RoomPicker /> */}
           <Text
             style={[
               styles.dashboardTitle,
@@ -80,11 +109,12 @@ export default function Home() {
           >
             Room stats
           </Text>
-          <SuccessfulLogs />
-          <View style={[styles.dashboardRow, { paddingTop: 4 }]}>
-            <BluetoothLogs />
-            <FailedLogs />
-            <UnknownLogs />
+          <View style={[{ flexDirection: "row", gap: 6 }]}>
+            <SuccessfulLogs />
+            <View style={[{ gap: 6, flex: 1 }]}>
+              <BluetoothLogs />
+              <FailedLogs />
+            </View>
           </View>
           <Text
             style={[
@@ -98,29 +128,29 @@ export default function Home() {
           >
             Personal stats
           </Text>
-          <View style={[styles.dashboardRow, { width: "100%" }]}>
-            <BluetoothPersonalLogs />
-            <FailedPersonalLogs />
+          <View style={[{ flexDirection: "row", gap: 6 }]}>
+            <View style={[{ gap: 6, flex: 1 }]}>
+              <BluetoothPersonalLogs />
+              <FailedPersonalLogs />
+            </View>
             <SuccessfulPersonalLogs />
           </View>
         </ScrollView>
+        <PibleScanner />
       </View>
-      <PibleScanner />
-      <StatusBar style="light" backgroundColor={colors.default.tint[400]} />
+      <StatusBar style="light" />
     </SafeAreaView>
   );
 }
 
 const SuccessfulLogs = () => {
   const isLight = useColorScheme() === "light";
-  const { logs } = useSuccessfulLogs();
+  const { logs: successfulLogs } = useSuccessfulLogs();
   const sv = useSharedValue(0);
 
   useEffect(() => {
-    if (!logs || logs?.length === 0) return;
-
     sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
-  }, [logs?.length]);
+  }, [successfulLogs?.length]);
 
   const animatedItem = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -147,7 +177,6 @@ const SuccessfulLogs = () => {
         styles.successContainer,
         animatedItem,
         {
-          borderWidth: 2,
           borderColor: colors.default.tint[400],
         },
       ]}
@@ -162,7 +191,7 @@ const SuccessfulLogs = () => {
           },
         ]}
       >
-        {logs?.length ?? 0}
+        {successfulLogs?.length.toString().padStart(2, "0") ?? "00"}
       </Text>
       <Text
         style={[
@@ -221,15 +250,69 @@ const FailedLogs = () => {
 };
 
 const SuccessfulPersonalLogs = () => {
-  const { logs } = useUserSuccessfulLogs();
+  const isLight = useColorScheme() === "light";
+  const { logs: successfulLogs } = useUserSuccessfulLogs();
+  const sv = useSharedValue(0);
+
+  useEffect(() => {
+    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
+  }, [successfulLogs?.length]);
+
+  const animatedItem = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.tint.translucid[500]
+          : colors.default.tint.translucid[100],
+        isLight
+          ? colors.default.tint.translucid[400]
+          : colors.default.tint.translucid[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
 
   return (
-    <DashboardItem
-      icon="checkmark-circle"
-      title="Entries"
-      color="success"
-      logs={logs?.length ?? 0}
-    />
+    <Animated.View
+      style={[
+        styles.successContainer,
+        animatedItem,
+        {
+          borderColor: colors.default.tint[400],
+        },
+      ]}
+    >
+      <Text
+        style={[
+          styles.bubbleText,
+          {
+            color: colors.default.white[100],
+            fontSize: 72,
+            fontFamily: fonts.poppins,
+          },
+        ]}
+      >
+        {successfulLogs?.length.toString().padStart(2, "0") ?? "00"}
+      </Text>
+      <Text
+        style={[
+          styles.bubbleText,
+          {
+            color: isLight
+              ? colors.default.white[100]
+              : colors.default.white.translucid[900],
+            fontSize: 16,
+          },
+        ]}
+      >
+        Entries
+      </Text>
+    </Animated.View>
   );
 };
 
@@ -274,10 +357,8 @@ const styles = StyleSheet.create({
     width: 200,
   },
   successContainer: {
-    flex: 1,
-    height: 200,
-    aspectRatio: 1,
-    borderRadius: 100,
+    flex: 2,
+    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
     gap: -36,

@@ -212,7 +212,7 @@ export const PibleScanner = () => {
             <View
               style={[
                 styles.actionButton,
-                { height: "100%", flex: 2, padding: 0 },
+                { height: "100%", flex: 3, padding: 0 },
               ]}
             >
               <RoomPicker
@@ -313,7 +313,7 @@ const PibleButton = () => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    position: "relative",
+    position: "absolute",
     width: "100%",
     gap: 12,
     paddingHorizontal: 4,

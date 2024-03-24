@@ -15,8 +15,9 @@ import { z } from "zod";
 
 import { useRoles } from "./use-roles";
 
-import { useRoomContext } from "../context/room-context";
-import { useCallback } from "react";
+import { RoomContext, useRoomContext } from "../context/room-context";
+import { useCallback, useContext } from "react";
+import { useQueryClient } from "react-query";
 
 enum RequestStatus {
   pending,
@@ -114,9 +115,11 @@ export const useUserRequests = () => {
 };
 
 export const useRequestHelpers = (request?: Request) => {
+  const queryClient = useQueryClient();
   const user = useUser();
   const firestore = useFirestore();
   const { data: roles } = useRoles();
+  const { selectedRoom } = useContext(RoomContext);
   const requestDoc = doc(firestore, "requests", request?.id ?? "invalid");
 
   const approveRequest = useCallback(async () => {
@@ -155,6 +158,8 @@ export const useRequestHelpers = (request?: Request) => {
         accessGranted: true,
         key: request.roomId,
       });
+
+      queryClient.invalidateQueries(["members", selectedRoom]);
     } catch (error) {
       console.error(error);
     }

@@ -108,15 +108,6 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
           return;
         }
 
-        // if (get().autoConnect && get().selectedRoom) {
-        //   const room = get().selectedRoom;
-        //   const deviceName = device.localName;
-
-        //   if (deviceName?.includes(room)) {
-        //     connect(device);
-        //   }
-        // }
-
         set((state) => {
           if (state.devices.some((d) => d.id === device.id)) {
             return { devices: state.devices };

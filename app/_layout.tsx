@@ -6,6 +6,12 @@ import {
   Poppins_500Medium,
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
+import {
+  Inter_300Light,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_700Bold,
+} from "@expo-google-fonts/inter";
 import { useEffect } from "react";
 import {
   DarkTheme,
@@ -47,6 +53,10 @@ export default function RootLayout() {
     Poppins: Poppins_400Regular,
     PoppinsMedium: Poppins_500Medium,
     PoppinsBold: Poppins_700Bold,
+    InterLight: Inter_300Light,
+    Inter: Inter_400Regular,
+    InterMedium: Inter_500Medium,
+    InterBold: Inter_700Bold,
   });
 
   useEffect(() => {

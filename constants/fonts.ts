@@ -3,4 +3,8 @@ export default {
   poppins: "Poppins",
   poppinsMedium: "PoppinsMedium",
   poppinsBold: "PoppinsBold",
+  interLight: "InterLight",
+  inter: "Inter",
+  interMedium: "InterMedium",
+  interBold: "InterBold",
 };

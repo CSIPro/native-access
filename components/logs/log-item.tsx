@@ -3,9 +3,11 @@ import { format } from "date-fns";
 import { FC, ReactNode } from "react";
 import {
   ActivityIndicator,
+  StyleProp,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
   useColorScheme,
 } from "react-native";
 
@@ -19,6 +21,7 @@ interface LogItemProps {
   accessed?: boolean;
   bluetooth?: boolean;
   children: ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const LogItem: FC<LogItemProps> = ({
@@ -26,6 +29,7 @@ export const LogItem: FC<LogItemProps> = ({
   accessed = false,
   bluetooth = false,
   children,
+  style,
 }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
@@ -63,7 +67,7 @@ export const LogItem: FC<LogItemProps> = ({
     : colors.default.black[100];
 
   return (
-    <View style={[styles.container, { backgroundColor, borderColor }]}>
+    <View style={[styles.container, { backgroundColor, borderColor }, style]}>
       {children}
     </View>
   );

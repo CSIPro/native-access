@@ -17,21 +17,26 @@ interface Props {
   highlight: string;
   highlightStyle?: StyleProp<ViewStyle>;
   highlightTextStyle?: StyleProp<TextStyle>;
+  fontSize?: number;
 }
 
 export const BrandingHeader: FC<Props> = ({
   highlight,
   highlightStyle,
   highlightTextStyle,
+  fontSize = 24,
   children,
 }) => {
   const isLight = useColorScheme() === "light";
+
+  const commonStyle = { fontSize };
 
   return (
     <View style={[styles.brandingWrapper]}>
       <Text
         style={[
           styles.title,
+          commonStyle,
           {
             color: isLight
               ? colors.default.black[400]
@@ -42,7 +47,7 @@ export const BrandingHeader: FC<Props> = ({
         {children}
       </Text>
       <View style={[styles.highlight, highlightStyle]}>
-        <Text style={[styles.highlightedText, highlightTextStyle]}>
+        <Text style={[styles.highlightedText, commonStyle, highlightTextStyle]}>
           {highlight}
         </Text>
       </View>

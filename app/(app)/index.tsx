@@ -112,14 +112,18 @@ export default function Home() {
                 minHeight: 200,
                 width: "100%",
                 padding: 4,
-                borderRadius: 12,
+                borderRadius: 8,
                 borderWidth: 2,
                 borderColor: colors.default.tint[400],
-                backgroundColor: colors.default.tint.translucid[100],
+                backgroundColor: colors.default.tint.translucid[300],
               },
             ]}
           >
-            <LogsList disableScroll limit={3} />
+            <LogsList
+              disableScroll
+              limit={3}
+              itemStyle={[{ borderRadius: 4 }]}
+            />
           </View>
           <View style={[{ paddingVertical: 8 }]}>
             <BrandingHeader highlight="STATS">PERSONAL</BrandingHeader>

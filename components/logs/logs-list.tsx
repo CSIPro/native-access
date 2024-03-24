@@ -22,6 +22,7 @@ interface Props {
   today?: boolean;
   limit?: number;
   contentContainerStyle?: StyleProp<ViewStyle>;
+  itemStyle?: StyleProp<ViewStyle>;
 }
 
 export const LogsList: FC<Props> = ({
@@ -29,6 +30,7 @@ export const LogsList: FC<Props> = ({
   today = false,
   limit = 40,
   contentContainerStyle,
+  itemStyle,
 }) => {
   const isLight = useColorScheme() === "light";
   const { status: logsStatus, data: logs } = useLogs({ today, limitTo: limit });
@@ -75,6 +77,7 @@ export const LogsList: FC<Props> = ({
           known={!!log.user}
           accessed={log.accessed}
           bluetooth={log.bluetooth}
+          style={[itemStyle]}
         >
           <LogItemTitle user={log.user} />
           <LogItemTimestamp timestamp={log.timestamp} />

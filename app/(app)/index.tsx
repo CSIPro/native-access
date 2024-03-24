@@ -46,6 +46,7 @@ import colors from "@/constants/colors";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useUserContext } from "@/context/user-context";
 import { LogsList } from "@/components/logs/logs-list";
+import { BrandingHeader } from "@/components/ui/branding-header";
 
 export default function Home() {
   const { user } = useUserContext();
@@ -63,18 +64,17 @@ export default function Home() {
           : colors.default.tint[400],
       }}
     >
-      {!!user && (
-        <View style={[{ paddingHorizontal: 8 }]}>
-          <Text
-            style={[
-              styles.dashboardTitle,
-              { color: colors.default.white[100] },
-            ]}
-          >
-            Hello there, {user.name.split(" ")[0]}!
-          </Text>
-        </View>
-      )}
+      <View style={[{ paddingVertical: 8 }]}>
+        <BrandingHeader
+          highlight="ACCESS"
+          highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+          highlightTextStyle={[
+            { color: colors.default.tint[400], fontFamily: fonts.poppinsBold },
+          ]}
+        >
+          CSI PRO
+        </BrandingHeader>
+      </View>
       <View
         style={{
           flex: 1,
@@ -95,18 +95,9 @@ export default function Home() {
             borderRadius: 24,
           }}
         >
-          <Text
-            style={[
-              styles.dashboardTitle,
-              {
-                color: isLight
-                  ? colors.default.black[400]
-                  : colors.default.white[100],
-              },
-            ]}
-          >
-            Room stats
-          </Text>
+          <View style={[{ paddingVertical: 8 }]}>
+            <BrandingHeader highlight="STATS">ROOM</BrandingHeader>
+          </View>
           <View style={[{ flexDirection: "row", gap: 6 }]}>
             <SuccessfulLogs />
             <View style={[{ gap: 6, flex: 1 }]}>
@@ -130,18 +121,9 @@ export default function Home() {
           >
             <LogsList disableScroll limit={3} />
           </View>
-          <Text
-            style={[
-              styles.dashboardTitle,
-              {
-                color: isLight
-                  ? colors.default.black[400]
-                  : colors.default.white[100],
-              },
-            ]}
-          >
-            Personal stats
-          </Text>
+          <View style={[{ paddingVertical: 8 }]}>
+            <BrandingHeader highlight="STATS">PERSONAL</BrandingHeader>
+          </View>
           <View style={[{ flexDirection: "row", gap: 6 }]}>
             <View style={[{ gap: 6, flex: 1 }]}>
               <BluetoothPersonalLogs />

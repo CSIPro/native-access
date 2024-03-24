@@ -1,33 +1,28 @@
+import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   View,
   useColorScheme,
-  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
+  Easing,
+  Extrapolate,
+  interpolate,
   interpolateColor,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
-import {
-  Canvas,
-  Group,
-  LinearGradient as SkiaGradient,
-  Rect,
-  RoundedRect,
-  useCanvasRef,
-  vec,
-} from "@shopify/react-native-skia";
 
 import { PibleScanner } from "@/components/pible/pible-scanner";
-import { RoomPicker } from "@/components/room-picker/room-picker";
 import { DashboardItem } from "@/components/ui/dashboard/item";
 
 import {
@@ -44,16 +39,79 @@ import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { useUserContext } from "@/context/user-context";
 import { LogsList } from "@/components/logs/logs-list";
 import { BrandingHeader } from "@/components/ui/branding-header";
+import {
+  GestureEvent,
+  PanGestureHandler,
+  PanGestureHandlerEventPayload,
+} from "react-native-gesture-handler";
+import { FAIcon } from "@/components/icons/font-awesome";
 
 export default function Home() {
-  const { user } = useUserContext();
-  const colorScheme = useColorScheme();
-  const tabsHeight = useBottomTabBarHeight() + 4;
+  const [sound, setSound] = useState<Audio.Sound>(null);
+  const translationY = useSharedValue(0);
+  const hasExecuted = useRef(false);
 
-  const isLight = colorScheme === "light";
+  const tabsHeight = useBottomTabBarHeight() + 4;
+  const isLight = useColorScheme() === "light";
+
+  const playSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require("@/assets/audio/ehh.mp3")
+    );
+    setSound(sound);
+
+    await sound.playAsync();
+  };
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    if (event.contentOffset.y < 0) {
+      translationY.value = withSpring(Math.abs(event.contentOffset.y * 45), {
+        damping: 10,
+        stiffness: 100,
+        mass: 0.5,
+      });
+    }
+  });
+
+  const handleDrag = (event: GestureEvent<PanGestureHandlerEventPayload>) => {
+    translationY.value = event.nativeEvent.translationY;
+
+    if (translationY.value > 350 && !hasExecuted.current) {
+      playSound();
+      hasExecuted.current = true;
+    }
+  };
+
+  const endDrag = () => {
+    translationY.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.in(Easing.ease),
+    });
+    hasExecuted.current = false;
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          translationY.value,
+          [0, 350, 800],
+          [0, 40, 72],
+          Extrapolate.CLAMP
+        ),
+      },
+    ],
+  }));
 
   return (
     <SafeAreaView
@@ -64,7 +122,7 @@ export default function Home() {
           : colors.default.tint[400],
       }}
     >
-      <View style={[{ paddingVertical: 8 }]}>
+      <View style={[{ paddingVertical: 8, alignItems: "center" }]}>
         <BrandingHeader
           highlight="ACCESS"
           highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
@@ -74,18 +132,52 @@ export default function Home() {
         >
           CSI PRO
         </BrandingHeader>
+        <View
+          style={[
+            {
+              position: "absolute",
+              bottom: "-100%",
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+        >
+          <FAIcon
+            name="volleyball-ball"
+            size={32}
+            color={colors.default.white[100]}
+          />
+        </View>
       </View>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: isLight
-            ? colors.default.white[100]
-            : colors.default.black[400],
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-        }}
+      <Animated.View
+        style={[
+          {
+            flex: 1,
+            backgroundColor: isLight
+              ? colors.default.white[100]
+              : colors.default.black[400],
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+          },
+          animatedStyle,
+        ]}
       >
-        <ScrollView
+        <PanGestureHandler onGestureEvent={handleDrag} onEnded={endDrag}>
+          <View
+            style={[
+              {
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 10,
+                height: 64,
+              },
+            ]}
+          ></View>
+        </PanGestureHandler>
+        <Animated.ScrollView
+          onScroll={scrollHandler}
           contentContainerStyle={{
             width: "100%",
             alignItems: "center",
@@ -135,9 +227,9 @@ export default function Home() {
             </View>
             <SuccessfulPersonalLogs />
           </View>
-        </ScrollView>
-        <PibleScanner />
-      </View>
+        </Animated.ScrollView>
+      </Animated.View>
+      <PibleScanner />
       <StatusBar style="light" />
     </SafeAreaView>
   );

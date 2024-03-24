@@ -89,7 +89,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
             },
           ]}
         >
-          {logs}
+          {logs.toString().padStart(2, "0")}
         </Text>
         <Text
           numberOfLines={1}

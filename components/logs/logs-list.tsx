@@ -2,9 +2,11 @@ import { FC } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  StyleProp,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
   useColorScheme,
 } from "react-native";
 
@@ -19,12 +21,14 @@ interface Props {
   disableScroll?: boolean;
   today?: boolean;
   limit?: number;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 export const LogsList: FC<Props> = ({
   disableScroll = false,
   today = false,
   limit = 40,
+  contentContainerStyle,
 }) => {
   const isLight = useColorScheme() === "light";
   const { status: logsStatus, data: logs } = useLogs({ today, limitTo: limit });
@@ -65,7 +69,7 @@ export const LogsList: FC<Props> = ({
       data={logs}
       scrollEnabled={!disableScroll}
       keyExtractor={(item) => `${item.timestamp}-${item.room}-${item.user}`}
-      contentContainerStyle={[{ flexGrow: 1, gap: 4 }]}
+      contentContainerStyle={[{ flexGrow: 1, gap: 4 }, contentContainerStyle]}
       renderItem={({ item: log }) => (
         <LogItem
           known={!!log.user}

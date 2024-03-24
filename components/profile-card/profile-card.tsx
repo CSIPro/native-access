@@ -17,6 +17,7 @@ import format from "date-fns/format";
 
 const googleLogo = require("@/assets/auth/google-g.png");
 const githubLogo = require("@/assets/auth/github-mark.png");
+const githubLogoWhite = require("@/assets/auth/github-mark-white.png");
 
 export const ProfileCard = () => {
   const colorScheme = useColorScheme();
@@ -236,7 +237,7 @@ export const ProfileCard = () => {
           )}
           {hasGithub && (
             <Image
-              source={githubLogo}
+              source={isLight ? githubLogo : githubLogoWhite}
               style={[{ width: 24, aspectRatio: 1 }]}
             />
           )}

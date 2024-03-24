@@ -44,7 +44,6 @@ import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { LinearGradient } from "expo-linear-gradient";
 import { useUserContext } from "@/context/user-context";
 import { LogsList } from "@/components/logs/logs-list";
 
@@ -52,8 +51,6 @@ export default function Home() {
   const { user } = useUserContext();
   const colorScheme = useColorScheme();
   const tabsHeight = useBottomTabBarHeight() + 4;
-
-  const palette = colors[colorScheme];
 
   const isLight = colorScheme === "light";
 

@@ -7,6 +7,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { FC } from "react";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { MemberItem } from "./member-item";
 
@@ -25,6 +26,7 @@ interface Props {
 export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
   const colorScheme = useColorScheme();
   const { status, data } = useMembersQuery(roles);
+  const tabsHeight = useBottomTabBarHeight() + 8;
 
   const isLight = colorScheme === "light";
 
@@ -89,7 +91,11 @@ export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
             </View>
           </View>
         )}
-        contentContainerStyle={{ flexGrow: 1, gap: 4 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          gap: 4,
+          paddingBottom: tabsHeight,
+        }}
         ListEmptyComponent={
           <View style={[styles.centered]}>
             <Text

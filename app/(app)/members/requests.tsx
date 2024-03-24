@@ -6,6 +6,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { RequestItem } from "@/components/requests/request-item";
 import { RoomPicker } from "@/components/room-picker/room-picker";
@@ -17,6 +18,7 @@ import fonts from "@/constants/fonts";
 
 export default function RequestsPage() {
   const { status: reqStatus, data: requests } = useRoomRequests();
+  const tabsHeight = useBottomTabBarHeight() + 8;
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";
@@ -61,7 +63,12 @@ export default function RequestsPage() {
       <FlatList
         data={requests}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ flexGrow: 1, padding: 4, gap: 4 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          padding: 4,
+          gap: 4,
+          paddingBottom: tabsHeight,
+        }}
         renderItem={({ item: request }) => <RequestItem request={request} />}
         ListEmptyComponent={
           <View style={[styles.centered]}>
@@ -73,7 +80,7 @@ export default function RequestsPage() {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   centered: {

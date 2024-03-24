@@ -1,5 +1,6 @@
 import { StyleSheet, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { LogsList } from "@/components/logs/logs-list";
 import { RoomPicker } from "@/components/room-picker/room-picker";
@@ -9,6 +10,7 @@ import fonts from "@/constants/fonts";
 
 export default function AccessLogs() {
   const isLight = useColorScheme() === "light";
+  const tabsHeight = useBottomTabBarHeight() + 8;
 
   return (
     <SafeAreaView
@@ -33,7 +35,7 @@ export default function AccessLogs() {
         <View style={[styles.roomPickerWrapper]}>
           <RoomPicker />
         </View>
-        <LogsList />
+        <LogsList contentContainerStyle={[{ paddingBottom: tabsHeight }]} />
       </View>
     </SafeAreaView>
   );

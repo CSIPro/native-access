@@ -29,9 +29,10 @@ export type Log = z.infer<typeof Log>;
 
 interface UseLogsProps {
   today?: boolean;
+  limitTo?: number;
 }
 
-export const useLogs = ({ today = true }: UseLogsProps = {}) => {
+export const useLogs = ({ today = true, limitTo = 40 }: UseLogsProps = {}) => {
   const roomCtx = useRoomContext();
 
   const firestore = useFirestore();
@@ -51,7 +52,7 @@ export const useLogs = ({ today = true }: UseLogsProps = {}) => {
         logsCol,
         where("room", "==", roomCtx.selectedRoom || ""),
         orderBy("timestamp", "desc"),
-        limit(40)
+        limit(limitTo)
       );
   const { status, data } = useFirestoreCollectionData(logsQuery, {
     idField: "id",

@@ -46,6 +46,7 @@ import colors from "@/constants/colors";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { LinearGradient } from "expo-linear-gradient";
 import { useUserContext } from "@/context/user-context";
+import { LogsList } from "@/components/logs/logs-list";
 
 export default function Home() {
   const { user } = useUserContext();
@@ -93,10 +94,10 @@ export default function Home() {
             alignItems: "center",
             padding: 8,
             paddingBottom: tabsHeight + 112,
-            gap: 4,
+            gap: 6,
+            borderRadius: 24,
           }}
         >
-          {/* <RoomPicker /> */}
           <Text
             style={[
               styles.dashboardTitle,
@@ -115,6 +116,22 @@ export default function Home() {
               <BluetoothLogs />
               <FailedLogs />
             </View>
+          </View>
+          <View
+            style={[
+              {
+                flex: 1,
+                minHeight: 200,
+                width: "100%",
+                padding: 4,
+                borderRadius: 12,
+                borderWidth: 2,
+                borderColor: colors.default.tint[400],
+                backgroundColor: colors.default.tint.translucid[100],
+              },
+            ]}
+          >
+            <LogsList disableScroll limit={3} />
           </View>
           <Text
             style={[

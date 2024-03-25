@@ -1,13 +1,7 @@
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   Easing,
@@ -51,7 +45,7 @@ import { FAIcon } from "@/components/icons/font-awesome";
 export default function Home() {
   const [sound, setSound] = useState<Audio.Sound>(null);
   const translationY = useSharedValue(0);
-  const hasExecuted = useRef(false);
+  const shouldPlaySound = useRef(false);
 
   const tabsHeight = useBottomTabBarHeight() + 4;
   const isLight = useColorScheme() === "light";
@@ -63,6 +57,9 @@ export default function Home() {
     setSound(sound);
 
     await sound.playAsync();
+    setTimeout(() => {
+      sound.stopAsync();
+    }, 500);
   };
 
   useEffect(() => {
@@ -86,9 +83,8 @@ export default function Home() {
   const handleDrag = (event: GestureEvent<PanGestureHandlerEventPayload>) => {
     translationY.value = event.nativeEvent.translationY;
 
-    if (translationY.value > 350 && !hasExecuted.current) {
-      playSound();
-      hasExecuted.current = true;
+    if (translationY.value > 350 && !shouldPlaySound.current) {
+      shouldPlaySound.current = true;
     }
   };
 
@@ -97,7 +93,11 @@ export default function Home() {
       duration: 300,
       easing: Easing.in(Easing.ease),
     });
-    hasExecuted.current = false;
+
+    if (shouldPlaySound.current) {
+      playSound();
+      shouldPlaySound.current = false;
+    }
   };
 
   const animatedStyle = useAnimatedStyle(() => ({

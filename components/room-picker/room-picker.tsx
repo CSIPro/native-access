@@ -32,10 +32,12 @@ interface Props {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   chevronColor?: string;
+  disabled?: boolean;
 }
 
 export const RoomPicker: FC<Props> = ({
   compact = false,
+  disabled = false,
   textStyle,
   style,
   chevronColor,
@@ -62,38 +64,35 @@ export const RoomPicker: FC<Props> = ({
   const items = user.isRoot ? rooms : userRooms;
 
   return (
-    <>
-      <Dropdown
-        items={items.map((i) => ({
-          key: i.id,
-          value: i.id,
-          label: compact ? i.name : formatRoomName(i),
-        }))}
-        onChange={setSelectedRoom}
-        compact={compact}
-        sheetTitle="Pick a room"
-        value={selectedRoom}
-        icon={
-          compact ? null : (
-            <MaterialIcon name="room" size={24} color={iconColor} />
-          )
-        }
-        style={[{ borderRadius: 12, borderColor: iconColor }, style]}
-        valueStyle={[{ fontFamily: fonts.poppinsMedium }, textStyle]}
-        ListEmptyComponent={
-          <View
-            style={[
-              { flex: 1, justifyContent: "center", alignItems: "center" },
-            ]}
-          >
-            <Text style={[styles.text, { textAlign: "center", color }]}>
-              You're not a member of any rooms yet
-            </Text>
-          </View>
-        }
-        chevronColor={chevronColor}
-      />
-    </>
+    <Dropdown
+      items={items.map((i) => ({
+        key: i.id,
+        value: i.id,
+        label: compact ? i.name : formatRoomName(i),
+      }))}
+      onChange={setSelectedRoom}
+      compact={compact}
+      disabled={disabled}
+      sheetTitle="Pick a room"
+      value={selectedRoom}
+      icon={
+        compact ? null : (
+          <MaterialIcon name="room" size={24} color={iconColor} />
+        )
+      }
+      style={[{ borderRadius: 12, borderColor: iconColor }, style]}
+      valueStyle={[{ fontFamily: fonts.poppinsMedium }, textStyle]}
+      ListEmptyComponent={
+        <View
+          style={[{ flex: 1, justifyContent: "center", alignItems: "center" }]}
+        >
+          <Text style={[styles.text, { textAlign: "center", color }]}>
+            You're not a member of any rooms yet
+          </Text>
+        </View>
+      }
+      chevronColor={chevronColor}
+    />
   );
 };
 

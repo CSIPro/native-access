@@ -39,6 +39,11 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const retrieveSelectedRoom = async () => {
       const roomId = await getFromStorage("SELECTED_ROOM");
 
+      if (!roomId) {
+        setSelectedRoom(roomsData?.at(0)?.id);
+        return;
+      }
+
       setSelectedRoom(roomId);
     };
 

@@ -158,11 +158,10 @@ export const PibleScanner = () => {
             styles.container,
             {
               height: 64,
-              borderWidth: 2,
-              borderColor: colors.default.tint[400],
             },
           ]}
         >
+          <BlurView intensity={24} tint="dark" style={[styles.blur]} />
           <FlatList
             horizontal
             data={devices}
@@ -217,6 +216,7 @@ export const PibleScanner = () => {
             >
               <RoomPicker
                 compact
+                disabled={scanState !== "idle"}
                 style={[
                   {
                     backgroundColor: colors.default.tint.translucid[100],

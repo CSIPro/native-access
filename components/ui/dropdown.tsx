@@ -50,6 +50,7 @@ interface Props {
   style?: StyleProp<ViewStyle>;
   valueStyle?: StyleProp<TextStyle>;
   chevronColor?: string;
+  disabled?: boolean;
 }
 
 export const Dropdown: FC<Props> = ({
@@ -57,6 +58,7 @@ export const Dropdown: FC<Props> = ({
   sheetTitle,
   items = [],
   placeholder = "Pick one",
+  disabled = false,
   value,
   label,
   onChange,
@@ -88,14 +90,14 @@ export const Dropdown: FC<Props> = ({
     : colors.default.tint.translucid[600];
 
   return (
-    <View style={[styles.wrapper]}>
+    <View style={[styles.wrapper, disabled && styles.disabled]}>
       {!!label && (
         <View style={[styles.labelWrapper]}>
           <Text style={[styles.text, { color }]}>{label}</Text>
         </View>
       )}
       <Pressable
-        onPress={() => sheetRef.current?.present()}
+        onPress={disabled ? null : () => sheetRef.current?.present()}
         style={[
           styles.dropdown,
           {
@@ -255,5 +257,8 @@ const styles = StyleSheet.create({
   textButton: {
     padding: 8,
     borderRadius: 8,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

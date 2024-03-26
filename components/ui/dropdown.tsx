@@ -126,7 +126,11 @@ export const Dropdown: FC<Props> = ({
         </View>
       </Pressable>
 
-      <BSModal ref={sheetRef} snapPoints={["32%", "40%"]}>
+      <BSModal
+        ref={sheetRef}
+        onDismiss={handleDone}
+        snapPoints={["32%", "40%"]}
+      >
         <BSMHeader action={handleDone}>{sheetTitle}</BSMHeader>
         <BottomSheetFlatList
           data={items}

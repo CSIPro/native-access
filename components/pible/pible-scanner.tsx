@@ -1,32 +1,18 @@
+import { Image } from "expo-image";
+import { BlurView } from "expo-blur";
 import IonIcons from "@expo/vector-icons/Ionicons";
 
-import { FC, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   useColorScheme,
   StyleSheet,
   View,
   Text,
   FlatList,
-  ActivityIndicator,
   Pressable,
+  useWindowDimensions,
 } from "react-native";
-import { State } from "react-native-ble-plx";
-
-import { PibleItem } from "./pible-item";
-import { IonIcon } from "../icons/ion";
-
-import { ScanState } from "@/store/ble-slice";
-import { useStore } from "@/store/store";
-
-import colors from "@/constants/colors";
-import fonts from "@/constants/fonts";
-import { Image } from "expo-image";
-import { BlurView } from "expo-blur";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Checkbox, CheckboxLabel } from "../ui/checkbox";
-import { RoomPicker } from "../room-picker/room-picker";
 import Animated, {
-  FadeOut,
   StretchInX,
   StretchOutX,
   interpolateColor,
@@ -35,56 +21,24 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
+import { State } from "react-native-ble-plx";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { Canvas } from "@shopify/react-native-skia";
+
+import { PibleItem } from "./pible-item";
+import { RoomPicker } from "../room-picker/room-picker";
+import { Checkbox, CheckboxLabel } from "../ui/checkbox";
+import { Particle } from "../ui/particle/particle";
+
+import { useStore } from "@/store/store";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 const accessLogo = require("@/assets/access-logo.svg");
 
-const ScanStateIcon: FC<{ state: ScanState }> = ({ state }) => {
-  if (state === ScanState.enum.idle) {
-    return <IonIcon name="stop" color="#fff" size={16} />;
-  }
-
-  return <ActivityIndicator size="small" color="#fff" />;
-};
-
-const ScanControlButton: FC<{ state: ScanState }> = ({ state }) => {
-  const startScan = useStore((state) => state.scan);
-  const stopScan = useStore((state) => state.stopScan);
-
-  const colorScheme = useColorScheme();
-
-  const color = colors[colorScheme ?? "light"].tint;
-
-  const icon =
-    state === ScanState.enum.idle ? (
-      <IonIcon name="play" color={color} size={16} />
-    ) : (
-      <IonIcon name="stop" color={color} size={16} />
-    );
-
-  const handlePress = () => {
-    if (state === ScanState.enum.idle) {
-      startScan();
-    } else if (state === ScanState.enum.scanning) {
-      stopScan({ immediate: true });
-    }
-  };
-
-  return (
-    <Pressable style={[styles.scanControlButton]} onPress={handlePress}>
-      {icon}
-      <Text
-        style={[
-          styles.stateLabel,
-          { paddingTop: 2, color: colors.default.tint[400] },
-        ]}
-      >
-        {state === ScanState.enum.idle ? "start" : "stop"}
-      </Text>
-    </Pressable>
-  );
-};
-
 export const PibleScanner = () => {
+  const [particles, setParticles] = useState<Particle[]>([]);
   const connect = useStore((state) => state.connect);
   const devices = useStore((state) => state.devices);
   const bleState = useStore((state) => state.bluetoothState);
@@ -94,17 +48,57 @@ export const PibleScanner = () => {
   const scanState = useStore((state) => state.scanState);
   const isScanning = scanState === "scanning";
   const isConnecting = scanState === "connecting";
+  const window = useWindowDimensions();
 
   const sv = useSharedValue(0);
 
   useEffect(() => {
+    const clearParticles = () => {
+      if (interval) clearInterval(interval);
+
+      setParticles([]);
+    };
+
+    let interval: NodeJS.Timeout;
+
     if (isScanning) {
       sv.value = withRepeat(withTiming(1, { duration: 1500 }), 0, true);
+
+      // interval = setInterval(() => {
+      setParticles([]);
+
+      const particles: Particle[] = [];
+
+      for (let i = 0; i < 100; i++) {
+        const offsetX = Math.random() * (window.width - 8) + 4;
+        const offsetY = Math.random() * 30 + 76;
+        const id = i * offsetX * Math.random();
+
+        const particle: Particle = {
+          id,
+          offsetX,
+          offsetY,
+          delay: Math.random() * 300 * i + 750,
+        };
+
+        particles.push(particle);
+      }
+
+      setParticles(particles);
+      // }, 2000);
     } else if (isConnecting) {
       sv.value = withTiming(1);
+
+      clearParticles();
     } else {
       sv.value = withTiming(0);
+
+      clearParticles();
     }
+
+    return () => {
+      clearParticles();
+    };
   }, [isScanning, isConnecting]);
 
   useEffect(() => {
@@ -181,6 +175,25 @@ export const PibleScanner = () => {
       )}
       <Animated.View style={[styles.container, animatedItemStyle]}>
         <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+        <Canvas
+          style={[
+            styles.container,
+            {
+              ...StyleSheet.absoluteFillObject,
+              overflow: "hidden",
+              backgroundColor: "transparent",
+            },
+          ]}
+        >
+          {particles.map((particle) => (
+            <Particle
+              key={particle.id}
+              offsetX={particle.offsetX}
+              offsetY={particle.offsetY}
+              delay={particle.delay}
+            />
+          ))}
+        </Canvas>
         <PibleButton />
         <View style={[styles.actionsContainer]}>
           <View style={[styles.actions]}>

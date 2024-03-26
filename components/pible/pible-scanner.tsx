@@ -17,6 +17,7 @@ import Animated, {
   StretchOutX,
   interpolateColor,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -286,6 +287,13 @@ const PibleButton = () => {
   const isConnecting = scanState === "connecting";
 
   const sv = useSharedValue(0);
+  const border = useDerivedValue(() =>
+    interpolateColor(
+      sv.value,
+      [0, 1],
+      [colors.default.white[100], colors.default.tint[200]]
+    )
+  );
 
   useEffect(() => {
     if (isScanning) {
@@ -297,23 +305,36 @@ const PibleButton = () => {
     }
   }, [isScanning, isConnecting]);
 
-  const animatedItemStyle = useAnimatedStyle(() => {
+  const containerStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       sv.value,
       [0, 1],
       [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
     );
 
-    return { backgroundColor };
+    return { backgroundColor, borderColor: border.value };
   });
 
   return (
     <Pressable onPress={startScan} style={[styles.scanButtonWrapper]}>
-      <Animated.View style={[styles.scanButton, animatedItemStyle]}>
+      <Animated.View
+        style={[
+          styles.scanButton,
+          { borderWidth: 2, borderColor: colors.default.white[100] },
+          containerStyle,
+        ]}
+      >
         <BlurView
           intensity={24}
           tint="dark"
-          style={[styles.blur, { borderRadius: 9999 }]}
+          style={[
+            styles.blur,
+            {
+              borderRadius: 9999,
+              borderWidth: 0,
+              backgroundColor: colors.default.white.translucid[100],
+            },
+          ]}
         />
         <Image
           source={accessLogo}

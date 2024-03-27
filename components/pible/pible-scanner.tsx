@@ -2,7 +2,7 @@ import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
 import IonIcons from "@expo/vector-icons/Ionicons";
 
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   useColorScheme,
   StyleSheet,
@@ -13,8 +13,10 @@ import {
   useWindowDimensions,
 } from "react-native";
 import Animated, {
+  Easing,
   StretchInX,
   StretchOutX,
+  cancelAnimation,
   interpolateColor,
   useAnimatedStyle,
   useDerivedValue,
@@ -24,7 +26,16 @@ import Animated, {
 } from "react-native-reanimated";
 import { State } from "react-native-ble-plx";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Canvas } from "@shopify/react-native-skia";
+import {
+  Blur,
+  Canvas,
+  Group,
+  Path,
+  Skia,
+  fitbox,
+  mix,
+  rect,
+} from "@shopify/react-native-skia";
 
 import { PibleItem } from "./pible-item";
 import { RoomPicker } from "../room-picker/room-picker";
@@ -37,6 +48,11 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 
 const accessLogo = require("@/assets/access-logo.svg");
+
+const quintEasing = (x: number) => {
+  "worklet";
+  return x * x * x * x * x;
+};
 
 export const PibleScanner = () => {
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -52,22 +68,51 @@ export const PibleScanner = () => {
   const window = useWindowDimensions();
 
   const sv = useSharedValue(0);
+  const button = useSharedValue(0);
+  const wave = useSharedValue(1);
 
   useEffect(() => {
-    const clearParticles = () => {
-      if (interval) clearInterval(interval);
+    let interval: NodeJS.Timeout;
 
+    const generateWave = () => {
+      interval = setInterval(() => {
+        wave.value = 0;
+        wave.value = withTiming(1, {
+          duration: 3000,
+          easing: Easing.in(quintEasing),
+        });
+      }, 3000);
+
+      wave.value = 0;
+      wave.value = withTiming(1, {
+        duration: 3000,
+        easing: Easing.in(quintEasing),
+      });
+    };
+
+    const clearWave = () => {
+      wave.value = 0;
+      clearInterval(interval);
+    };
+
+    const clearParticles = () => {
       setParticles([]);
     };
 
-    let interval: NodeJS.Timeout;
-
     if (isScanning) {
+      button.value = withRepeat(
+        withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        0,
+        true
+      );
+
+      generateWave();
+      clearParticles();
+    } else if (isConnecting) {
       sv.value = withRepeat(withTiming(1, { duration: 1500 }), 0, true);
+      button.value = withTiming(1);
 
-      // interval = setInterval(() => {
       setParticles([]);
-
       const particles: Particle[] = [];
 
       for (let i = 0; i < 100; i++) {
@@ -86,19 +131,21 @@ export const PibleScanner = () => {
       }
 
       setParticles(particles);
-      // }, 2000);
-    } else if (isConnecting) {
-      sv.value = withTiming(1);
-
-      clearParticles();
+      clearWave();
     } else {
       sv.value = withTiming(0);
+      button.value = withTiming(0);
 
       clearParticles();
+      clearWave();
     }
 
     return () => {
       clearParticles();
+      clearWave();
+
+      cancelAnimation(sv);
+      cancelAnimation(button);
     };
   }, [isScanning, isConnecting]);
 
@@ -186,6 +233,7 @@ export const PibleScanner = () => {
             },
           ]}
         >
+          <ScanWave progress={wave} />
           {particles.map((particle) => (
             <Particle
               key={particle.id}
@@ -195,7 +243,7 @@ export const PibleScanner = () => {
             />
           ))}
         </Canvas>
-        <PibleButton />
+        <PibleButton progress={button} />
         <View style={[styles.actionsContainer]}>
           <View style={[styles.actions]}>
             <View
@@ -280,34 +328,63 @@ export const PibleScanner = () => {
   );
 };
 
-const PibleButton = () => {
-  const startScan = useStore((state) => state.scan);
-  const scanState = useStore((state) => state.scanState);
-  const isScanning = scanState === "scanning";
-  const isConnecting = scanState === "connecting";
+interface ScanWaveProps {
+  progress: Animated.SharedValue<number>;
+}
 
-  const sv = useSharedValue(0);
+const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
+  const window = useWindowDimensions();
+  const padding = 4;
+
+  const circle = Skia.Path.Make();
+  circle.addCircle((window.width - 2 * padding) / 2, 8, 40);
+
+  const pathSource = circle.computeTightBounds();
+  const pathDest = rect(0, -40, window.width - 2 * padding, 96);
+
+  const transform = useDerivedValue(() => {
+    return [{ scale: mix(progress.value, 0.85, 6) }];
+  });
+  const blur = useDerivedValue(() => mix(progress.value, 3, 5));
+  const strokeWidth = useDerivedValue(() => mix(progress.value, 8, 1));
+
+  return (
+    <Group
+      transform={transform}
+      origin={{ x: (window.width - 2 * padding) / 2, y: 8 }}
+    >
+      <Group transform={fitbox("contain", pathSource, pathDest)}>
+        <Path
+          path={circle}
+          style="stroke"
+          color={colors.default.tint[400]}
+          strokeWidth={strokeWidth}
+        >
+          <Blur blur={blur} />
+        </Path>
+      </Group>
+    </Group>
+  );
+};
+
+interface PibleButtonProps {
+  progress: Animated.SharedValue<number>;
+}
+
+const PibleButton: FC<PibleButtonProps> = ({ progress }) => {
+  const startScan = useStore((state) => state.scan);
+
   const border = useDerivedValue(() =>
     interpolateColor(
-      sv.value,
+      progress.value,
       [0, 1],
       [colors.default.white[100], colors.default.tint[200]]
     )
   );
 
-  useEffect(() => {
-    if (isScanning) {
-      sv.value = withRepeat(withTiming(1, { duration: 1500 }), 0, true);
-    } else if (isConnecting) {
-      sv.value = withTiming(1);
-    } else {
-      sv.value = withTiming(0);
-    }
-  }, [isScanning, isConnecting]);
-
   const containerStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
-      sv.value,
+      progress.value,
       [0, 1],
       [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
     );

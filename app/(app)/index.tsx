@@ -1,7 +1,13 @@
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   Easing,
@@ -48,6 +54,7 @@ export default function Home() {
   const shouldPlaySound = useRef(false);
 
   const tabsHeight = useBottomTabBarHeight() + 4;
+  const window = useWindowDimensions();
   const isLight = useColorScheme() === "light";
 
   const playSound = async () => {
@@ -157,35 +164,36 @@ export default function Home() {
               : colors.default.black[400],
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
+            overflow: "hidden",
           },
           animatedStyle,
         ]}
       >
-        <PanGestureHandler onGestureEvent={handleDrag} onEnded={endDrag}>
-          <View
-            style={[
-              {
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                zIndex: 10,
-                height: 64,
-              },
-            ]}
-          ></View>
-        </PanGestureHandler>
         <Animated.ScrollView
           onScroll={scrollHandler}
           contentContainerStyle={{
             width: "100%",
             alignItems: "center",
             padding: 8,
-            paddingBottom: tabsHeight + 112,
+            paddingBottom: tabsHeight + window.height * 0.35,
             gap: 6,
             borderRadius: 24,
           }}
         >
+          <PanGestureHandler onGestureEvent={handleDrag} onEnded={endDrag}>
+            <View
+              style={[
+                {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  zIndex: 10,
+                  height: 64,
+                },
+              ]}
+            />
+          </PanGestureHandler>
           <View style={[{ paddingVertical: 8 }]}>
             <BrandingHeader highlight="STATS">ROOM</BrandingHeader>
           </View>
@@ -251,9 +259,7 @@ const SuccessfulLogs = () => {
         isLight
           ? colors.default.tint.translucid[500]
           : colors.default.tint.translucid[100],
-        isLight
-          ? colors.default.tint.translucid[400]
-          : colors.default.tint.translucid[400],
+        colors.default.tint.translucid[400],
       ]
     );
 
@@ -266,10 +272,13 @@ const SuccessfulLogs = () => {
     <Animated.View
       style={[
         styles.successContainer,
-        animatedItem,
         {
           borderColor: colors.default.tint[400],
+          backgroundColor: isLight
+            ? colors.default.tint.translucid[500]
+            : colors.default.tint.translucid[100],
         },
+        animatedItem,
       ]}
     >
       <Text
@@ -357,9 +366,7 @@ const SuccessfulPersonalLogs = () => {
         isLight
           ? colors.default.tint.translucid[500]
           : colors.default.tint.translucid[100],
-        isLight
-          ? colors.default.tint.translucid[400]
-          : colors.default.tint.translucid[400],
+        colors.default.tint.translucid[400],
       ]
     );
 
@@ -372,10 +379,13 @@ const SuccessfulPersonalLogs = () => {
     <Animated.View
       style={[
         styles.successContainer,
-        animatedItem,
         {
           borderColor: colors.default.tint[400],
+          backgroundColor: isLight
+            ? colors.default.tint.translucid[500]
+            : colors.default.tint.translucid[100],
         },
+        animatedItem,
       ]}
     >
       <Text

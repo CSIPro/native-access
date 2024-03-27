@@ -3,7 +3,7 @@ export default {
     name: "CSI PRO Access",
     scheme: "native-access",
     slug: "NativeAccess",
-    version: "1.1.0",
+    version: "1.1.10",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "automatic",

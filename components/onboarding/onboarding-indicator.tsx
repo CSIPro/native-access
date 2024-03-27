@@ -1,7 +1,8 @@
 import colors from "@/constants/colors";
 import { FC } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
 import Animated, {
+  Extrapolate,
   interpolate,
   interpolateColor,
   useAnimatedStyle,
@@ -10,39 +11,50 @@ import Animated, {
 } from "react-native-reanimated";
 
 interface Props {
-  value: number;
   length: number;
+  translateX: Animated.SharedValue<number>;
 }
 
-export const OnboardingIndicator: FC<Props> = ({ value, length }) => {
+export const OnboardingIndicator: FC<Props> = ({ length, translateX }) => {
   return (
     <FlatList
       data={Array(length)}
-      renderItem={({ index }) => <IndicatorItem active={index === value} />}
+      renderItem={({ index }) => (
+        <IndicatorItem index={index} translateX={translateX} />
+      )}
       contentContainerStyle={[styles.wrapper]}
     />
   );
 };
 
 interface IndicatorItemProps {
-  active?: boolean;
+  index: number;
+  translateX: Animated.SharedValue<number>;
 }
 
-const IndicatorItem: FC<IndicatorItemProps> = ({ active = false }) => {
-  const sv = useDerivedValue(
-    () => (active ? withTiming(1) : withTiming(0)),
-    [active]
-  );
+const IndicatorItem: FC<IndicatorItemProps> = ({ index, translateX }) => {
+  const { width } = useWindowDimensions();
+  const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
 
   const indicatorStyle = useAnimatedStyle(() => {
     return {
-      width: interpolate(sv.value, [0, 1], [10, 32]),
-      opacity: interpolate(sv.value, [0, 1], [0.4, 1]),
-      backgroundColor: interpolateColor(
-        sv.value,
-        [0, 1],
-        [colors.default.tint[400], colors.default.tint[300]]
+      width: interpolate(
+        translateX.value,
+        inputRange,
+        [10, 32, 10],
+        Extrapolate.CLAMP
       ),
+      opacity: interpolate(
+        translateX.value,
+        inputRange,
+        [0.4, 1, 0.4],
+        Extrapolate.CLAMP
+      ),
+      backgroundColor: interpolateColor(translateX.value, inputRange, [
+        colors.default.tint[400],
+        colors.default.tint[300],
+        colors.default.tint[400],
+      ]),
     };
   });
 

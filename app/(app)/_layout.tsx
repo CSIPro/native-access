@@ -1,4 +1,6 @@
+import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
+import * as NavigationBar from "expo-navigation-bar";
 import { Redirect, Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
@@ -18,7 +20,6 @@ import { useStore } from "@/store/store";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { BlurView } from "expo-blur";
 
 export default function TabsLayout() {
   const {
@@ -52,14 +53,17 @@ export default function TabsLayout() {
 
 const TabsLayoutNav = () => {
   const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  NavigationBar.setBackgroundColorAsync(
+    isLight ? colors.default.white[200] : colors.default.black[400]
+  );
 
   const { status: authUserStatus, data: authUserData } = useUser();
   const { status: userDataStatus, data: userData } = useUserData();
   const { status: rolesStatus, data: rolesData } = useRoles();
 
   const seenOnboarding = useStore((state) => state.seenOnboarding);
-
-  const isLight = colorScheme === "light";
 
   if (
     userDataStatus === "loading" ||

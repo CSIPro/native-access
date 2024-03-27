@@ -81,7 +81,7 @@ export const RoomPicker: FC<Props> = ({
         )
       }
       style={[{ borderRadius: 12, borderColor: iconColor }, style]}
-      valueStyle={[{ fontFamily: fonts.poppinsMedium }, textStyle]}
+      valueStyle={[{ fontFamily: fonts.interMedium }, textStyle]}
       ListEmptyComponent={
         <View
           style={[{ flex: 1, justifyContent: "center", alignItems: "center" }]}

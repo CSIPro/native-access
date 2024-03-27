@@ -204,7 +204,7 @@ const DropdownItem: FC<DropdownItemProps> = ({
           style={[
             styles.dropdownLabel,
             textStyles,
-            selectedRoom === item.value && { fontFamily: fonts.poppinsMedium },
+            selectedRoom === item.value && { fontFamily: fonts.interMedium },
           ]}
         >
           {item.label ?? "Unknown"}
@@ -239,8 +239,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   dropdownLabel: {
-    paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
     flexGrow: 1,
   },
@@ -254,8 +253,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   textButton: {

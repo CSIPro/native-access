@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   errorText: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   item: {
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     maxWidth: "65%",
   },
   itemText: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 18,
     color: colors.default.white[100],
   },

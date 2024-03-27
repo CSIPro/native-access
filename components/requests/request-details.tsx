@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   requestStatus: {

@@ -132,9 +132,8 @@ const styles = StyleSheet.create({
   title: {
     maxWidth: "65%",
     color: colors.default.white[100],
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 18,
-    paddingTop: 4,
   },
   timestampContainer: {
     flexDirection: "column",
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     color: colors.default.white[100],
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 12,
   },
 });

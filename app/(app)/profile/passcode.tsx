@@ -1,5 +1,11 @@
 import { Stack, useRouter } from "expo-router";
-import { ActivityIndicator, StyleSheet, Text, View, useColorScheme } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 import { z } from "zod";
 
 import colors from "@/constants/colors";
@@ -37,7 +43,7 @@ export default function Passcode() {
     control,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm<PasscodeForm>({
     defaultValues: { passcode: "" },
     resolver: zodResolver(PasscodeSchema),
@@ -50,31 +56,32 @@ export default function Passcode() {
         router.back();
       },
       onError: (error) => console.log(error),
-    });
+    }
+  );
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
-
 
   const submit = async (data: PasscodeForm) => {
     if (isLoading) return;
 
     mutate(data.passcode);
-  }
+  };
 
   const iconColor = isLight
     ? colors.default.tint[400]
     : colors.default.tint[100];
 
   return (
-    <View style={[
-      {
-        backgroundColor: isLight
-          ? colors.default.white[100]
-          : colors.default.black[400],
-        flex: 1,
-        width: "100%",
-      }
-    ]}
+    <View
+      style={[
+        {
+          backgroundColor: isLight
+            ? colors.default.white[100]
+            : colors.default.black[400],
+          flex: 1,
+          width: "100%",
+        },
+      ]}
     >
       <Stack.Screen
         options={{
@@ -83,25 +90,31 @@ export default function Passcode() {
             backgroundColor: colors.default.tint[400],
           },
           headerTitleStyle: {
-            fontFamily: fonts.poppinsMedium,
+            fontFamily: fonts.interMedium,
             color: colors.default.white[100],
           },
         }}
       />
       <View style={{ flex: 1, padding: 4 }}>
-        <Text style={[styles.text, {
-          color: isLight
-            ? colors.default.black[400]
-            : colors.default.white[100]
-        }
-        ]}>
+        <Text
+          style={[
+            styles.text,
+            {
+              color: isLight
+                ? colors.default.black[400]
+                : colors.default.white[100],
+            },
+          ]}
+        >
           Here you can update your passcode in case you need it
         </Text>
-        <View style={[
-          {
-            gap: 8,
-          }
-        ]}>
+        <View
+          style={[
+            {
+              gap: 8,
+            },
+          ]}
+        >
           <Controller
             control={control}
             name="passcode"
@@ -133,12 +146,12 @@ export default function Passcode() {
         </View>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   text: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
 });

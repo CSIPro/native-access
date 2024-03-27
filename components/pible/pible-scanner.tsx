@@ -287,7 +287,14 @@ export const PibleScanner = () => {
                     height: "100%",
                   },
                 ]}
-                textStyle={[{ fontSize: 10, color: colors.default.white[100] }]}
+                textStyle={[
+                  {
+                    fontSize: 10,
+                    color: colors.default.white[100],
+                    fontFamily: fonts.interMedium,
+                    paddingTop: 0,
+                  },
+                ]}
                 chevronColor={colors.default.white[100]}
               />
             </View>
@@ -303,6 +310,7 @@ export const PibleScanner = () => {
                       : "transparent",
                   borderTopRightRadius: 24,
                   borderBottomRightRadius: 24,
+                  justifyContent: "center",
                 },
               ]}
             >
@@ -486,18 +494,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionLabel: {
-    paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 10,
     color: "#fff",
   },
   label: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 20,
     color: "#fff",
   },
   stateLabel: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 14,
     color: "#fff",
   },

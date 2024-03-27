@@ -178,8 +178,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   text: {
-    paddingTop: 4,
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 16,
     color: colors.default.white[100],
   },

@@ -208,7 +208,7 @@ export default function Home() {
             style={[
               {
                 flex: 1,
-                minHeight: 200,
+                minHeight: 192,
                 width: "100%",
                 padding: 4,
                 borderRadius: 8,
@@ -287,7 +287,7 @@ const SuccessfulLogs = () => {
           {
             color: colors.default.white[100],
             fontSize: 72,
-            fontFamily: fonts.poppins,
+            fontFamily: fonts.inter,
           },
         ]}
       >
@@ -394,7 +394,7 @@ const SuccessfulPersonalLogs = () => {
           {
             color: colors.default.white[100],
             fontSize: 72,
-            fontFamily: fonts.poppins,
+            fontFamily: fonts.inter,
           },
         ]}
       >
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    gap: -36,
+    gap: -16,
     borderWidth: 2,
   },
   successShadow: {
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   bubbleText: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 14,
   },
 });

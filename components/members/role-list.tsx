@@ -127,11 +127,11 @@ const styles = StyleSheet.create({
   },
   centeredText: {
     textAlign: "center",
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 14,
   },
   errorText: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 14,
     textAlign: "center",
   },
@@ -146,11 +146,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 4,
+    paddingVertical: 8,
     borderRadius: 4,
   },
   roleName: {
-    paddingTop: 4,
-    fontFamily: fonts.poppinsBold,
+    fontFamily: fonts.interBold,
     fontSize: 16,
     color: colors.default.white[100],
   },

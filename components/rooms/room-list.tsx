@@ -83,7 +83,7 @@ export const RoomList = () => {
               styles.text,
               {
                 color: colors.default.white[100],
-                fontFamily: fonts.poppinsBold,
+                fontFamily: fonts.interBold,
               },
             ]}
           >
@@ -113,15 +113,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
-    paddingTop: 4,
   },
   section: {
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
     padding: 4,
+    paddingVertical: 8,
     borderRadius: 4,
     backgroundColor: colors.default.tint[400],
   },

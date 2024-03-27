@@ -135,8 +135,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   radioItem: {
-    padding: 4,
-    paddingHorizontal: 8,
+    padding: 8,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
@@ -144,9 +143,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   text: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
-    paddingTop: 4,
   },
   radioOutline: {
     borderRadius: 9999,

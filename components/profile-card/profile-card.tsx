@@ -107,7 +107,7 @@ export const ProfileCard = () => {
           >
             <Image source={authUserData.photoURL} style={[styles.photo]} />
           </View>
-          <View style={[{ gap: -8 }]}>
+          <View style={[{}]}>
             <Text
               numberOfLines={1}
               style={[
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 8,
     padding: 8,
-    gap: 8,
+    gap: 12,
   },
   cardShadow: {
     backgroundColor: "transparent",
@@ -290,16 +290,16 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   errorLabel: {
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.interLight,
     fontSize: 16,
     textAlign: "center",
   },
   textBase: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   header: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 24,
   },
   iconWrapper: {

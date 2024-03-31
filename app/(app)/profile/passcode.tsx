@@ -14,9 +14,12 @@ import { useUserContext } from "@/context/user-context";
 import { useMutation } from "react-query";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
+import { Input, InputAction } from "@/components/ui/input";
 import { IonIcon } from "@/components/icons/ion";
 import { TextButton } from "@/components/ui/text-button";
+import { useState } from "react";
+import { MaterialIcon } from "@/components/icons/material";
+import { generatePasscode } from "@/lib/utils";
 
 const PasscodeSchema = z.object({
   passcode: z
@@ -39,11 +42,13 @@ type PasscodeForm = z.infer<typeof PasscodeSchema>;
 export default function Passcode() {
   const router = useRouter();
   const { submitPasscode } = useUserContext();
+  const [showPasscode, setShowPasscode] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<PasscodeForm>({
     defaultValues: { passcode: "" },
     resolver: zodResolver(PasscodeSchema),
@@ -132,8 +137,28 @@ export default function Passcode() {
                   />
                 }
                 errorText={errors.passcode?.message || error?.message}
-                secureTextEntry={true}
-              />
+                secureTextEntry={!showPasscode}
+              >
+                <InputAction onPress={() => setShowPasscode((prev) => !prev)}>
+                  <MaterialIcon
+                    name={showPasscode ? "visibility-off" : "visibility"}
+                    color={iconColor}
+                    size={24}
+                  />
+                </InputAction>
+                <InputAction
+                  onPress={() => {
+                    setValue("passcode", generatePasscode());
+                    setShowPasscode(true);
+                  }}
+                >
+                  <MaterialIcon
+                    name="auto-awesome"
+                    color={iconColor}
+                    size={24}
+                  />
+                </InputAction>
+              </Input>
             )}
           />
           <TextButton onPress={handleSubmit(submit)}>

@@ -43,11 +43,11 @@ export const SignUpForm = z.object({
     .string({
       required_error: "Your passcode is required",
     })
-    .min(6, {
-      message: "Your passcode must be at least 6 characters long",
+    .min(4, {
+      message: "Your passcode must be at least 4 characters long",
     })
-    .max(12, {
-      message: "Your passcode must be at most 12 characters long",
+    .max(10, {
+      message: "Your passcode must be at most 10 characters long",
     })
     .regex(/^(?=.*[\d])(?=.*[A-D])[\dA-D]{4,10}$/, {
       message: "Your passcode must contain numbers and letters from A to D",

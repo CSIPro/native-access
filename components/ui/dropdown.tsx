@@ -93,7 +93,9 @@ export const Dropdown: FC<Props> = ({
     <View style={[styles.wrapper, disabled && styles.disabled]}>
       {!!label && (
         <View style={[styles.labelWrapper]}>
-          <Text style={[styles.text, { color }]}>{label}</Text>
+          <Text style={[styles.text, { fontFamily: fonts.poppins, color }]}>
+            {label}
+          </Text>
         </View>
       )}
       <Pressable

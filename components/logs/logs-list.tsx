@@ -70,10 +70,12 @@ export const LogsList: FC<Props> = ({
     <FlatList
       data={logs}
       scrollEnabled={!disableScroll}
-      keyExtractor={(item) => `${item.timestamp}-${item.room}-${item.user}`}
+      keyExtractor={(item) => `${item.id}`}
       contentContainerStyle={[{ flexGrow: 1, gap: 4 }, contentContainerStyle]}
+      showsVerticalScrollIndicator={false}
       renderItem={({ item: log }) => (
         <LogItem
+          id={log.id}
           known={!!log.user}
           accessed={log.accessed}
           bluetooth={log.bluetooth}

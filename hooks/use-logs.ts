@@ -12,6 +12,7 @@ import { z } from "zod";
 import { useRoomContext } from "../context/room-context";
 
 export const Log = z.object({
+  id: z.string(),
   accessed: z.boolean(),
   bluetooth: z.boolean(),
   room: z.string(),

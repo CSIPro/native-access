@@ -112,6 +112,6 @@ const styles = StyleSheet.create({
   },
   roomName: {
     fontSize: 16,
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
   },
 });

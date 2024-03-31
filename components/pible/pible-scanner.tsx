@@ -72,27 +72,19 @@ export const PibleScanner = () => {
   const wave = useSharedValue(1);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    const generateWave = () => {
-      interval = setInterval(() => {
-        wave.value = 0;
-        wave.value = withTiming(1, {
-          duration: 3000,
-          easing: Easing.in(quintEasing),
-        });
-      }, 3000);
-
-      wave.value = 0;
-      wave.value = withTiming(1, {
-        duration: 3000,
-        easing: Easing.in(quintEasing),
-      });
+    const generateWaves = () => {
+      wave.value = withRepeat(
+        withTiming(1, {
+          duration: 2000,
+          easing: Easing.in(Easing.cubic),
+        }),
+        -1,
+        false
+      );
     };
 
     const clearWave = () => {
       wave.value = 0;
-      clearInterval(interval);
     };
 
     const clearParticles = () => {
@@ -101,16 +93,19 @@ export const PibleScanner = () => {
 
     if (isScanning) {
       button.value = withRepeat(
-        withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
         0,
         true
       );
 
-      generateWave();
+      generateWaves();
       clearParticles();
     } else if (isConnecting) {
-      sv.value = withRepeat(withTiming(1, { duration: 1500 }), 0, true);
-      button.value = withTiming(1);
+      sv.value = withRepeat(withTiming(1, { duration: 2000 }), 0, true);
+      button.value = withTiming(1, {
+        duration: 1000,
+        easing: Easing.inOut(Easing.ease),
+      });
 
       setParticles([]);
       const particles: Particle[] = [];
@@ -133,8 +128,14 @@ export const PibleScanner = () => {
       setParticles(particles);
       clearWave();
     } else {
-      sv.value = withTiming(0);
-      button.value = withTiming(0);
+      sv.value = withTiming(0, {
+        duration: 1000,
+        easing: Easing.inOut(Easing.ease),
+      });
+      button.value = withTiming(0, {
+        duration: 1000,
+        easing: Easing.inOut(Easing.ease),
+      });
 
       clearParticles();
       clearWave();

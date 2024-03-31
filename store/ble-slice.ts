@@ -30,7 +30,7 @@ export type ScanState = z.infer<typeof ScanState>;
 
 export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const manager = new BleManager();
-  const scanDuration = 9000;
+  const scanDuration = 12000;
   let scanTimeout: NodeJS.Timeout;
 
   manager.onStateChange((state) => {

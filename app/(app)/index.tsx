@@ -214,7 +214,6 @@ export default function Home() {
                 borderRadius: 8,
                 borderWidth: 2,
                 borderColor: colors.default.tint[400],
-                backgroundColor: colors.default.tint.translucid[300],
               },
             ]}
           >

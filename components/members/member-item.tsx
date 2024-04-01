@@ -108,7 +108,8 @@ export const MemberItem: FC<Props> = ({
     ((userRole?.canGrantOrRevokeAccess ?? false) &&
       userRole?.level > role?.level);
   const canSetRoles =
-    isRoot || ((userRole?.canSetRoles ?? false) && userRole.level > role?.level);
+    isRoot ||
+    ((userRole?.canSetRoles ?? false) && userRole.level > role?.level);
   const canKickMembers =
     isRoot ||
     ((userRole?.canKickMembers ?? false) && userRole.level > role?.level);
@@ -303,7 +304,7 @@ const styles = StyleSheet.create({
   errorText: {
     textAlign: "center",
     fontSize: 16,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
   },
   iconWrapper: {
     minWidth: 24,
@@ -316,15 +317,13 @@ const styles = StyleSheet.create({
   },
   missingName: {
     fontSize: 14,
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.interLight,
     color: colors.default.white[100],
-    paddingTop: 4,
   },
   memberName: {
     fontSize: 18,
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     color: colors.default.white[100],
-    paddingTop: 4,
   },
   switchWrapper: {
     borderRadius: 100,

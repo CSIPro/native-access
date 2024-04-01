@@ -1,5 +1,7 @@
 import { FC, ReactNode, forwardRef, useState } from "react";
 import {
+  GestureResponderEvent,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -22,10 +24,11 @@ interface Props extends TextInputProps {
   icon?: ReactNode;
   helperText?: string;
   errorText?: string;
+  children?: ReactNode;
 }
 
 export const Input = forwardRef<TextInput, Props>(function (
-  { label, icon: Icon, helperText, errorText, style, ...props },
+  { label, icon: Icon, helperText, errorText, style, children, ...props },
   ref
 ) {
   const [focused, setFocused] = useState(false);
@@ -105,6 +108,7 @@ export const Input = forwardRef<TextInput, Props>(function (
           onBlur={(_) => setFocused(false)}
           style={[styles.input, styles.text, { color }, style]}
         />
+        <View style={[styles.actionsWrapper]}>{children}</View>
       </Animated.View>
       {!!errorText ? (
         <InputErrorText>{errorText}</InputErrorText>
@@ -149,12 +153,34 @@ export const InputErrorText: FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
+export const InputAction: FC<{
+  children: ReactNode;
+  onPress: (event: GestureResponderEvent) => void;
+}> = ({ onPress, children }) => {
+  return (
+    <Pressable onPress={onPress}>
+      <View
+        style={[
+          {
+            padding: 4,
+            borderRadius: 4,
+            backgroundColor: colors.default.tint.translucid[400],
+          },
+        ]}
+      >
+        {children}
+      </View>
+    </Pressable>
+  );
+};
+
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
     gap: -4,
   },
   inputWrapper: {
+    position: "relative",
     padding: 8,
     borderWidth: 2,
     borderRadius: 8,
@@ -168,11 +194,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  actionsWrapper: {
+    flexDirection: "row",
+    height: "100%",
+    gap: 4,
+  },
   labelWrapper: {
     paddingHorizontal: 8,
   },
   input: {
     width: "100%",
+    flexShrink: 1,
   },
   text: {
     fontFamily: fonts.poppins,
@@ -185,10 +217,10 @@ const styles = StyleSheet.create({
   },
   helperText: {
     fontSize: 14,
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.interLight,
   },
   errorText: {
     fontSize: 14,
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.interLight,
   },
 });

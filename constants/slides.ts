@@ -1,17 +1,10 @@
 export const slides = [
   {
     id: "fd152317-ab39-4618-b5c5-7c2bf9c24b3a",
-    title: "One-Tap Access",
+    title: "One-tap access & stats at a glance",
     description:
-      "CSI PRO ACCESS will automatically scan for nearby devices and allow you to enter with just one tap",
-    image: require("../assets/onboarding/access-scanner.png"),
-  },
-  {
-    id: "dc88d5b4-45bf-4902-b516-de80a3f22f3e",
-    title: "Stats at a glance",
-    description:
-      "Quickly check the entry stats of the selected room and your own",
-    image: require("../assets/onboarding/access-dashboard.png"), 
+      "CSI PRO ACCESS will scan for nearby devices and automatically connect to the selected room",
+    image: require("../assets/onboarding/access-dashboard.png"),
   },
   {
     id: "9fc1c925-2f5f-4070-814e-5feaff762da5",
@@ -24,5 +17,12 @@ export const slides = [
     title: "Manage your rooms",
     description: "As an admin or moderator, you may control who has access",
     image: require("../assets/onboarding/access-members.png"),
+  },
+  {
+    id: "dc88d5b4-45bf-4902-b516-de80a3f22f3e",
+    title: "Handle incoming requests",
+    description:
+      "As an admin, you may accept or reject incoming requests from users",
+    image: require("../assets/onboarding/access-requests.png"),
   },
 ];

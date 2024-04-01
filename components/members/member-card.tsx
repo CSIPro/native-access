@@ -282,8 +282,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   text: {
-    paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   requestStatus: {

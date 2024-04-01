@@ -55,11 +55,11 @@ export const PibleItem: FC<Props> = ({ device }) => {
   const isLight = colorScheme === "light";
 
   const bgColor = isLight
-    ? colors.default.bluetooth.translucid[300]
-    : colors.default.bluetooth.translucid[200];
+    ? colors.default.tint.translucid[300]
+    : colors.default.tint.translucid[200];
   const borderColor = isLight
-    ? colors.default.bluetooth[200]
-    : colors.default.bluetooth[400];
+    ? colors.default.tint[200]
+    : colors.default.tint[400];
 
   return (
     <Pressable style={[styles.wrapper]} onPress={connectToDevice}>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    borderRadius: 24,
     maxWidth: 180,
     justifyContent: "center",
     alignItems: "center",
@@ -111,8 +111,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   roomName: {
-    fontSize: 20,
-    paddingTop: 4,
-    fontFamily: fonts.poppinsMedium,
+    fontSize: 16,
+    fontFamily: fonts.interMedium,
   },
 });

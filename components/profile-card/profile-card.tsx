@@ -15,6 +15,10 @@ import { MaterialIcon } from "../icons/material";
 import { FAIcon } from "../icons/font-awesome";
 import format from "date-fns/format";
 
+const googleLogo = require("@/assets/auth/google-g.png");
+const githubLogo = require("@/assets/auth/github-mark.png");
+const githubLogoWhite = require("@/assets/auth/github-mark-white.png");
+
 export const ProfileCard = () => {
   const colorScheme = useColorScheme();
   const { status: authUserStatus, data: authUserData } = useUser();
@@ -71,6 +75,12 @@ export const ProfileCard = () => {
   }
 
   const userAccessData = userData as AccessUser;
+  const hasGoogle = authUserData.providerData.some(
+    (provider) => provider.providerId === "google.com"
+  );
+  const hasGithub = authUserData.providerData.some(
+    (provider) => provider.providerId === "github.com"
+  );
 
   return (
     <View style={[styles.cardShadow]}>
@@ -81,7 +91,6 @@ export const ProfileCard = () => {
             backgroundColor: isLight
               ? colors.default.white[100]
               : colors.default.black[300],
-            height: 200,
           },
         ]}
       >
@@ -98,7 +107,7 @@ export const ProfileCard = () => {
           >
             <Image source={authUserData.photoURL} style={[styles.photo]} />
           </View>
-          <View style={[{ gap: -8 }]}>
+          <View style={[{}]}>
             <Text
               numberOfLines={1}
               style={[
@@ -210,6 +219,29 @@ export const ProfileCard = () => {
             {format(userAccessData.dateOfBirth.toDate(), "MMMM dd")}
           </Text>
         </View>
+        <View style={[styles.row]}>
+          <View style={[styles.iconWrapper]}>
+            <IonIcon
+              name="at-circle"
+              color={
+                isLight ? colors.default.tint[300] : colors.default.tint[100]
+              }
+              size={24}
+            />
+          </View>
+          {hasGoogle && (
+            <Image
+              source={googleLogo}
+              style={[{ width: 24, aspectRatio: 1 }]}
+            />
+          )}
+          {hasGithub && (
+            <Image
+              source={isLight ? githubLogo : githubLogoWhite}
+              style={[{ width: 24, aspectRatio: 1 }]}
+            />
+          )}
+        </View>
       </View>
     </View>
   );
@@ -220,7 +252,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 8,
     padding: 8,
-    gap: 8,
+    gap: 12,
   },
   cardShadow: {
     backgroundColor: "transparent",
@@ -258,16 +290,16 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   errorLabel: {
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.interLight,
     fontSize: 16,
     textAlign: "center",
   },
   textBase: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   header: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 24,
   },
   iconWrapper: {

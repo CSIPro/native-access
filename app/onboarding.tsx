@@ -11,9 +11,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
+  runOnJS,
   scrollTo,
   useAnimatedRef,
+  useAnimatedScrollHandler,
   useDerivedValue,
+  useSharedValue,
 } from "react-native-reanimated";
 
 import { IonIcon } from "@/components/icons/ion";
@@ -27,30 +30,28 @@ import fonts from "@/constants/fonts";
 import { slides } from "@/constants/slides";
 
 export default function Onboarding() {
-  const aRef =
-    useAnimatedRef<
-      Animated.FlatList<{
-        id: string;
-        title: string;
-        description: string;
-        image: number;
-      }>
-    >();
+  const aRef = useAnimatedRef<Animated.ScrollView>();
 
+  const translateX = useSharedValue(0);
   const [index, setIndex] = useState(0);
-  const scroll = useDerivedValue(() => index, [index]);
   const { width } = useWindowDimensions();
-
-  useDerivedValue(() => scrollTo(aRef, scroll.value * width, 0, true));
+  useDerivedValue(
+    () => runOnJS(setIndex)(Math.round(translateX.value / width)),
+    [translateX.value]
+  );
 
   const setOnboarding = useStore((state) => state.setSeenOnboarding);
 
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    translateX.value = event.contentOffset.x;
+  });
+
   const handleBack = () => {
-    setIndex((prev) => (prev - 1 < 0 ? prev : prev - 1));
+    aRef.current.scrollTo({ x: (index - 1) * width });
   };
 
   const handleNext = () => {
-    setIndex((prev) => (prev + 1 >= slides.length ? prev : prev + 1));
+    aRef.current.scrollTo({ x: (index + 1) * width });
   };
 
   const handleFinishOnboarding = () => {
@@ -65,20 +66,27 @@ export default function Onboarding() {
     <SafeAreaView style={[styles.main]}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={[{ flex: 4 }]}>
-        <Animated.FlatList
+        <Animated.ScrollView
           ref={aRef}
-          data={slides}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <OnboardingItem item={item} />}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
           horizontal
           pagingEnabled
           bounces={false}
           showsHorizontalScrollIndicator={false}
-          scrollEnabled={false}
-        />
+        >
+          {slides.map((slide, i) => (
+            <OnboardingItem
+              key={slide.id}
+              item={slide}
+              index={i}
+              translateX={translateX}
+            />
+          ))}
+        </Animated.ScrollView>
       </View>
       <View style={[styles.actions, { width }]}>
-        <OnboardingIndicator length={slides.length} value={index} />
+        <OnboardingIndicator length={slides.length} translateX={translateX} />
         <View style={[styles.navigation]}>
           <BackButton onPress={handleBack} />
           <NextButton onPress={finished ? handleFinishOnboarding : handleNext}>
@@ -146,15 +154,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   text: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
-    paddingTop: 4,
   },
   centeredText: {
     textAlign: "center",
   },
   title: {
-    fontFamily: fonts.poppinsBold,
+    fontFamily: fonts.interBold,
     fontSize: 24,
   },
   actions: {
@@ -196,8 +203,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   skipText: {
-    fontFamily: fonts.poppinsLight,
+    fontFamily: fonts.interLight,
     fontSize: 14,
-    color: colors.default.gray[500],
+    color: colors.default.secondary[400],
   },
 });

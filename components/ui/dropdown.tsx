@@ -38,6 +38,7 @@ export const DropdownItemType = z.object({
 export type DropdownItemType = z.infer<typeof DropdownItemType>;
 
 interface Props {
+  compact?: boolean;
   items?: DropdownItemType[];
   value: string;
   label?: string;
@@ -48,12 +49,16 @@ interface Props {
   icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
   valueStyle?: StyleProp<TextStyle>;
+  chevronColor?: string;
+  disabled?: boolean;
 }
 
 export const Dropdown: FC<Props> = ({
+  compact = false,
   sheetTitle,
   items = [],
   placeholder = "Pick one",
+  disabled = false,
   value,
   label,
   onChange,
@@ -61,6 +66,7 @@ export const Dropdown: FC<Props> = ({
   style,
   valueStyle,
   ListEmptyComponent,
+  chevronColor,
 }) => {
   const sheetRef = useRef<BottomSheetModal>(null);
   const [selectedRoom, setSelectedRoom] = useState(value);
@@ -84,14 +90,16 @@ export const Dropdown: FC<Props> = ({
     : colors.default.tint.translucid[600];
 
   return (
-    <View style={[styles.wrapper]}>
+    <View style={[styles.wrapper, disabled && styles.disabled]}>
       {!!label && (
         <View style={[styles.labelWrapper]}>
-          <Text style={[styles.text, { color }]}>{label}</Text>
+          <Text style={[styles.text, { fontFamily: fonts.poppins, color }]}>
+            {label}
+          </Text>
         </View>
       )}
       <Pressable
-        onPress={() => sheetRef.current?.present()}
+        onPress={disabled ? null : () => sheetRef.current?.present()}
         style={[
           styles.dropdown,
           {
@@ -108,18 +116,23 @@ export const Dropdown: FC<Props> = ({
         >
           {items.find((item) => item.value === value)?.label ?? placeholder}
         </Text>
-        <View style={[styles.iconWrapper]}>
+        <View style={[styles.iconWrapper, compact && { width: 10 }]}>
           <IonIcon
             name="chevron-down"
             color={
-              isLight ? colors.default.tint[400] : colors.default.white[100]
+              chevronColor ??
+              (isLight ? colors.default.tint[400] : colors.default.white[100])
             }
-            size={24}
+            size={compact ? 10 : 24}
           />
         </View>
       </Pressable>
 
-      <BSModal ref={sheetRef} snapPoints={["32%", "40%"]}>
+      <BSModal
+        ref={sheetRef}
+        onDismiss={handleDone}
+        snapPoints={["32%", "40%"]}
+      >
         <BSMHeader action={handleDone}>{sheetTitle}</BSMHeader>
         <BottomSheetFlatList
           data={items}
@@ -193,7 +206,7 @@ const DropdownItem: FC<DropdownItemProps> = ({
           style={[
             styles.dropdownLabel,
             textStyles,
-            selectedRoom === item.value && { fontFamily: fonts.poppinsMedium },
+            selectedRoom === item.value && { fontFamily: fonts.interMedium },
           ]}
         >
           {item.label ?? "Unknown"}
@@ -228,8 +241,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   dropdownLabel: {
-    paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
     flexGrow: 1,
   },
@@ -243,12 +255,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    paddingTop: 4,
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
   textButton: {
     padding: 8,
     borderRadius: 8,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

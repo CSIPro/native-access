@@ -1,9 +1,12 @@
 import { FC } from "react";
 import {
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   View,
+  ViewStyle,
   useColorScheme,
 } from "react-native";
 
@@ -24,7 +27,21 @@ import { Dropdown } from "../ui/dropdown";
 import { formatRoomName } from "@/lib/utils";
 import { MaterialIcon } from "../icons/material";
 
-export const RoomPicker = () => {
+interface Props {
+  compact?: boolean;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  chevronColor?: string;
+  disabled?: boolean;
+}
+
+export const RoomPicker: FC<Props> = ({
+  compact = false,
+  disabled = false,
+  textStyle,
+  style,
+  chevronColor,
+}) => {
   const isLight = useColorScheme() === "light";
 
   const { status: userStatus, user } = useUserContext();
@@ -47,32 +64,35 @@ export const RoomPicker = () => {
   const items = user.isRoot ? rooms : userRooms;
 
   return (
-    <>
-      <Dropdown
-        items={items.map((i) => ({
-          key: i.id,
-          value: i.id,
-          label: formatRoomName(i),
-        }))}
-        onChange={setSelectedRoom}
-        sheetTitle="Pick a room"
-        value={selectedRoom}
-        icon={<MaterialIcon name="room" size={24} color={iconColor} />}
-        style={[{ borderRadius: 12, borderColor: iconColor }]}
-        valueStyle={[{ fontFamily: fonts.poppinsMedium }]}
-        ListEmptyComponent={
-          <View
-            style={[
-              { flex: 1, justifyContent: "center", alignItems: "center" },
-            ]}
-          >
-            <Text style={[styles.text, { textAlign: "center", color }]}>
-              You're not a member of any rooms yet
-            </Text>
-          </View>
-        }
-      />
-    </>
+    <Dropdown
+      items={items.map((i) => ({
+        key: i.id,
+        value: i.id,
+        label: compact ? i.name : formatRoomName(i),
+      }))}
+      onChange={setSelectedRoom}
+      compact={compact}
+      disabled={disabled}
+      sheetTitle="Pick a room"
+      value={selectedRoom}
+      icon={
+        compact ? null : (
+          <MaterialIcon name="room" size={24} color={iconColor} />
+        )
+      }
+      style={[{ borderRadius: 12, borderColor: iconColor }, style]}
+      valueStyle={[{ fontFamily: fonts.interMedium }, textStyle]}
+      ListEmptyComponent={
+        <View
+          style={[{ flex: 1, justifyContent: "center", alignItems: "center" }]}
+        >
+          <Text style={[styles.text, { textAlign: "center", color }]}>
+            You're not a member of any rooms yet
+          </Text>
+        </View>
+      }
+      chevronColor={chevronColor}
+    />
   );
 };
 

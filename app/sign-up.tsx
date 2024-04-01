@@ -1,6 +1,6 @@
 import { Stack, router, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "reactfire";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -25,13 +25,13 @@ import {
 } from "@/components/modal/modal";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Dropdown } from "@/components/ui/dropdown";
-import { Input, InputErrorText } from "@/components/ui/input";
+import { Input, InputAction, InputErrorText } from "@/components/ui/input";
 import { TextButton } from "@/components/ui/text-button";
 
 import { useRooms } from "@/hooks/use-rooms";
 
 import { SignUpForm, createUser } from "@/lib/signup-utils";
-import { deleteAllFromStorage } from "@/lib/utils";
+import { deleteAllFromStorage, generatePasscode } from "@/lib/utils";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
@@ -48,10 +48,13 @@ export default function SignUp() {
     },
   });
 
+  const [showPasscode, setShowPasscode] = useState(false);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<SignUpForm>({
     resolver: zodResolver(SignUpForm),
     defaultValues: {
@@ -172,8 +175,24 @@ export default function SignUp() {
               }
               helperText="Must contain numbers and letters from A to D"
               errorText={errors.passcode?.message}
-              secureTextEntry={true}
-            />
+              secureTextEntry={!showPasscode}
+            >
+              <InputAction onPress={() => setShowPasscode((prev) => !prev)}>
+                <MaterialIcon
+                  name={showPasscode ? "visibility-off" : "visibility"}
+                  color={iconColor}
+                  size={24}
+                />
+              </InputAction>
+              <InputAction
+                onPress={() => {
+                  setValue("passcode", generatePasscode());
+                  setShowPasscode(true);
+                }}
+              >
+                <MaterialIcon name="auto-awesome" color={iconColor} size={24} />
+              </InputAction>
+            </Input>
           )}
         />
         <Controller

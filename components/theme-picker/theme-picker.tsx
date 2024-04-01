@@ -47,11 +47,11 @@ export const ThemePicker = () => {
 
 const styles = StyleSheet.create({
   header: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 18,
   },
   text: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 16,
   },
 });

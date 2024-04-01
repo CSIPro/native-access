@@ -1,23 +1,28 @@
+import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  ScrollView,
   StyleSheet,
   Text,
   View,
   useColorScheme,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
+  Easing,
+  Extrapolate,
+  interpolate,
   interpolateColor,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
 import { PibleScanner } from "@/components/pible/pible-scanner";
-import { RoomPicker } from "@/components/room-picker/room-picker";
 import { DashboardItem } from "@/components/ui/dashboard/item";
 
 import {
@@ -33,79 +38,204 @@ import {
 import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
 
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { LogsList } from "@/components/logs/logs-list";
+import { BrandingHeader } from "@/components/ui/branding-header";
+import {
+  GestureEvent,
+  PanGestureHandler,
+  PanGestureHandlerEventPayload,
+} from "react-native-gesture-handler";
+import { FAIcon } from "@/components/icons/font-awesome";
+
 export default function Home() {
-  const colorScheme = useColorScheme();
+  const [sound, setSound] = useState<Audio.Sound>(null);
+  const translationY = useSharedValue(0);
+  const shouldPlaySound = useRef(false);
 
-  const palette = colors[colorScheme];
+  const tabsHeight = useBottomTabBarHeight() + 4;
+  const window = useWindowDimensions();
+  const isLight = useColorScheme() === "light";
 
-  const isLight = colorScheme === "light";
+  const playSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require("@/assets/audio/ehh.mp3")
+    );
+    setSound(sound);
+
+    await sound.playAsync();
+    setTimeout(() => {
+      sound.stopAsync();
+    }, 500);
+  };
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    if (event.contentOffset.y < 0) {
+      translationY.value = withSpring(Math.abs(event.contentOffset.y * 45), {
+        damping: 10,
+        stiffness: 100,
+        mass: 0.5,
+      });
+    }
+  });
+
+  const handleDrag = (event: GestureEvent<PanGestureHandlerEventPayload>) => {
+    translationY.value = event.nativeEvent.translationY;
+
+    if (translationY.value > 350 && !shouldPlaySound.current) {
+      shouldPlaySound.current = true;
+    }
+  };
+
+  const endDrag = () => {
+    translationY.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.in(Easing.ease),
+    });
+
+    if (shouldPlaySound.current) {
+      playSound();
+      shouldPlaySound.current = false;
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          translationY.value,
+          [0, 350, 800],
+          [0, 40, 72],
+          Extrapolate.CLAMP
+        ),
+      },
+    ],
+  }));
 
   return (
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: palette.tint,
-        gap: 8,
+        backgroundColor: colors.default.tint[400],
       }}
     >
-      <PibleScanner />
-      <View
-        style={{
-          flex: 3,
-          backgroundColor:
-            colorScheme === "light"
+      <View style={[{ paddingVertical: 8, alignItems: "center" }]}>
+        <BrandingHeader
+          textStyle={[{ color: colors.default.white[100] }]}
+          highlight="ACCESS"
+          highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+          highlightTextStyle={[
+            { color: colors.default.tint[400], fontFamily: fonts.poppinsBold },
+          ]}
+        >
+          CSI PRO
+        </BrandingHeader>
+        <View
+          style={[
+            {
+              position: "absolute",
+              bottom: "-100%",
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+        >
+          <FAIcon
+            name="volleyball-ball"
+            size={32}
+            color={colors.default.white[100]}
+          />
+        </View>
+      </View>
+      <Animated.View
+        style={[
+          {
+            flex: 1,
+            backgroundColor: isLight
               ? colors.default.white[100]
               : colors.default.black[400],
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-        }}
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            overflow: "hidden",
+          },
+          animatedStyle,
+        ]}
       >
-        <ScrollView
+        <Animated.ScrollView
+          onScroll={scrollHandler}
           contentContainerStyle={{
             width: "100%",
             alignItems: "center",
             padding: 8,
-            gap: 4,
+            paddingBottom: tabsHeight + window.height * 0.35,
+            gap: 6,
+            borderRadius: 24,
           }}
         >
-          <RoomPicker />
-          <Text
-            style={[
-              styles.dashboardTitle,
-              {
-                color: isLight
-                  ? colors.default.black[400]
-                  : colors.default.white[100],
-              },
-            ]}
-          >
-            Room stats
-          </Text>
-          <SuccessfulLogs />
-          <View style={[styles.dashboardRow, { paddingTop: 4 }]}>
-            <BluetoothLogs />
-            <FailedLogs />
-            <UnknownLogs />
+          <PanGestureHandler onGestureEvent={handleDrag} onEnded={endDrag}>
+            <View
+              style={[
+                {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  zIndex: 10,
+                  height: 64,
+                },
+              ]}
+            />
+          </PanGestureHandler>
+          <View style={[{ paddingVertical: 8 }]}>
+            <BrandingHeader highlight="STATS">ROOM</BrandingHeader>
           </View>
-          <Text
+          <View style={[{ flexDirection: "row", gap: 6 }]}>
+            <SuccessfulLogs />
+            <View style={[{ gap: 6, flex: 1 }]}>
+              <BluetoothLogs />
+              <FailedLogs />
+            </View>
+          </View>
+          <View
             style={[
-              styles.dashboardTitle,
               {
-                color: isLight
-                  ? colors.default.black[400]
-                  : colors.default.white[100],
+                flex: 1,
+                minHeight: 192,
+                width: "100%",
+                padding: 4,
+                borderRadius: 8,
+                borderWidth: 2,
+                borderColor: colors.default.tint[400],
               },
             ]}
           >
-            Personal stats
-          </Text>
-          <View style={[styles.dashboardRow, { width: "100%" }]}>
-            <BluetoothPersonalLogs />
-            <FailedPersonalLogs />
+            <LogsList
+              disableScroll
+              limit={3}
+              itemStyle={[{ borderRadius: 4 }]}
+            />
+          </View>
+          <View style={[{ paddingVertical: 8 }]}>
+            <BrandingHeader highlight="STATS">PERSONAL</BrandingHeader>
+          </View>
+          <View style={[{ flexDirection: "row", gap: 6 }]}>
+            <View style={[{ gap: 6, flex: 1 }]}>
+              <BluetoothPersonalLogs />
+              <FailedPersonalLogs />
+            </View>
             <SuccessfulPersonalLogs />
           </View>
-        </ScrollView>
-      </View>
+        </Animated.ScrollView>
+      </Animated.View>
+      <PibleScanner />
       <StatusBar style="light" />
     </SafeAreaView>
   );
@@ -113,14 +243,12 @@ export default function Home() {
 
 const SuccessfulLogs = () => {
   const isLight = useColorScheme() === "light";
-  const { logs } = useSuccessfulLogs();
+  const { logs: successfulLogs } = useSuccessfulLogs();
   const sv = useSharedValue(0);
 
   useEffect(() => {
-    if (!logs || logs?.length === 0) return;
-
     sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
-  }, [logs?.length]);
+  }, [successfulLogs?.length]);
 
   const animatedItem = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -130,9 +258,7 @@ const SuccessfulLogs = () => {
         isLight
           ? colors.default.tint.translucid[500]
           : colors.default.tint.translucid[100],
-        isLight
-          ? colors.default.tint.translucid[400]
-          : colors.default.tint.translucid[400],
+        colors.default.tint.translucid[400],
       ]
     );
 
@@ -145,11 +271,13 @@ const SuccessfulLogs = () => {
     <Animated.View
       style={[
         styles.successContainer,
-        animatedItem,
         {
-          borderWidth: 2,
           borderColor: colors.default.tint[400],
+          backgroundColor: isLight
+            ? colors.default.tint.translucid[500]
+            : colors.default.tint.translucid[100],
         },
+        animatedItem,
       ]}
     >
       <Text
@@ -158,11 +286,11 @@ const SuccessfulLogs = () => {
           {
             color: colors.default.white[100],
             fontSize: 72,
-            fontFamily: fonts.poppins,
+            fontFamily: fonts.inter,
           },
         ]}
       >
-        {logs?.length ?? 0}
+        {successfulLogs?.length.toString().padStart(2, "0") ?? "00"}
       </Text>
       <Text
         style={[
@@ -221,15 +349,70 @@ const FailedLogs = () => {
 };
 
 const SuccessfulPersonalLogs = () => {
-  const { logs } = useUserSuccessfulLogs();
+  const isLight = useColorScheme() === "light";
+  const { logs: successfulLogs } = useUserSuccessfulLogs();
+  const sv = useSharedValue(0);
+
+  useEffect(() => {
+    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
+  }, [successfulLogs?.length]);
+
+  const animatedItem = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.tint.translucid[500]
+          : colors.default.tint.translucid[100],
+        colors.default.tint.translucid[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
 
   return (
-    <DashboardItem
-      icon="checkmark-circle"
-      title="Entries"
-      color="success"
-      logs={logs?.length ?? 0}
-    />
+    <Animated.View
+      style={[
+        styles.successContainer,
+        {
+          borderColor: colors.default.tint[400],
+          backgroundColor: isLight
+            ? colors.default.tint.translucid[500]
+            : colors.default.tint.translucid[100],
+        },
+        animatedItem,
+      ]}
+    >
+      <Text
+        style={[
+          styles.bubbleText,
+          {
+            color: colors.default.white[100],
+            fontSize: 72,
+            fontFamily: fonts.inter,
+          },
+        ]}
+      >
+        {successfulLogs?.length.toString().padStart(2, "0") ?? "00"}
+      </Text>
+      <Text
+        style={[
+          styles.bubbleText,
+          {
+            color: isLight
+              ? colors.default.white[100]
+              : colors.default.white.translucid[900],
+            fontSize: 16,
+          },
+        ]}
+      >
+        Entries
+      </Text>
+    </Animated.View>
   );
 };
 
@@ -274,13 +457,11 @@ const styles = StyleSheet.create({
     width: 200,
   },
   successContainer: {
-    flex: 1,
-    height: 200,
-    aspectRatio: 1,
-    borderRadius: 100,
+    flex: 2,
+    borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    gap: -36,
+    gap: -16,
     borderWidth: 2,
   },
   successShadow: {
@@ -336,7 +517,7 @@ const styles = StyleSheet.create({
     height: 8,
   },
   bubbleText: {
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 14,
   },
 });

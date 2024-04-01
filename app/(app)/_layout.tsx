@@ -1,4 +1,6 @@
+import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
+import * as NavigationBar from "expo-navigation-bar";
 import { Redirect, Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
@@ -51,14 +53,17 @@ export default function TabsLayout() {
 
 const TabsLayoutNav = () => {
   const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  NavigationBar.setBackgroundColorAsync(
+    isLight ? colors.default.white[200] : colors.default.black[400]
+  );
 
   const { status: authUserStatus, data: authUserData } = useUser();
   const { status: userDataStatus, data: userData } = useUserData();
   const { status: rolesStatus, data: rolesData } = useRoles();
 
   const seenOnboarding = useStore((state) => state.seenOnboarding);
-
-  const isLight = colorScheme === "light";
 
   if (
     userDataStatus === "loading" ||
@@ -105,13 +110,57 @@ const TabsLayoutNav = () => {
       <Tabs
         initialRouteName="index"
         screenOptions={{
+          tabBarInactiveTintColor: isLight
+            ? colors.default.black[400]
+            : colors.default.white[400],
           tabBarActiveTintColor: isLight
             ? colors.default.tint[400]
-            : colors.default.tint[200],
-          tabBarStyle: {
-            height: 64,
-            paddingVertical: 8,
+            : colors.default.tint[100],
+          tabBarActiveBackgroundColor: isLight
+            ? colors.default.tint.translucid[100]
+            : colors.default.tint.translucid[50],
+          tabBarItemStyle: {
+            borderRadius: 10,
           },
+          tabBarStyle: {
+            position: "absolute",
+            bottom: 4,
+            left: 4,
+            right: 4,
+            height: 72,
+            borderTopWidth: 0,
+            paddingTop: 4,
+            paddingRight: 4,
+            paddingBottom: 4,
+            paddingLeft: 4,
+          },
+          tabBarBackground: () => (
+            <BlurView
+              intensity={32}
+              tint={isLight ? "light" : "dark"}
+              style={[
+                {
+                  ...StyleSheet.absoluteFillObject,
+                  overflow: "hidden",
+                  backgroundColor: "transparent",
+                  borderColor: colors.default.tint[400],
+                  borderWidth: 2,
+                  borderRadius: 14,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  {
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: isLight
+                      ? colors.default.tint.translucid[100]
+                      : colors.default.tint.translucid[50],
+                  },
+                ]}
+              />
+            </BlurView>
+          ),
           headerStyle: {
             backgroundColor: colors.default.tint[400],
           },
@@ -131,7 +180,16 @@ const TabsLayoutNav = () => {
                 {children}
               </Text>
             ) : (
-              <Text style={[styles.tabLabelBase, { color: color }]}>
+              <Text
+                style={[
+                  styles.tabLabelBase,
+                  {
+                    color: isLight
+                      ? colors.default.black[400]
+                      : colors.default.white[400],
+                  },
+                ]}
+              >
                 {children}
               </Text>
             );

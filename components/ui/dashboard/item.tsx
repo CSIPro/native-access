@@ -89,7 +89,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
             },
           ]}
         >
-          {logs}
+          {logs.toString().padStart(2, "0")}
         </Text>
         <Text
           numberOfLines={1}
@@ -111,7 +111,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
 
 const styles = StyleSheet.create({
   dashboardTitle: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     color: "#222222",
     fontSize: 24,
   },
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   dataTextContainer: {
     alignItems: "center",
-    gap: -20,
+    gap: -8,
   },
   dataContainerHighlight: {
     position: "absolute",
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   bubbleText: {
     textAlign: "center",
-    fontFamily: fonts.poppinsMedium,
+    fontFamily: fonts.interMedium,
     fontSize: 14,
   },
 });

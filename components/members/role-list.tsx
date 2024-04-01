@@ -7,6 +7,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { FC } from "react";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { MemberItem } from "./member-item";
 
@@ -25,6 +26,7 @@ interface Props {
 export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
   const colorScheme = useColorScheme();
   const { status, data } = useMembersQuery(roles);
+  const tabsHeight = useBottomTabBarHeight() + 8;
 
   const isLight = colorScheme === "light";
 
@@ -89,7 +91,11 @@ export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
             </View>
           </View>
         )}
-        contentContainerStyle={{ flexGrow: 1, gap: 4 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          gap: 4,
+          paddingBottom: tabsHeight,
+        }}
         ListEmptyComponent={
           <View style={[styles.centered]}>
             <Text
@@ -121,11 +127,11 @@ const styles = StyleSheet.create({
   },
   centeredText: {
     textAlign: "center",
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 14,
   },
   errorText: {
-    fontFamily: fonts.poppins,
+    fontFamily: fonts.inter,
     fontSize: 14,
     textAlign: "center",
   },
@@ -140,11 +146,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 4,
+    paddingVertical: 8,
     borderRadius: 4,
   },
   roleName: {
-    paddingTop: 4,
-    fontFamily: fonts.poppinsBold,
+    fontFamily: fonts.interBold,
     fontSize: 16,
     color: colors.default.white[100],
   },

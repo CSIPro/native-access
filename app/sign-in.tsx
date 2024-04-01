@@ -26,6 +26,8 @@ import { firebaseAuth } from "@/lib/firebase-config";
 import colors from "@/constants/colors";
 import { Branding } from "@/components/branding/branding";
 import { z } from "zod";
+import { BrandingHeader } from "@/components/ui/branding-header";
+import fonts from "@/constants/fonts";
 
 const accessBanner = require("../assets/banner.png");
 const accessLogo = require("../assets/access-logo.svg");
@@ -112,10 +114,20 @@ export default function SignIn() {
     <SafeAreaView style={[{ flex: 1, backgroundColor: palette.tint }]}>
       <View style={[styles.container]}>
         <View style={[styles.header]}>
-          <Image
-            source={accessBanner}
-            style={[{ width: "90%", aspectRatio: 1091 / 160 }]}
-          />
+          <BrandingHeader
+            fontSize={36}
+            textStyle={[{ color: colors.default.white[100] }]}
+            highlight="ACCESS"
+            highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+            highlightTextStyle={[
+              {
+                color: colors.default.tint[400],
+                fontFamily: fonts.poppinsBold,
+              },
+            ]}
+          >
+            CSI PRO
+          </BrandingHeader>
           <Image source={accessLogo} style={[styles.logo]} />
         </View>
         <View style={[styles.loginOptions]}>
@@ -185,8 +197,8 @@ const styles = StyleSheet.create({
     borderColor: "#747775",
   },
   signinLabel: {
+    fontFamily: fonts.interMedium,
     fontSize: 16,
-    fontWeight: "500",
   },
   iconWrapper: {
     position: "absolute",

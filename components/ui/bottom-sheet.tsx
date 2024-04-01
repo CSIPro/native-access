@@ -1,4 +1,4 @@
-import { FC, ReactNode, forwardRef } from "react";
+import { FC, ReactNode, forwardRef, useCallback } from "react";
 import {
   Pressable,
   StyleProp,
@@ -10,7 +10,11 @@ import {
   useColorScheme,
 } from "react-native";
 
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
@@ -19,13 +23,19 @@ import { TextButton } from "./text-button";
 interface Props {
   snapPoints?: string[];
   children: ReactNode;
+  onDismiss?: () => void;
 }
 
 export const BSModal = forwardRef<BottomSheetModal, Props>(function SheetModal(
-  { children, snapPoints = ["25%"] },
+  { children, snapPoints = ["25%"], onDismiss },
   sheetRef
 ) {
   const isLight = useColorScheme() === "light";
+
+  const renderBackdrop = useCallback(
+    (props) => <BottomSheetBackdrop {...props} />,
+    []
+  );
 
   const modalBg = isLight
     ? colors.default.white[300]
@@ -38,7 +48,10 @@ export const BSModal = forwardRef<BottomSheetModal, Props>(function SheetModal(
   return (
     <BottomSheetModal
       ref={sheetRef}
+      index={1}
+      onDismiss={onDismiss}
       snapPoints={snapPoints}
+      backdropComponent={renderBackdrop}
       backgroundStyle={[{ backgroundColor: modalBg }]}
       handleIndicatorStyle={[{ backgroundColor: indicatorColor }]}
     >

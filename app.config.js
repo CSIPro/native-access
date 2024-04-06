@@ -46,6 +46,13 @@ export default {
       "expo-router",
       "@react-native-google-signin/google-signin",
       [
+        "expo-barcode-scanner",
+        {
+          cameraPermission:
+            "Allow $(PRODUCT_NAME) to use your camera to scan barcodes",
+        },
+      ],
+      [
         "react-native-ble-plx",
         {
           isBackgroundEnabled: false,

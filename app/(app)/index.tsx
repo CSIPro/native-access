@@ -2,6 +2,7 @@ import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
 import {
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -47,6 +48,8 @@ import {
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
 import { FAIcon } from "@/components/icons/font-awesome";
+import { Link } from "expo-router";
+import { MaterialIcon } from "@/components/icons/material";
 
 export default function Home() {
   const [sound, setSound] = useState<Audio.Sound>(null);
@@ -128,16 +131,44 @@ export default function Home() {
       }}
     >
       <View style={[{ paddingVertical: 8, alignItems: "center" }]}>
-        <BrandingHeader
-          textStyle={[{ color: colors.default.white[100] }]}
-          highlight="ACCESS"
-          highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
-          highlightTextStyle={[
-            { color: colors.default.tint[400], fontFamily: fonts.poppinsBold },
+        <View
+          style={[
+            {
+              width: "100%",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            },
           ]}
         >
-          CSI PRO
-        </BrandingHeader>
+          <BrandingHeader
+            textStyle={[{ color: colors.default.white[100] }]}
+            highlight="ACCESS"
+            highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+            highlightTextStyle={[
+              {
+                color: colors.default.tint[400],
+                fontFamily: fonts.poppinsBold,
+              },
+            ]}
+          >
+            CSI PRO
+          </BrandingHeader>
+          <View
+            style={[
+              {
+                ...StyleSheet.absoluteFillObject,
+                right: 4,
+                alignItems: "flex-end",
+                justifyContent: "center",
+              },
+            ]}
+          >
+            <Link href="/events" replace style={[{ padding: 4 }]}>
+              <MaterialIcon name="event" color="white" size={32} />
+            </Link>
+          </View>
+        </View>
         <View
           style={[
             {

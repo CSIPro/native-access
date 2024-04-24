@@ -5,6 +5,9 @@ import { storageKeys } from "@/constants/storage-keys";
 import { Room } from "@/hooks/use-rooms";
 import { firebaseAuth } from "./firebase-config";
 
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export const formatRoomName = (room: Room) => {
   return `${room.name} (${room.building}-${room.room})`;
 };

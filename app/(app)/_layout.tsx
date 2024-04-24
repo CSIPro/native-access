@@ -142,7 +142,7 @@ const TabsLayoutNav = () => {
                 {
                   ...StyleSheet.absoluteFillObject,
                   overflow: "hidden",
-                  backgroundColor: "transparent",
+                  backgroundColor: colors.default.black.translucid[800],
                   borderColor: colors.default.tint[400],
                   borderWidth: 2,
                   borderRadius: 14,
@@ -153,9 +153,7 @@ const TabsLayoutNav = () => {
                 style={[
                   {
                     ...StyleSheet.absoluteFillObject,
-                    backgroundColor: isLight
-                      ? colors.default.tint.translucid[100]
-                      : colors.default.tint.translucid[50],
+                    backgroundColor: colors.default.tint.translucid[200],
                   },
                 ]}
               />

@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import Animated, {
   Easing,
+  SharedValue,
   StretchInX,
   StretchOutX,
   cancelAnimation,
@@ -204,7 +205,16 @@ export const PibleScanner = () => {
             },
           ]}
         >
-          <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+          <BlurView intensity={24} tint="dark" style={[styles.blur]}>
+            <View
+              style={[
+                {
+                  ...StyleSheet.absoluteFillObject,
+                  backgroundColor: colors.default.tint.translucid[200],
+                },
+              ]}
+            />
+          </BlurView>
           <FlatList
             horizontal
             data={devices}
@@ -222,15 +232,30 @@ export const PibleScanner = () => {
       ) : (
         <View style={[{ height: 64 }]} />
       )}
-      <Animated.View style={[styles.container, animatedItemStyle]}>
-        <BlurView intensity={24} tint="dark" style={[styles.blur]} />
+      <PibleButton progress={button} />
+      <Animated.View
+        style={[styles.container, animatedItemStyle, { overflow: "hidden" }]}
+      >
+        <BlurView intensity={24} tint="dark" style={[styles.blur]}>
+          <View
+            style={[
+              {
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: colors.default.tint.translucid[200],
+              },
+            ]}
+          />
+        </BlurView>
         <Canvas
           style={[
             styles.container,
             {
               ...StyleSheet.absoluteFillObject,
+              borderRadius: 9999,
               overflow: "hidden",
               backgroundColor: "transparent",
+              borderWidth: 1,
+              borderColor: "red",
             },
           ]}
         >
@@ -244,7 +269,6 @@ export const PibleScanner = () => {
             />
           ))}
         </Canvas>
-        <PibleButton progress={button} />
         <View style={[styles.actionsContainer]}>
           <View style={[styles.actions]}>
             <View
@@ -377,7 +401,7 @@ const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
 };
 
 interface PibleButtonProps {
-  progress: Animated.SharedValue<number>;
+  progress: SharedValue<number>;
 }
 
 const PibleButton: FC<PibleButtonProps> = ({ progress }) => {
@@ -418,10 +442,19 @@ const PibleButton: FC<PibleButtonProps> = ({ progress }) => {
             {
               borderRadius: 9999,
               borderWidth: 0,
-              backgroundColor: colors.default.white.translucid[100],
+              backgroundColor: colors.default.black.translucid[300],
             },
           ]}
-        />
+        >
+          <View
+            style={[
+              {
+                ...StyleSheet.absoluteFillObject,
+                backgroundColor: colors.default.tint.translucid[200],
+              },
+            ]}
+          />
+        </BlurView>
         <Image
           source={accessLogo}
           alt="CSI PRO ACCESS Logo"
@@ -457,11 +490,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 32,
     borderColor: colors.default.tint[400],
+    backgroundColor: colors.default.black.translucid[600],
   },
   scanButtonWrapper: {
     position: "absolute",
     zIndex: 20,
-    top: -40,
+    bottom: 8,
     borderRadius: 9999,
     width: 96,
   },

@@ -14,49 +14,52 @@ import fonts from "@/constants/fonts";
 
 interface Props {
   children: ReactNode;
-  textStyle?: StyleProp<TextStyle>;
-  highlight: string;
-  highlightStyle?: StyleProp<ViewStyle>;
-  highlightTextStyle?: StyleProp<TextStyle>;
-  fontSize?: number;
 }
 
-export const BrandingHeader: FC<Props> = ({
-  textStyle,
-  highlight,
-  highlightStyle,
-  highlightTextStyle,
-  fontSize = 24,
-  children,
-}) => {
+export const BrandingHeader: FC<Props> = ({ children }) => (
+  <View style={[styles.brandingWrapper]}>{children}</View>
+);
+
+interface TitleProps {
+  children: ReactNode;
+  style?: StyleProp<TextStyle>;
+}
+
+export const BrandingHeaderTitle: FC<TitleProps> = ({ children, style }) => {
   const isLight = useColorScheme() === "light";
 
-  const commonStyle = { fontSize };
-
   return (
-    <View style={[styles.brandingWrapper]}>
-      <Text
-        style={[
-          styles.title,
-          commonStyle,
-          {
-            color: isLight
-              ? colors.default.black[400]
-              : colors.default.white[100],
-          },
-          textStyle,
-        ]}
-      >
-        {children}
-      </Text>
-      <View style={[styles.highlight, highlightStyle]}>
-        <Text style={[styles.highlightedText, commonStyle, highlightTextStyle]}>
-          {highlight}
-        </Text>
-      </View>
-    </View>
+    <Text
+      style={[
+        styles.title,
+        {
+          color: isLight
+            ? colors.default.black[400]
+            : colors.default.white[100],
+        },
+        style,
+      ]}
+    >
+      {children}
+    </Text>
   );
 };
+
+interface HighlightProps {
+  children: ReactNode;
+  textStyle?: StyleProp<TextStyle>;
+  highlightStyle?: StyleProp<ViewStyle>;
+}
+
+export const BrandingHeaderHighlight: FC<HighlightProps> = ({
+  children,
+  textStyle,
+  highlightStyle,
+}) => (
+  <View style={[styles.highlight, highlightStyle]}>
+    <Text style={[styles.highlightedText, textStyle]}>{children}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   brandingWrapper: {

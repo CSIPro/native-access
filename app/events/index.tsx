@@ -1,4 +1,9 @@
-import { BrandingHeader } from "@/components/ui/branding-header";
+import { EventsList } from "@/components/events/events-list";
+import {
+  BrandingHeader,
+  BrandingHeaderHighlight,
+  BrandingHeaderTitle,
+} from "@/components/ui/branding-header";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { Image } from "expo-image";
@@ -21,13 +26,16 @@ export default function EventsHome() {
     <SafeAreaView style={[styles.safeArea]}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={[styles.header]}>
-        <BrandingHeader
-          highlight="EVENTS"
-          textStyle={[{ color: colors.default.white[100] }]}
-          highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
-          highlightTextStyle={[styles.headerHighlight]}
-        >
-          CSI PRO
+        <BrandingHeader>
+          <BrandingHeaderTitle style={[{ color: colors.default.white[100] }]}>
+            CSI PRO
+          </BrandingHeaderTitle>
+          <BrandingHeaderHighlight
+            textStyle={[styles.headerHighlight]}
+            highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+          >
+            EVENTS
+          </BrandingHeaderHighlight>
         </BrandingHeader>
         <View style={[styles.accessLink]}>
           <Link href="/(app)" replace style={[{ padding: 4 }]}>
@@ -47,11 +55,19 @@ export default function EventsHome() {
       >
         <ScrollView contentContainerStyle={[styles.scrollContainer]}>
           <View style={[{ paddingVertical: 8 }]}>
-            <BrandingHeader highlight="EVENTS">INCOMING</BrandingHeader>
+            <BrandingHeader>
+              <BrandingHeaderTitle>INCOMING</BrandingHeaderTitle>
+              <BrandingHeaderHighlight>EVENTS</BrandingHeaderHighlight>
+            </BrandingHeader>
           </View>
+          <EventsList />
           <View style={[{ paddingVertical: 8 }]}>
-            <BrandingHeader highlight="EVENTS">PAST</BrandingHeader>
+            <BrandingHeader>
+              <BrandingHeaderTitle>PAST</BrandingHeaderTitle>
+              <BrandingHeaderHighlight>EVENTS</BrandingHeaderHighlight>
+            </BrandingHeader>
           </View>
+          <EventsList past />
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -100,7 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     alignItems: "center",
-    padding: 8,
+    paddingVertical: 8,
     gap: 6,
     borderRadius: 24,
   },

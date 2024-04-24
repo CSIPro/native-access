@@ -26,10 +26,13 @@ import { firebaseAuth } from "@/lib/firebase-config";
 import colors from "@/constants/colors";
 import { Branding } from "@/components/branding/branding";
 import { z } from "zod";
-import { BrandingHeader } from "@/components/ui/branding-header";
+import {
+  BrandingHeader,
+  BrandingHeaderHighlight,
+  BrandingHeaderTitle,
+} from "@/components/ui/branding-header";
 import fonts from "@/constants/fonts";
 
-const accessBanner = require("../assets/banner.png");
 const accessLogo = require("../assets/access-logo.svg");
 const googleLogo = require("../assets/auth/google-g.png");
 const githubLogo = require("../assets/auth/github-mark.png");
@@ -114,19 +117,24 @@ export default function SignIn() {
     <SafeAreaView style={[{ flex: 1, backgroundColor: palette.tint }]}>
       <View style={[styles.container]}>
         <View style={[styles.header]}>
-          <BrandingHeader
-            fontSize={36}
-            textStyle={[{ color: colors.default.white[100] }]}
-            highlight="ACCESS"
-            highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
-            highlightTextStyle={[
-              {
-                color: colors.default.tint[400],
-                fontFamily: fonts.poppinsBold,
-              },
-            ]}
-          >
-            CSI PRO
+          <BrandingHeader>
+            <BrandingHeaderTitle
+              style={[{ fontSize: 36, color: colors.default.white[100] }]}
+            >
+              CSI PRO
+            </BrandingHeaderTitle>
+            <BrandingHeaderHighlight
+              textStyle={[
+                {
+                  fontSize: 36,
+                  color: colors.default.tint[400],
+                  fontFamily: fonts.poppinsBold,
+                },
+              ]}
+              highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+            >
+              ACCESS
+            </BrandingHeaderHighlight>
           </BrandingHeader>
           <Image source={accessLogo} style={[styles.logo]} />
         </View>

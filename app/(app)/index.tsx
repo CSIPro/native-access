@@ -41,7 +41,11 @@ import colors from "@/constants/colors";
 
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { LogsList } from "@/components/logs/logs-list";
-import { BrandingHeader } from "@/components/ui/branding-header";
+import {
+  BrandingHeader,
+  BrandingHeaderHighlight,
+  BrandingHeaderTitle,
+} from "@/components/ui/branding-header";
 import {
   GestureEvent,
   PanGestureHandler,
@@ -141,18 +145,21 @@ export default function Home() {
             },
           ]}
         >
-          <BrandingHeader
-            textStyle={[{ color: colors.default.white[100] }]}
-            highlight="ACCESS"
-            highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
-            highlightTextStyle={[
-              {
-                color: colors.default.tint[400],
-                fontFamily: fonts.poppinsBold,
-              },
-            ]}
-          >
-            CSI PRO
+          <BrandingHeader>
+            <BrandingHeaderTitle style={[{ color: colors.default.white[100] }]}>
+              CSI PRO
+            </BrandingHeaderTitle>
+            <BrandingHeaderHighlight
+              textStyle={[
+                {
+                  color: colors.default.tint[400],
+                  fontFamily: fonts.poppinsBold,
+                },
+              ]}
+              highlightStyle={[{ backgroundColor: colors.default.white[100] }]}
+            >
+              ACCESS
+            </BrandingHeaderHighlight>
           </BrandingHeader>
           <View
             style={[
@@ -226,7 +233,10 @@ export default function Home() {
             />
           </PanGestureHandler>
           <View style={[{ paddingVertical: 8 }]}>
-            <BrandingHeader highlight="STATS">ROOM</BrandingHeader>
+            <BrandingHeader>
+              <BrandingHeaderTitle>ROOM</BrandingHeaderTitle>
+              <BrandingHeaderHighlight>STATS</BrandingHeaderHighlight>
+            </BrandingHeader>
           </View>
           <View style={[{ flexDirection: "row", gap: 6 }]}>
             <SuccessfulLogs />
@@ -255,7 +265,10 @@ export default function Home() {
             />
           </View>
           <View style={[{ paddingVertical: 8 }]}>
-            <BrandingHeader highlight="STATS">PERSONAL</BrandingHeader>
+            <BrandingHeader>
+              <BrandingHeaderTitle>PERSONAL</BrandingHeaderTitle>
+              <BrandingHeaderHighlight>STATS</BrandingHeaderHighlight>
+            </BrandingHeader>
           </View>
           <View style={[{ flexDirection: "row", gap: 6 }]}>
             <View style={[{ gap: 6, flex: 1 }]}>

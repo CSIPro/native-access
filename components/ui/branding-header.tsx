@@ -13,11 +13,12 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 
 interface Props {
+  style?: StyleProp<ViewStyle>;
   children: ReactNode;
 }
 
-export const BrandingHeader: FC<Props> = ({ children }) => (
-  <View style={[styles.brandingWrapper]}>{children}</View>
+export const BrandingHeader: FC<Props> = ({ children, style }) => (
+  <View style={[styles.brandingWrapper, style]}>{children}</View>
 );
 
 interface TitleProps {

@@ -1,5 +1,6 @@
 import {
   FlatList,
+  Pressable,
   StyleProp,
   StyleSheet,
   Text,
@@ -15,14 +16,22 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { BrandingHeaderHighlight } from "../ui/branding-header";
 import { IonIcon } from "../icons/ion";
+import { Link } from "expo-router";
 
 interface EventItemProps {
+  eventId: string;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
-export const EventItem: FC<EventItemProps> = ({ children, style }) => {
-  return <View style={[styles.container, style]}>{children}</View>;
+export const EventItem: FC<EventItemProps> = ({ eventId, children, style }) => {
+  return (
+    <Link href={`events/${eventId}`} asChild>
+      <Pressable>
+        <View style={[styles.container, style]}>{children}</View>
+      </Pressable>
+    </Link>
+  );
 };
 
 interface TitleProps {
@@ -44,11 +53,14 @@ interface DateProps {
 }
 
 export const EventItemDate: FC<DateProps> = ({ date, style }) => {
-  const formattedDate = format(date, "MMMM dd yyyy '-' p", { locale: es });
+  const formattedDate = format(date, "MMM dd yyyy'-'p", { locale: es }).split(
+    "-"
+  );
 
   return (
     <View style={[styles.dateContainer, style]}>
-      <Text style={[styles.text, styles.dateFormat]}>{formattedDate}</Text>
+      <Text style={[styles.text, styles.dateFormat]}>{formattedDate[0]}</Text>
+      <Text style={[styles.text, styles.dateFormat]}>{formattedDate[1]}</Text>
     </View>
   );
 };
@@ -122,6 +134,23 @@ export const EventItemDescription: FC<TitleProps> = ({ children, style }) => {
   );
 };
 
+interface AttendantsProps {
+  attendants: number;
+}
+
+export const EventItemAttendees: FC<AttendantsProps> = ({ attendants }) => {
+  return (
+    <View style={[styles.attendantsContainer]}>
+      <BrandingHeaderHighlight
+        textStyle={[{ fontSize: 14 }]}
+        highlightStyle={[{ borderRadius: 0, borderTopRightRadius: 8 }]}
+      >
+        {attendants} asistentes
+      </BrandingHeaderHighlight>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     width: 240,
@@ -140,10 +169,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   dateContainer: {
+    width: "100%",
+    padding: 4,
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 4,
+    backgroundColor: colors.default.tint[400],
+    borderRadius: 8,
   },
   dateFormat: {
     fontFamily: fonts.interMedium,
@@ -161,6 +195,11 @@ const styles = StyleSheet.create({
   },
   description: {
     color: colors.default.white[100],
+  },
+  attendantsContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
   },
   text: {
     fontFamily: fonts.inter,

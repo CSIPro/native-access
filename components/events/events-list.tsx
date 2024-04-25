@@ -66,11 +66,12 @@ const ActiveEventsList = () => {
         keyExtractor={(item) => `Past event ${item.id}`}
         data={data}
         renderItem={({ item, index }) => (
-          <EventItem>
+          <EventItem eventId={item.id}>
             <EventItemTitle>{item.title}</EventItemTitle>
             <EventItemDate date={item.date} />
             <EventItemType>{eventItemTypes[item.type]}</EventItemType>
             <EventItemPresenters presenters={item.presenters} />
+            <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>
         )}
         contentContainerStyle={[styles.listContainer]}
@@ -117,7 +118,7 @@ const PastEventsList = () => {
         keyExtractor={(item) => `Past event ${item.id}`}
         data={data}
         renderItem={({ item, index }) => (
-          <EventItem>
+          <EventItem eventId={item.id}>
             <EventItemTitle>{item.title}</EventItemTitle>
             <EventItemDate date={item.date} />
             <EventItemType>{eventItemTypes[item.type]}</EventItemType>
@@ -146,6 +147,7 @@ const styles = StyleSheet.create({
   listContainer: {
     gap: 8,
     paddingHorizontal: 8,
+    alignItems: "stretch",
   },
   refetchButton: {
     borderRadius: 9999,

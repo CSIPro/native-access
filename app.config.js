@@ -46,6 +46,15 @@ export default {
       "expo-router",
       "@react-native-google-signin/google-signin",
       [
+        "expo-camera",
+        {
+          cameraPermission:
+            "Allow $(PRODUCT_NAME) to use your camera for scanning bar codes",
+          microphonePermission: "Allow $(PRODUCT_NAME) to record audio",
+          recordAudioAndroid: false,
+        },
+      ],
+      [
         "expo-barcode-scanner",
         {
           cameraPermission:

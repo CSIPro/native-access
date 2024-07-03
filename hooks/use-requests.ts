@@ -17,7 +17,9 @@ import { useRoles } from "./use-roles";
 
 import { RoomContext, useRoomContext } from "../context/room-context";
 import { useCallback, useContext } from "react";
-import { useQueryClient } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import { firebaseAuth } from "@/lib/firebase-config";
+import { NestError } from "@/lib/utils";
 
 enum RequestStatus {
   pending,
@@ -220,4 +222,126 @@ export const useRequestHelpers = (request?: Request) => {
     : ({
         createRequest,
       } as const);
+};
+
+export const NestRequestStatus = z.enum(["pending", "approved", "rejected"]);
+
+export const PlainNestRequest = z.object({
+  id: z.string(),
+  userId: z.string(),
+  roomId: z.string(),
+  adminId: z.string().optional().nullable(),
+  status: NestRequestStatus,
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
+export type PlainNestRequest = z.infer<typeof PlainNestRequest>;
+
+export const PopulatedNestRequest = z.object({
+  id: z.string(),
+  status: NestRequestStatus,
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+  user: z.object({
+    id: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+  }),
+  admin: z
+    .object({
+      id: z.string(),
+      firstName: z.string(),
+      lastName: z.string(),
+    })
+    .optional()
+    .nullable(),
+  room: z.object({
+    id: z.string(),
+    name: z.string(),
+    building: z.string(),
+    roomNumber: z.string(),
+  }),
+});
+
+export type PopulatedNestRequest = z.infer<typeof PopulatedNestRequest>;
+
+export const useNestRoomRequests = (roomId: string) => {
+  const authUser = firebaseAuth.currentUser;
+
+  const requestsQuery = useQuery({
+    queryKey: ["requests", roomId],
+    queryFn: async () => {
+      const res = await fetch(
+        `http://192.168.100.24:3010/rooms/${roomId}/requests`,
+        {
+          headers: {
+            Authorization: `Bearer ${await authUser?.getIdToken()}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while fetching requests");
+      }
+
+      const requestsParse = PopulatedNestRequest.array().safeParse(
+        await res.json()
+      );
+
+      if (!requestsParse.success) {
+        throw new Error("An error occurred while parsing requests");
+      }
+
+      return requestsParse.data;
+    },
+  });
+
+  return requestsQuery;
+};
+
+export const useNestUserRequests = (userId: string) => {
+  const authUser = firebaseAuth.currentUser;
+
+  const requestsQuery = useQuery({
+    queryKey: ["requests", userId],
+    queryFn: async () => {
+      const res = await fetch(
+        `http://192.168.100.24:3010/rooms/${userId}/requests`,
+        {
+          headers: {
+            Authorization: `Bearer ${await authUser?.getIdToken()}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while fetching requests");
+      }
+
+      const requestsParse = PopulatedNestRequest.array().safeParse(
+        await res.json()
+      );
+
+      if (!requestsParse.success) {
+        throw new Error("An error occurred while parsing requests");
+      }
+
+      return requestsParse.data;
+    },
+  });
+
+  return requestsQuery;
 };

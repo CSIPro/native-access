@@ -7,6 +7,9 @@ import {
   useUser,
 } from "reactfire";
 import { useCallback } from "react";
+import { useQuery } from "react-query";
+import { firebaseAuth } from "@/lib/firebase-config";
+import { NestError } from "@/lib/utils";
 
 export const Room = z.object({
   id: z.string(),
@@ -91,4 +94,83 @@ export const useUserRooms = () => {
     status: userRoomsStatus,
     data: userRoomsData as z.infer<typeof userRoomSchema>[],
   };
+};
+
+export const NestRoom = z.object({
+  id: z.string(),
+  roomNumber: z.string().optional().nullable(),
+  name: z.string(),
+  building: z.string(),
+  ownerId: z.string(),
+  macAddress: z.string(),
+  active: z.boolean(),
+  oldId: z.string(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
+export type NestRoom = z.infer<typeof NestRoom>;
+
+export const useNestRooms = () => {
+  const authUser = firebaseAuth.currentUser;
+
+  const roomsQuery = useQuery({
+    queryKey: ["rooms"],
+    queryFn: async () => {
+      const res = await fetch("http://192.168.100.24:3010/rooms", {
+        headers: {
+          Authorization: `Bearer ${await authUser?.getIdToken()}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while fetching rooms");
+      }
+
+      const roomsParse = NestRoom.array().safeParse(await res.json());
+
+      if (!roomsParse.success) {
+        throw new Error("An error occurred while parsing rooms");
+      }
+
+      return roomsParse.data;
+    },
+  });
+
+  return roomsQuery;
+};
+
+export const useNestRoom = (roomId: string) => {
+  const roomQuery = useQuery({
+    queryKey: ["room", roomId],
+    queryFn: async () => {
+      const res = await fetch(`http://192.168.100.24:3010/rooms/${roomId}`);
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while fetching room data");
+      }
+
+      const roomParse = NestRoom.safeParse(await res.json());
+
+      if (!roomParse.success) {
+        throw new Error("An error occurred while parsing room data");
+      }
+
+      return roomParse.data;
+    },
+  });
+
+  return roomQuery;
 };

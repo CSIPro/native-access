@@ -13,6 +13,8 @@ import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 
 import { useRoomContext } from "../context/room-context";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { firebaseAuth } from "@/lib/firebase-config";
+import { NestError } from "@/lib/utils";
 
 export const UserRoomRole = z.object({
   id: z.string(),
@@ -296,4 +298,61 @@ export const useUserRoleWithId = (uid: string) => {
     doc: userRoleDoc,
     data: userRoleData as z.infer<typeof UserRoomRole>,
   };
+};
+
+export const NestUser = z.object({
+  id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  csiId: z.number(),
+  unisonId: z.string(),
+  authId: z.string(),
+  dateOfBirth: z.string(),
+  isRoot: z.boolean(),
+  isEventOrganizer: z.boolean(),
+  notificationToken: z.string().optional().nullable(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
+export type NestUser = z.infer<typeof NestUser>;
+
+export const useNestUser = (userId?: string) => {
+  const authUser = firebaseAuth.currentUser;
+
+  const userQuery = useQuery({
+    queryKey: ["user", userId ?? authUser?.uid],
+    queryFn: async () => {
+      const apiUrl = `http://192.168.100.24:3010/users/find-by-auth-id/${
+        userId ?? authUser?.uid
+      }`;
+
+      const res = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${await authUser?.getIdToken()}` },
+      });
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        } else {
+          throw new Error("Failed to fetch user data");
+        }
+      }
+
+      const userParse = NestUser.safeParse(await res.json());
+
+      if (userParse.success) {
+        return userParse.data;
+      } else {
+        console.error(userParse);
+
+        throw new Error("Failed to parse user data");
+      }
+    },
+    refetchInterval: 20000,
+  });
+
+  return userQuery;
 };

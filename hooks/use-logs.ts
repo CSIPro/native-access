@@ -10,6 +10,8 @@ import { useContext } from "react";
 import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { z } from "zod";
 import { useRoomContext } from "../context/room-context";
+import { useQuery } from "react-query";
+import { NestError } from "@/lib/utils";
 
 export const Log = z.object({
   id: z.string(),
@@ -196,4 +198,60 @@ export const useUserFailedLogs = () => {
   const successfulLogs = logsData?.filter((log) => !log.accessed) ?? [];
 
   return { status: logsStatus, logs: successfulLogs as Log[] };
+};
+
+export const NestAccessType = z.enum(["keypad", "mobile", "webapp"]);
+
+export const NestLog = z.object({
+  id: z.string(),
+  userId: z.string(),
+  roomId: z.string(),
+  accessed: z.boolean(),
+  bluetooth: z.boolean(),
+  accessType: NestAccessType,
+  attempt: z
+    .object({ csiId: z.string(), passcode: z.string() })
+    .optional()
+    .nullable(),
+  createdAt: z.string().datetime(),
+  user: z
+    .object({
+      id: z.string(),
+      firstName: z.string(),
+      lastName: z.string(),
+    })
+    .optional()
+    .nullable(),
+});
+
+export type NestLog = z.infer<typeof NestLog>;
+
+export const useNestLogs = (roomId: string) => {
+  const logsQuery = useQuery({
+    queryKey: ["logs", roomId],
+    queryFn: async () => {
+      const res = await fetch(`http://192.168.100.24:3010/access-logs/room`);
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while fetching logs");
+      }
+
+      const logsParse = NestLog.array().safeParse(await res.json());
+
+      if (!logsParse.success) {
+        throw new Error("An error occurred while parsing logs");
+      }
+
+      return logsParse.data;
+    },
+    refetchInterval: 10000,
+  });
+
+  return logsQuery;
 };

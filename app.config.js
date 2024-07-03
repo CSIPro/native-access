@@ -46,6 +46,13 @@ export default {
       "expo-router",
       "@react-native-google-signin/google-signin",
       [
+        "expo-secure-store",
+        {
+          faceIDPermission:
+            "Allow $(PRODUCT_NAME) to use Face ID for data encryption.",
+        },
+      ],
+      [
         "expo-camera",
         {
           cameraPermission:

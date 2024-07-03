@@ -4,6 +4,14 @@ import * as SecureStore from "expo-secure-store";
 import { storageKeys } from "@/constants/storage-keys";
 import { Room } from "@/hooks/use-rooms";
 import { firebaseAuth } from "./firebase-config";
+import { z } from "zod";
+
+export const NestError = z.object({
+  statusCode: z.number(),
+  message: z.string(),
+});
+
+export type NestError = z.infer<typeof NestError>;
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

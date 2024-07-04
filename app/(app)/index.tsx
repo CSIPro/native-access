@@ -57,6 +57,9 @@ import { MaterialIcon } from "@/components/icons/material";
 import { useRoomStats } from "@/hooks/use-room-stats";
 import { useUserStats } from "@/hooks/use-user-stats";
 import { useUserContext } from "@/context/user-context";
+import { Image } from "expo-image";
+
+const hornet = require("@/assets/hornet.svg");
 
 export default function Home() {
   const { user } = useUserContext();
@@ -192,10 +195,10 @@ export default function Home() {
             },
           ]}
         >
-          <FAIcon
-            name="volleyball-ball"
-            size={32}
-            color={colors.default.white[100]}
+          <Image
+            source={hornet}
+            alt="Hornet icon"
+            style={[{ width: 32, height: 32 }]}
           />
         </View>
       </View>

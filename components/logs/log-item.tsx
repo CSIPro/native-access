@@ -34,12 +34,13 @@ import { useMutation } from "react-query";
 import { deleteLog } from "@/lib/utils";
 import { IonIcon } from "../icons/ion";
 import { useRoles } from "@/hooks/use-roles";
+import { useUserContext } from "@/context/user-context";
 
 interface LogItemProps {
   id: string;
   known?: boolean;
   accessed?: boolean;
-  bluetooth?: boolean;
+  wireless?: boolean;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
@@ -48,12 +49,11 @@ export const LogItem: FC<LogItemProps> = ({
   id,
   known = false,
   accessed = false,
-  bluetooth = false,
+  wireless = false,
   children,
   style,
 }) => {
-  const { data: userData } = useUserData();
-  const { data: rolesData } = useRoles();
+  const { user, membership } = useUserContext();
 
   const selectedLog = useStore((state) => state.selectedLog);
   const setSelectedLog = useStore((state) => state.setSelectedLog);
@@ -74,14 +74,14 @@ export const LogItem: FC<LogItemProps> = ({
   const backgroundColor = isLight
     ? known
       ? accessed
-        ? bluetooth
+        ? wireless
           ? colors.default.bluetooth.translucid[800]
           : colors.default.tint.translucid[800]
         : colors.default.secondary.translucid[700]
       : colors.default.black.translucid[800]
     : known
     ? accessed
-      ? bluetooth
+      ? wireless
         ? colors.default.bluetooth.translucid[200]
         : colors.default.tint.translucid[200]
       : colors.default.secondary.translucid[200]
@@ -90,23 +90,20 @@ export const LogItem: FC<LogItemProps> = ({
   const borderColor = isLight
     ? known
       ? accessed
-        ? bluetooth
+        ? wireless
           ? colors.default.bluetooth[600]
           : colors.default.tint[600]
         : colors.default.secondary[600]
       : colors.default.black[600]
     : known
     ? accessed
-      ? bluetooth
+      ? wireless
         ? colors.default.bluetooth[300]
         : colors.default.tint[300]
       : colors.default.secondary[300]
     : colors.default.black[100];
 
-  const userRole = rolesData?.find(
-    (role) => role.id === userData?.role?.roleId
-  );
-  const canDeleteLogs = (userData.isRoot || userRole?.level >= 50) ?? false;
+  const canDeleteLogs = (user.isRoot || membership?.role.level >= 50) ?? false;
 
   return (
     <Pressable
@@ -120,39 +117,23 @@ export const LogItem: FC<LogItemProps> = ({
 };
 
 interface LogItemTitleProps {
-  user?: string;
+  children: ReactNode;
 }
 
-export const LogItemTitle: FC<LogItemTitleProps> = ({ user }) => {
-  const { status, data } = useUserDataWithId(user ?? "undefined");
-
-  if (status === "loading") {
-    return <ActivityIndicator size="small" color="#fff" />;
-  }
-
-  if (status === "error") {
-    return (
-      <Text numberOfLines={1} style={[styles.title]}>
-        Unknown user
-      </Text>
-    );
-  }
-
-  const userData = AccessUser.safeParse(data);
-
+export const LogItemTitle: FC<LogItemTitleProps> = ({ children }) => {
   return (
     <Text numberOfLines={1} style={[styles.title]}>
-      {userData.success ? userData.data.name : "Unknown user"}
+      {children}
     </Text>
   );
 };
 
 interface LogItemTimestampProps {
-  timestamp: Timestamp;
+  timestamp: string;
 }
 
 export const LogItemTimestamp: FC<LogItemTimestampProps> = ({ timestamp }) => {
-  const date = timestamp.toDate();
+  const date = new Date(timestamp);
 
   return (
     <View style={[styles.timestampContainer]}>

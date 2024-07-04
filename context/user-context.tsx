@@ -2,23 +2,33 @@ import Constants from "expo-constants";
 import * as LocalAuthentication from "expo-local-authentication";
 import { FC, ReactNode, createContext, useContext } from "react";
 
-import { AccessUser, useUserData } from "@/hooks/use-user-data";
+import {
+  AccessUser,
+  NestUser,
+  useNestUser,
+  useUserData,
+} from "@/hooks/use-user-data";
 
 import { firebaseAuth } from "@/lib/firebase-config";
 import { saveToStorage } from "@/lib/utils";
+import { SplashScreen } from "@/components/splash/splash";
+import { Membership, useMemberships } from "@/hooks/use-membership";
+import { useRoomContext } from "./room-context";
 
 interface UserContextProps {
-  status: "loading" | "error" | "success" | string;
-  user?: AccessUser;
+  user?: NestUser;
+  membership?: Membership;
   submitPasscode: (passcode: string) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextProps | null>(null);
 
-export const UserContextProvider: FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const { status, data } = useUserData();
+export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const { selectedRoom } = useRoomContext();
+  const { status, data } = useNestUser();
+  const { status: membershipStatus, data: memberships } = useMemberships(
+    data?.id
+  );
 
   const submitPasscode = async (passcode: string) => {
     if (!data) {
@@ -28,7 +38,7 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
     const authed = await LocalAuthentication.authenticateAsync({
       promptMessage: "Please authenticate to continue",
     });
-    
+
     if (!authed.success) {
       throw new Error("Authentication failed");
     }
@@ -69,43 +79,37 @@ export const UserContextProvider: FC<{ children: ReactNode }> = ({
     }
   };
 
-  if (status === "loading") {
-    return (
-      <UserContext.Provider
-        value={{ status: "loading", submitPasscode: submitPasscode }}
-      >
-        {children}
-      </UserContext.Provider>
-    );
+  if (status === "loading" || membershipStatus === "loading") {
+    return <SplashScreen loading message="Loading user data..." />;
   }
 
   if (status === "error") {
     return (
-      <UserContext.Provider
-        value={{ status: "error", submitPasscode: submitPasscode }}
-      >
+      <UserContext.Provider value={{ submitPasscode }}>
         {children}
       </UserContext.Provider>
     );
   }
 
-  if (!data) {
+  if (membershipStatus === "error") {
     return (
-      <UserContext.Provider
-        value={{ status: "error", submitPasscode: submitPasscode }}
-      >
+      <UserContext.Provider value={{ user: data, submitPasscode }}>
         {children}
       </UserContext.Provider>
     );
   }
+
+  const membership = memberships?.find(
+    (membership) => membership.room.id === selectedRoom
+  );
 
   const providerValue = {
-    status,
-    user: AccessUser.parse(data),
+    user: data,
+    membership,
     submitPasscode,
   };
 
-  saveToStorage("FIREBASE_UID", providerValue.user.id);
+  saveToStorage("FIREBASE_UID", providerValue.user.authId);
 
   return (
     <UserContext.Provider value={providerValue}>

@@ -12,7 +12,7 @@ import {
 
 import { LogItem, LogItemTimestamp, LogItemTitle } from "./log-item";
 
-import { useLogs } from "@/hooks/use-logs";
+import { useLogs, useNestLogs } from "@/hooks/use-logs";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
@@ -33,7 +33,7 @@ export const LogsList: FC<Props> = ({
   itemStyle,
 }) => {
   const isLight = useColorScheme() === "light";
-  const { status: logsStatus, data: logs } = useLogs({ today, limitTo: limit });
+  const { status: logsStatus, data: logs } = useNestLogs({ limitTo: limit });
 
   const backgroundColor = isLight
     ? colors.default.white[100]
@@ -73,18 +73,24 @@ export const LogsList: FC<Props> = ({
       keyExtractor={(item) => `${item.id}`}
       contentContainerStyle={[{ flexGrow: 1, gap: 4 }, contentContainerStyle]}
       showsVerticalScrollIndicator={false}
-      renderItem={({ item: log }) => (
-        <LogItem
-          id={log.id}
-          known={!!log.user}
-          accessed={log.accessed}
-          bluetooth={log.bluetooth}
-          style={[itemStyle]}
-        >
-          <LogItemTitle user={log.user} />
-          <LogItemTimestamp timestamp={log.timestamp} />
-        </LogItem>
-      )}
+      renderItem={({ item: log }) => {
+        const userName = log.user
+          ? `${log.user.firstName} ${log.user.lastName}`
+          : "Unknown user";
+
+        return (
+          <LogItem
+            id={log.id}
+            known={!!log.user}
+            accessed={log.accessed}
+            wireless={log.wireless}
+            style={[itemStyle]}
+          >
+            <LogItemTitle>{userName}</LogItemTitle>
+            <LogItemTimestamp timestamp={log.createdAt} />
+          </LogItem>
+        );
+      }}
       ListEmptyComponent={
         <View style={[styles.centered]}>
           <Text

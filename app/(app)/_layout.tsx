@@ -10,9 +10,9 @@ import { useSigninCheck, useUser } from "reactfire";
 import { IonIcon } from "@/components/icons/ion";
 import { SplashScreen } from "@/components/splash/splash";
 
-import { RoleProvider } from "@/context/role-context";
+import { RoleProvider, useRoleContext } from "@/context/role-context";
 import { RoomProvider } from "@/context/room-context";
-import { UserContextProvider } from "@/context/user-context";
+import { UserProvider, useUserContext } from "@/context/user-context";
 import { useRoles } from "@/hooks/use-roles";
 import { useUserData } from "@/hooks/use-user-data";
 
@@ -43,9 +43,9 @@ export default function TabsLayout() {
   return (
     <RoomProvider>
       <RoleProvider>
-        <UserContextProvider>
+        <UserProvider>
           <TabsLayoutNav />
-        </UserContextProvider>
+        </UserProvider>
       </RoleProvider>
     </RoomProvider>
   );
@@ -60,25 +60,17 @@ const TabsLayoutNav = () => {
   );
 
   const { status: authUserStatus, data: authUserData } = useUser();
-  const { status: userDataStatus, data: userData } = useUserData();
-  const { status: rolesStatus, data: rolesData } = useRoles();
+  const { user: userData, membership } = useUserContext();
+  const { roles } = useRoleContext();
 
   const seenOnboarding = useStore((state) => state.seenOnboarding);
 
-  if (
-    userDataStatus === "loading" ||
-    authUserStatus === "loading" ||
-    rolesStatus === "loading"
-  ) {
+  if (authUserStatus === "loading") {
     return <SplashScreen loading message="Retrieving user data..." />;
   }
 
-  if (
-    userDataStatus === "error" ||
-    authUserStatus === "error" ||
-    rolesStatus === "error"
-  ) {
-    return <SplashScreen message="Unable to fetch data from Firestore" />;
+  if (authUserStatus === "error") {
+    return <SplashScreen message="Unable to fetch data from Firebase" />;
   }
 
   if (!authUserData) {
@@ -89,20 +81,19 @@ const TabsLayoutNav = () => {
     return <Redirect href="/sign-up" />;
   }
 
-  if (!rolesData) {
-    return (
-      <SplashScreen message="Something went wrong. Please, try again later" />
-    );
+  if (roles.length === 0) {
+    return <SplashScreen message="Unable to connect to the server" />;
   }
 
   if (!seenOnboarding) {
     return <Redirect href="/onboarding" />;
   }
 
-  const userRole = rolesData.find((role) => role.id === userData.role?.roleId);
+  const userRole = roles.find((role) => role.id === membership?.role.id);
   const canSeeMembers =
-    userRole?.canGrantOrRevokeAccess ||
-    userRole?.canSetRoles ||
+    userRole?.canManageAccess ||
+    userRole?.canManageRoles ||
+    userRole?.canHandleRequests ||
     userData.isRoot;
 
   return (

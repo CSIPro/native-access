@@ -28,7 +28,7 @@ import { Dropdown } from "@/components/ui/dropdown";
 import { Input, InputAction, InputErrorText } from "@/components/ui/input";
 import { TextButton } from "@/components/ui/text-button";
 
-import { useRooms } from "@/hooks/use-rooms";
+import { useNestRooms } from "@/hooks/use-rooms";
 
 import { SignUpForm, createUser } from "@/lib/signup-utils";
 import { deleteAllFromStorage, generatePasscode } from "@/lib/utils";
@@ -66,7 +66,7 @@ export default function SignUp() {
     },
   });
 
-  const { status: roomsStatus, data: rooms } = useRooms();
+  const { status: roomsStatus, data: rooms } = useNestRooms();
 
   const nameRef = useRef<TextInput>(null);
   const uniSonIdRef = useRef<TextInput>(null);
@@ -166,13 +166,7 @@ export default function SignUp() {
               value={value}
               onChangeText={onChange}
               placeholder="e.g. A1B2C3"
-              icon={
-                <IonIcon
-                  name="md-code-working-outline"
-                  size={24}
-                  color={iconColor}
-                />
-              }
+              icon={<IonIcon name="code-working" size={24} color={iconColor} />}
               helperText="Must contain numbers and letters from A to D"
               errorText={errors.passcode?.message}
               secureTextEntry={!showPasscode}
@@ -227,7 +221,9 @@ export default function SignUp() {
                   items={rooms.map((room) => ({
                     key: room.id,
                     value: room.id,
-                    label: `${room.name} (${room.building}-${room.room})`,
+                    label: `${room.name} (${room.building}${
+                      room.roomNumber ? `-${room.roomNumber}` : ""
+                    })`,
                   }))}
                   onChange={onChange}
                   sheetTitle="Pick a room"

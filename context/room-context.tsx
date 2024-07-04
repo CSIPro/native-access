@@ -8,9 +8,15 @@ import {
 } from "react";
 import { z } from "zod";
 
-import { useRooms, useUserRooms } from "../hooks/use-rooms";
+import {
+  NestRoom,
+  useNestRooms,
+  useRooms,
+  useUserRooms,
+} from "../hooks/use-rooms";
 import { getFromStorage, saveToStorage } from "../lib/utils";
 import { useStore } from "@/store/store";
+import { SplashScreen } from "@/components/splash/splash";
 
 const roomSchema = z.object({
   id: z.string(),
@@ -20,19 +26,22 @@ const roomSchema = z.object({
 });
 
 interface RoomContextProps {
-  status?: "loading" | "error" | "success";
   selectedRoom?: string;
   setSelectedRoom?: (roomId: string) => void;
-  rooms?: z.infer<typeof roomSchema>[];
-  userRooms?: z.infer<typeof roomSchema>[];
+  rooms?: NestRoom[];
+  // userRooms?: NestRoom[];
 }
 
 export const RoomContext = createContext<RoomContextProps>({});
 
 export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [selectedRoom, setSelectedRoom] = useState<string>();
-  const { status: roomsStatus, data: roomsData } = useRooms();
-  const { status: userRoomsStatus, data: userRoomsData } = useUserRooms();
+  const {
+    status: roomsStatus,
+    data: roomsData,
+    error: roomsError,
+  } = useNestRooms();
+  // const { status: userRoomsStatus, data: userRoomsData } = useUserRooms();
   const setBleRoom = useStore((state) => state.setSelectedRoom);
 
   useEffect(() => {
@@ -59,39 +68,23 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, [selectedRoom, roomsData]);
 
-  if (roomsStatus === "loading" || userRoomsStatus === "loading") {
-    return (
-      <RoomContext.Provider value={{ status: "loading" }}>
-        {children}
-      </RoomContext.Provider>
-    );
+  if (roomsStatus === "loading") {
+    return <SplashScreen loading message="Loading rooms..." />;
   }
 
-  if (roomsStatus === "error" || userRoomsStatus === "error") {
-    return (
-      <RoomContext.Provider value={{ status: "error" }}>
-        {children}
-      </RoomContext.Provider>
-    );
+  if (roomsStatus === "error") {
+    return <SplashScreen message="Unable to connect to the server" />;
   }
 
-  if (!roomsData || !userRoomsData) {
-    return (
-      <RoomContext.Provider value={{ status: "error" }}>
-        {children}
-      </RoomContext.Provider>
-    );
-  }
-
-  const rooms = [...roomsData]?.filter((room) =>
-    userRoomsData.some((userRoom) => userRoom.id === room.id)
-  );
+  // const rooms = [...roomsData]?.filter((room) =>
+  //   userRoomsData.some((userRoom) => userRoom.id === room.id)
+  // );
 
   const providerValue = {
-    selectedRoom: selectedRoom || rooms.at(0)?.id,
+    selectedRoom: selectedRoom || roomsData.at(0).id,
     setSelectedRoom,
     rooms: [...roomsData],
-    userRooms: [...rooms],
+    // userRooms: [...rooms],
   };
 
   return (

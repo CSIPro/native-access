@@ -1,6 +1,6 @@
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -54,8 +54,12 @@ import {
 import { FAIcon } from "@/components/icons/font-awesome";
 import { Link } from "expo-router";
 import { MaterialIcon } from "@/components/icons/material";
+import { useRoomStats } from "@/hooks/use-room-stats";
+import { useUserStats } from "@/hooks/use-user-stats";
+import { useUserContext } from "@/context/user-context";
 
 export default function Home() {
+  const { user } = useUserContext();
   const [sound, setSound] = useState<Audio.Sound>(null);
   const translationY = useSharedValue(0);
   const shouldPlaySound = useRef(false);
@@ -66,14 +70,14 @@ export default function Home() {
 
   const playSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
-      require("@/assets/audio/ehh.mp3")
+      require("@/assets/audio/shaw.mp3")
     );
     setSound(sound);
 
     await sound.playAsync();
     setTimeout(() => {
       sound.stopAsync();
-    }, 500);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -171,9 +175,11 @@ export default function Home() {
               },
             ]}
           >
-            <Link href="/events" replace style={[{ padding: 4 }]}>
-              <MaterialIcon name="event" color="white" size={32} />
-            </Link>
+            {(user.isEventOrganizer || user.isRoot) && (
+              <Link href="/events" replace style={[{ padding: 4 }]}>
+                <MaterialIcon name="event" color="white" size={32} />
+              </Link>
+            )}
           </View>
         </View>
         <View
@@ -238,13 +244,7 @@ export default function Home() {
               <BrandingHeaderHighlight>STATS</BrandingHeaderHighlight>
             </BrandingHeader>
           </View>
-          <View style={[{ flexDirection: "row", gap: 6 }]}>
-            <SuccessfulLogs />
-            <View style={[{ gap: 6, flex: 1 }]}>
-              <BluetoothLogs />
-              <FailedLogs />
-            </View>
-          </View>
+          <RoomStats />
           <View
             style={[
               {
@@ -270,13 +270,7 @@ export default function Home() {
               <BrandingHeaderHighlight>STATS</BrandingHeaderHighlight>
             </BrandingHeader>
           </View>
-          <View style={[{ flexDirection: "row", gap: 6 }]}>
-            <View style={[{ gap: 6, flex: 1 }]}>
-              <BluetoothPersonalLogs />
-              <FailedPersonalLogs />
-            </View>
-            <SuccessfulPersonalLogs />
-          </View>
+          <PersonalStats />
         </Animated.ScrollView>
       </Animated.View>
       <PibleScanner />
@@ -285,14 +279,31 @@ export default function Home() {
   );
 }
 
-const SuccessfulLogs = () => {
+const RoomStats = () => {
+  const { data: stats } = useRoomStats();
+
+  return (
+    <View style={[{ flexDirection: "row", gap: 6 }]}>
+      <SuccessfulLogs value={stats?.successful} />
+      <View style={[{ gap: 6, flex: 1 }]}>
+        <BluetoothLogs value={stats?.wireless} />
+        <FailedLogs value={stats?.failed} />
+      </View>
+    </View>
+  );
+};
+
+interface DashboardItemProps {
+  value?: number;
+}
+
+const SuccessfulLogs: FC<DashboardItemProps> = ({ value }) => {
   const isLight = useColorScheme() === "light";
-  const { logs: successfulLogs } = useSuccessfulLogs();
   const sv = useSharedValue(0);
 
   useEffect(() => {
-    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
-  }, [successfulLogs?.length]);
+    sv.value = withRepeat(withTiming(1, { duration: 500 }), 4, true);
+  }, [value]);
 
   const animatedItem = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
@@ -334,7 +345,7 @@ const SuccessfulLogs = () => {
           },
         ]}
       >
-        {successfulLogs?.length.toString().padStart(2, "0") ?? "00"}
+        {value?.toString().padStart(2, "0") ?? "00"}
       </Text>
       <Text
         style={[
@@ -353,15 +364,13 @@ const SuccessfulLogs = () => {
   );
 };
 
-const BluetoothLogs = () => {
-  const { logs } = useBluetoothLogs();
-
+const BluetoothLogs: FC<DashboardItemProps> = ({ value }) => {
   return (
     <DashboardItem
       icon="bluetooth"
       title="Wireless"
       color="bluetooth"
-      logs={logs?.length ?? 0}
+      logs={value ?? 0}
     />
   );
 };
@@ -379,16 +388,28 @@ const UnknownLogs = () => {
   );
 };
 
-const FailedLogs = () => {
-  const { logs } = useFailedLogs();
-
+const FailedLogs: FC<DashboardItemProps> = ({ value }) => {
   return (
     <DashboardItem
       icon="close-circle"
       color="secondary"
       title="Failed"
-      logs={logs?.length ?? 0}
+      logs={value ?? 0}
     />
+  );
+};
+
+const PersonalStats = () => {
+  const { data: stats } = useUserStats();
+
+  return (
+    <View style={[{ flexDirection: "row", gap: 6 }]}>
+      <View style={[{ gap: 6, flex: 1 }]}>
+        <BluetoothLogs value={stats?.wireless} />
+        <FailedLogs value={stats?.failed} />
+      </View>
+      <SuccessfulLogs value={stats?.successful} />
+    </View>
   );
 };
 

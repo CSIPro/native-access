@@ -10,6 +10,7 @@ import { useCallback } from "react";
 import { useQuery } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
 import { NestError } from "@/lib/utils";
+import { useRoomContext } from "@/context/room-context";
 
 export const Room = z.object({
   id: z.string(),

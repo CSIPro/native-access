@@ -28,7 +28,7 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
   useEffect(() => {
     if (logs === 0) return;
 
-    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
+    sv.value = withRepeat(withTiming(1, { duration: 500 }), 4, true);
   }, [logs]);
 
   const animatedItem = useAnimatedStyle(() => {

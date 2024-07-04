@@ -16,14 +16,18 @@ export const Membership = z.object({
 
 export type Membership = z.infer<typeof Membership>;
 
-export const useMemberships = (userId: string) => {
+export const useMemberships = (userId?: string) => {
   const authUser = firebaseAuth.currentUser;
 
   const membershipsQuery = useQuery({
     queryKey: ["memberships", userId],
     queryFn: async () => {
+      if (!authUser || !userId) {
+        throw new Error("No user found");
+      }
+
       const res = await fetch(
-        `http://192.168.100.24:3010/users/${userId}/memberships`,
+        `http://148.225.50.130:3000/users/${userId}/memberships`,
         {
           headers: {
             Authorization: `Bearer ${await authUser?.getIdToken()}`,

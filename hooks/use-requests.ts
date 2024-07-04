@@ -313,7 +313,7 @@ export const useNestUserRequests = (userId: string) => {
     queryKey: ["requests", userId],
     queryFn: async () => {
       const res = await fetch(
-        `http://192.168.100.24:3010/rooms/${userId}/requests`,
+        `http://148.225.50.130:3000/rooms/${userId}/requests`,
         {
           headers: {
             Authorization: `Bearer ${await authUser?.getIdToken()}`,

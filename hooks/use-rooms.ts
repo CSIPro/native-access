@@ -117,7 +117,7 @@ export const useNestRooms = () => {
   const roomsQuery = useQuery({
     queryKey: ["rooms"],
     queryFn: async () => {
-      const res = await fetch("http://192.168.100.24:3010/rooms", {
+      const res = await fetch("http://148.225.50.130:3000/rooms", {
         headers: {
           Authorization: `Bearer ${await authUser?.getIdToken()}`,
         },
@@ -150,7 +150,7 @@ export const useNestRoom = (roomId: string) => {
   const roomQuery = useQuery({
     queryKey: ["room", roomId],
     queryFn: async () => {
-      const res = await fetch(`http://192.168.100.24:3010/rooms/${roomId}`);
+      const res = await fetch(`http://148.225.50.130:3000/rooms/${roomId}`);
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());

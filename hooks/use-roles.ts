@@ -53,7 +53,7 @@ export const useNestRoles = () => {
   const rolesQuery = useQuery({
     queryKey: ["roles"],
     queryFn: async () => {
-      const res = await fetch("http://192.168.100.24:3010/roles");
+      const res = await fetch("http://148.225.50.130:3000/roles");
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());

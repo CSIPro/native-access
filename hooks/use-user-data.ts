@@ -304,6 +304,7 @@ export const NestUser = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
+  passcode: z.string().optional().nullable(),
   csiId: z.number(),
   unisonId: z.string(),
   authId: z.string(),
@@ -323,7 +324,7 @@ export const useNestUser = (userId?: string) => {
   const userQuery = useQuery({
     queryKey: ["user", userId ?? authUser?.uid],
     queryFn: async () => {
-      const apiUrl = `http://192.168.100.24:3010/users/find-by-auth-id/${
+      const apiUrl = `http://148.225.50.130:3000/users/find-by-auth-id/${
         userId ?? authUser?.uid
       }`;
 
@@ -352,6 +353,7 @@ export const useNestUser = (userId?: string) => {
       }
     },
     refetchInterval: 20000,
+    retryDelay: 5000,
   });
 
   return userQuery;

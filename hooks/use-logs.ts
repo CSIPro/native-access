@@ -204,10 +204,10 @@ export const NestAccessType = z.enum(["keypad", "mobile", "webapp"]);
 
 export const NestLog = z.object({
   id: z.string(),
-  userId: z.string(),
+  userId: z.string().nullable(),
   roomId: z.string(),
   accessed: z.boolean(),
-  bluetooth: z.boolean(),
+  wireless: z.boolean(),
   accessType: NestAccessType,
   attempt: z
     .object({ csiId: z.string(), passcode: z.string() })
@@ -226,11 +226,15 @@ export const NestLog = z.object({
 
 export type NestLog = z.infer<typeof NestLog>;
 
-export const useNestLogs = (roomId: string) => {
+export const useNestLogs = ({ limitTo = 40 }: { limitTo?: number } = {}) => {
+  const { selectedRoom } = useRoomContext();
+
   const logsQuery = useQuery({
-    queryKey: ["logs", roomId],
+    queryKey: ["logs", selectedRoom],
     queryFn: async () => {
-      const res = await fetch(`http://192.168.100.24:3010/access-logs/room`);
+      const res = await fetch(
+        `http://148.225.50.130:3000/access-logs/room/${selectedRoom}/?limit=${limitTo}`
+      );
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());
@@ -242,7 +246,8 @@ export const useNestLogs = (roomId: string) => {
         throw new Error("An error occurred while fetching logs");
       }
 
-      const logsParse = NestLog.array().safeParse(await res.json());
+      const resData = await res.json();
+      const logsParse = NestLog.array().safeParse(resData);
 
       if (!logsParse.success) {
         throw new Error("An error occurred while parsing logs");

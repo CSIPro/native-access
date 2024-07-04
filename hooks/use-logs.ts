@@ -230,7 +230,7 @@ export const useNestLogs = ({ limitTo = 40 }: { limitTo?: number } = {}) => {
   const { selectedRoom } = useRoomContext();
 
   const logsQuery = useQuery({
-    queryKey: ["logs", selectedRoom],
+    queryKey: ["logs", selectedRoom, limitTo],
     queryFn: async () => {
       const res = await fetch(
         `http://148.225.50.130:3000/access-logs/room/${selectedRoom}/?limit=${limitTo}`

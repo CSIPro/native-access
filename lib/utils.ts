@@ -2,7 +2,7 @@ import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
 import { storageKeys } from "@/constants/storage-keys";
-import { Room } from "@/hooks/use-rooms";
+import { NestRoom, Room } from "@/hooks/use-rooms";
 import { firebaseAuth } from "./firebase-config";
 import { z } from "zod";
 
@@ -16,8 +16,10 @@ export type NestError = z.infer<typeof NestError>;
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-export const formatRoomName = (room: Room) => {
-  return `${room.name} (${room.building}-${room.room})`;
+export const formatRoomName = (room: NestRoom) => {
+  return `${room.name} (${room.building}${
+    room.roomNumber ? `-${room.roomNumber}` : ""
+  })`;
 };
 
 export const generateNonce = (length: number) => {

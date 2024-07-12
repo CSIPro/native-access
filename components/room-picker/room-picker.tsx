@@ -21,7 +21,6 @@ import Animated, {
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useUserContext } from "@/context/user-context";
 import { useRoomContext } from "@/context/room-context";
 import { Dropdown } from "../ui/dropdown";
 import { formatRoomName } from "@/lib/utils";
@@ -44,24 +43,14 @@ export const RoomPicker: FC<Props> = ({
 }) => {
   const isLight = useColorScheme() === "light";
 
-  const { status: userStatus, user } = useUserContext();
-  const { status, selectedRoom, setSelectedRoom, rooms, userRooms } =
-    useRoomContext();
-
-  if (status === "loading" || userStatus === "loading") {
-    return null;
-  }
-
-  if (status === "error" || userStatus === "error") {
-    return null;
-  }
+  const { selectedRoom, setSelectedRoom, rooms } = useRoomContext();
 
   const color = isLight ? colors.default.black[400] : colors.default.white[100];
   const iconColor = isLight
     ? colors.default.tint[400]
     : colors.default.tint[200];
 
-  const items = user.isRoot ? rooms : userRooms;
+  const items = rooms;
 
   return (
     <Dropdown

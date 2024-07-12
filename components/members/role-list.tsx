@@ -12,7 +12,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { MemberItem } from "./member-item";
 
 import { Role } from "@/hooks/use-roles";
-import { useMembersQuery } from "@/hooks/use-room-members";
+import { useNestMembersByRole } from "@/hooks/use-room-members";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
@@ -25,7 +25,7 @@ interface Props {
 
 export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
   const colorScheme = useColorScheme();
-  const { status, data } = useMembersQuery(roles);
+  const { status, data } = useNestMembersByRole();
   const tabsHeight = useBottomTabBarHeight() + 8;
 
   const isLight = colorScheme === "light";
@@ -64,18 +64,15 @@ export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
     <View style={[styles.main]}>
       <SectionList
         sections={data}
-        keyExtractor={(item) => item}
-        renderItem={({ item, section: { roleData } }) => (
-          <View style={[{ paddingHorizontal: 4 }]}>
-            <MemberItem
-              uid={item}
-              role={roleData}
-              userRole={userRole}
-              isRoot={isRoot}
-            />
-          </View>
-        )}
-        renderSectionHeader={({ section: { roleData } }) => (
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => {
+          return (
+            <View style={[{ paddingHorizontal: 4 }]}>
+              <MemberItem member={item} />
+            </View>
+          );
+        }}
+        renderSectionHeader={({ section: { title } }) => (
           <View style={[{ paddingHorizontal: 4 }]}>
             <View
               style={[
@@ -87,7 +84,7 @@ export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
                 },
               ]}
             >
-              <Text style={[styles.roleName]}>{roleData.name}</Text>
+              <Text style={[styles.roleName]}>{title}</Text>
             </View>
           </View>
         )}

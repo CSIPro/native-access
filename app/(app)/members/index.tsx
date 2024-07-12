@@ -17,12 +17,12 @@ import fonts from "@/constants/fonts";
 
 export default function MembersPage() {
   const colorScheme = useColorScheme();
-  const { status, roles } = useRoleContext();
+  const { roles } = useRoleContext();
   const { status: userStatus, data: userData } = useUserData();
 
   const isLight = colorScheme === "light";
 
-  if (status === "loading" || userStatus === "loading") {
+  if (userStatus === "loading") {
     return (
       <View style={[styles.centered]}>
         <ActivityIndicator
@@ -33,7 +33,7 @@ export default function MembersPage() {
     );
   }
 
-  if (status === "error" || userStatus === "error") {
+  if (userStatus === "error") {
     return (
       <View style={[styles.centered]}>
         <Text
@@ -70,7 +70,7 @@ export default function MembersPage() {
       <RoleList roles={roles} userRole={userRole} isRoot={isRoot} />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   centered: {

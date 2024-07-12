@@ -324,8 +324,8 @@ export const useNestUser = (userId?: string) => {
   const userQuery = useQuery({
     queryKey: ["user", userId ?? authUser?.uid],
     queryFn: async () => {
-      const apiUrl = `http://148.225.50.130:3000/users/find-by-auth-id/${
-        userId ?? authUser?.uid
+      const apiUrl = `http://148.225.50.130:3000/users/find-one/?${
+        userId ? `id=${userId}` : `authId=${authUser?.uid}`
       }`;
 
       const res = await fetch(apiUrl, {

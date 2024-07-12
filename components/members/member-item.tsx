@@ -26,74 +26,64 @@ import {
 } from "./member-card";
 import { MaterialIcon } from "../icons/material";
 
-import { Role } from "@/hooks/use-roles";
-import { useAccessUpdate, useMemberQuery } from "@/hooks/use-user-data";
-
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { Member } from "@/hooks/use-room-members";
 
 interface Props {
-  uid?: string;
-  role: Role;
-  userRole: Role;
-  isRoot: boolean;
+  member: Member;
 }
 
-export const MemberItem: FC<Props> = ({
-  uid = "invalid",
-  role,
-  userRole,
-  isRoot,
-}) => {
+export const MemberItem: FC<Props> = ({ member }) => {
   const [openDetails, setOpenDetails] = useState(false);
   const [localAccess, setLocalAccess] = useState(false);
 
   const colorScheme = useColorScheme();
-  const {
-    status: memberStatus,
-    data: memberData,
-    doc: memberDoc,
-  } = useMemberQuery(uid);
-  const { accessMutation } = useAccessUpdate(uid);
+  // const {
+  //   status: memberStatus,
+  //   data: memberData,
+  //   doc: memberDoc,
+  // } = useMemberQuery(uid);
+  // const { accessMutation } = useAccessUpdate(uid);
 
   const isLight = colorScheme === "light";
 
   const handleCloseDetails = () => setOpenDetails(false);
 
-  useEffect(() => {
-    if (memberStatus !== "success") return;
+  // useEffect(() => {
+  //   if (memberStatus !== "success") return;
 
-    setLocalAccess(memberData?.role?.accessGranted ?? false);
-  }, [memberStatus, memberData]);
+  //   setLocalAccess(memberData?.role?.accessGranted ?? false);
+  // }, [memberStatus, memberData]);
 
-  if (memberStatus === "loading") {
-    return (
-      <View>
-        <View style={[styles.memberItem, { justifyContent: "center" }]}>
-          <ActivityIndicator
-            size="small"
-            color={
-              isLight ? colors.default.tint[400] : colors.default.tint[200]
-            }
-          />
-        </View>
-      </View>
-    );
-  }
+  // if (memberStatus === "loading") {
+  //   return (
+  //     <View>
+  //       <View style={[styles.memberItem, { justifyContent: "center" }]}>
+  //         <ActivityIndicator
+  //           size="small"
+  //           color={
+  //             isLight ? colors.default.tint[400] : colors.default.tint[200]
+  //           }
+  //         />
+  //       </View>
+  //     </View>
+  //   );
+  // }
 
-  if (memberStatus === "error") {
-    return (
-      <View>
-        <View style={[styles.memberItem]}>
-          <Text
-            style={[styles.errorText, { color: colors.default.white[100] }]}
-          >
-            Something went wrong
-          </Text>
-        </View>
-      </View>
-    );
-  }
+  // if (memberStatus === "error") {
+  //   return (
+  //     <View>
+  //       <View style={[styles.memberItem]}>
+  //         <Text
+  //           style={[styles.errorText, { color: colors.default.white[100] }]}
+  //         >
+  //           Something went wrong
+  //         </Text>
+  //       </View>
+  //     </View>
+  //   );
+  // }
 
   const iconColor = isLight
     ? localAccess
@@ -103,28 +93,33 @@ export const MemberItem: FC<Props> = ({
     ? colors.default.tint[200]
     : colors.default.secondary[200];
 
-  const canSetAccess =
-    isRoot ||
-    ((userRole?.canGrantOrRevokeAccess ?? false) &&
-      userRole?.level > role?.level);
-  const canSetRoles =
-    isRoot ||
-    ((userRole?.canSetRoles ?? false) && userRole.level > role?.level);
-  const canKickMembers =
-    isRoot ||
-    ((userRole?.canKickMembers ?? false) && userRole.level > role?.level);
+  // const canSetAccess =
+  //   isRoot ||
+  //   ((userRole?.canGrantOrRevokeAccess ?? false) &&
+  //     userRole?.level > role?.level);
+  // const canSetRoles =
+  //   isRoot ||
+  //   ((userRole?.canSetRoles ?? false) && userRole.level > role?.level);
+  // const canKickMembers =
+  //   isRoot ||
+  //   ((userRole?.canKickMembers ?? false) && userRole.level > role?.level);
 
-  const handleUpdateAccess = async (value: boolean) => {
-    if (!memberDoc || !canSetAccess) return;
+  // const handleUpdateAccess = async (value: boolean) => {
+  //   if (!memberDoc || !canSetAccess) return;
 
-    try {
-      setLocalAccess(value);
-      accessMutation.mutate(value);
-    } catch (error) {
-      setLocalAccess(!value);
-      console.error(error);
-    }
-  };
+  //   try {
+  //     setLocalAccess(value);
+  //     accessMutation.mutate(value);
+  //   } catch (error) {
+  //     setLocalAccess(!value);
+  //     console.error(error);
+  //   }
+  // };
+
+  const memberName =
+    member.user.firstName && member.user.lastName
+      ? `${member.user.firstName} ${member.user.lastName}`
+      : "Unknown";
 
   return (
     <View style={{ paddingHorizontal: 4 }}>
@@ -137,14 +132,14 @@ export const MemberItem: FC<Props> = ({
             <MaterialIcon name="visibility" size={24} color={iconColor} />
           </View>
         </Pressable>
-        <MemberName>{memberData?.name ?? "Unknown"}</MemberName>
-        <MemberAccess
+        <MemberName>{memberName}</MemberName>
+        {/* <MemberAccess
           accessGranted={localAccess}
           setAccess={handleUpdateAccess}
           disabled={!canSetAccess}
-        />
+        /> */}
       </MemberWrapper>
-      {openDetails && (
+      {/* {openDetails && (
         <MemberCard
           open={openDetails}
           onClose={handleCloseDetails}
@@ -169,7 +164,7 @@ export const MemberItem: FC<Props> = ({
           </MemberCardRole>
           <MemberCardAuthorized authorized={localAccess} />
         </MemberCard>
-      )}
+      )} */}
     </View>
   );
 };

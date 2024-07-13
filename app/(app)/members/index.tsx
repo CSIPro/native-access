@@ -1,59 +1,23 @@
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 
 import { RoleList } from "@/components/members/role-list";
 import { RoomPicker } from "@/components/room-picker/room-picker";
 
 import { useRoleContext } from "@/context/role-context";
-import { useUserData } from "@/hooks/use-user-data";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { useUserContext } from "@/context/user-context";
 
 export default function MembersPage() {
   const colorScheme = useColorScheme();
   const { roles } = useRoleContext();
-  const { status: userStatus, data: userData } = useUserData();
+  const user = useUserContext();
 
   const isLight = colorScheme === "light";
 
-  if (userStatus === "loading") {
-    return (
-      <View style={[styles.centered]}>
-        <ActivityIndicator
-          size="large"
-          color={isLight ? colors.default.tint[400] : colors.default.tint[200]}
-        />
-      </View>
-    );
-  }
-
-  if (userStatus === "error") {
-    return (
-      <View style={[styles.centered]}>
-        <Text
-          style={[
-            styles.centeredText,
-            {
-              color: isLight
-                ? colors.default.black[400]
-                : colors.default.white[100],
-            },
-          ]}
-        >
-          Something went wrong while retrieving roles
-        </Text>
-      </View>
-    );
-  }
-
-  const userRole = roles.find((role) => role.id === userData?.role?.id);
-  const isRoot = userData?.isRoot ?? false;
+  const userRole = roles.find((role) => role.id === user.membership.role.id);
+  const isRoot = user.user.isRoot ?? false;
 
   return (
     <View

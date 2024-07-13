@@ -5,6 +5,7 @@ import { storageKeys } from "@/constants/storage-keys";
 import { NestRoom, Room } from "@/hooks/use-rooms";
 import { firebaseAuth } from "./firebase-config";
 import { z } from "zod";
+import { NestUser } from "@/hooks/use-user-data";
 
 export const NestError = z.object({
   statusCode: z.number(),
@@ -20,6 +21,14 @@ export const formatRoomName = (room: NestRoom) => {
   return `${room.name} (${room.building}${
     room.roomNumber ? `-${room.roomNumber}` : ""
   })`;
+};
+
+export const formatUserName = (user: Partial<NestUser>) => {
+  if (user.firstName && user.lastName) {
+    return `${user.firstName} ${user.lastName}`;
+  }
+
+  return "Unknown";
 };
 
 export const generateNonce = (length: number) => {

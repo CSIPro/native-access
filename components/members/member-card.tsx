@@ -20,7 +20,6 @@ interface Props {
   onClose: () => void;
   children: ReactNode;
   kickable?: boolean;
-  doc: DocumentReference<DocumentData>;
 }
 
 export const MemberCard: FC<Props> = ({
@@ -28,28 +27,25 @@ export const MemberCard: FC<Props> = ({
   open,
   onClose,
   children,
-  doc,
 }) => {
   const [openKickModal, setOpenKickModal] = useState(false);
 
   const closeKickModal = () => setOpenKickModal(false);
 
   const handleKick = async () => {
-    try {
-      const auth = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Authenticate to kick a member",
-        cancelLabel: "Cancel",
-      });
-
-      if (!auth.success) {
-        closeKickModal();
-        return;
-      }
-
-      await deleteDoc(doc);
-    } catch (error) {
-      console.error(error);
-    }
+    // try {
+    //   const auth = await LocalAuthentication.authenticateAsync({
+    //     promptMessage: "Authenticate to kick a member",
+    //     cancelLabel: "Cancel",
+    //   });
+    //   if (!auth.success) {
+    //     closeKickModal();
+    //     return;
+    //   }
+    //   await deleteDoc(doc);
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
 
   return (
@@ -147,16 +143,16 @@ export const MemberCardBirthday: FC<{ children: ReactNode }> = ({
 
 interface MemberCardRoleProps {
   children: ReactNode;
-  canSetRoles?: boolean;
-  roleDoc?: DocumentReference<DocumentData>;
-  roleData?: UserRoomRole;
+  canManageRoles?: boolean;
+  userId: string;
+  roleId: string;
 }
 
 export const MemberCardRole: FC<MemberCardRoleProps> = ({
   children,
-  canSetRoles = false,
-  roleDoc: memberRoleDoc,
-  roleData: memberRoleData,
+  canManageRoles = false,
+  userId,
+  roleId,
 }) => {
   const [openPicker, setOpenPicker] = useState(false);
 
@@ -178,19 +174,20 @@ export const MemberCardRole: FC<MemberCardRoleProps> = ({
         <MaterialIcon name="grade" color={iconColor} size={24} />
       </View>
       <Text style={[styles.text, { color: textColor }]}>{children}</Text>
-      {canSetRoles && (
+      {canManageRoles && (
         <>
           <TextButton
             onPress={() => setOpenPicker(true)}
-            textStyle={[{ fontSize: 14 }]}
+            style={[{ paddingVertical: 0 }]}
+            textStyle={[{ fontSize: 12 }]}
           >
             Change
           </TextButton>
           <RolePicker
             open={openPicker}
             onClose={handleClosePicker}
-            currentDoc={memberRoleDoc}
-            currentData={memberRoleData}
+            roleId={roleId}
+            userId={userId}
           />
         </>
       )}

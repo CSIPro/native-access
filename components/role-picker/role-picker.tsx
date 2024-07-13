@@ -12,28 +12,24 @@ import {
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { TextButton } from "../ui/text-button";
 
-import { Role, useRoles } from "@/hooks/use-roles";
-import { UserRoomRole, useRoleUpdate } from "@/hooks/use-user-data";
+import { NestRole, Role, useNestRoles, useRoles } from "@/hooks/use-roles";
+import { UserRoomRole } from "@/hooks/use-user-data";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { useRoleUpdate } from "@/hooks/use-room-members";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  currentDoc: DocumentReference<DocumentData>;
-  currentData: UserRoomRole;
+  userId: string;
+  roleId: string;
 }
 
-export const RolePicker: FC<Props> = ({
-  open,
-  onClose,
-  currentDoc: doc,
-  currentData: data,
-}) => {
-  const { roleMutation } = useRoleUpdate();
-  const [selectedRole, setSelectedRole] = useState(data.roleId);
-  const { data: roles } = useRoles();
+export const RolePicker: FC<Props> = ({ open, onClose, userId, roleId }) => {
+  const [selectedRole, setSelectedRole] = useState(roleId);
+  const { data: roles } = useNestRoles();
+  const roleMutation = useRoleUpdate(userId);
 
   const handleSubmit = async () => {
     try {
@@ -43,7 +39,7 @@ export const RolePicker: FC<Props> = ({
 
       if (!auth.success) return;
 
-      roleMutation.mutate({ doc: doc, roleId: selectedRole });
+      roleMutation.mutate(selectedRole);
       onClose();
     } catch (error) {
       console.error(error);
@@ -77,7 +73,7 @@ export const RolePicker: FC<Props> = ({
 };
 
 interface RoleItemProps {
-  role: Role;
+  role: NestRole;
   onPress: (roleId: string) => void;
   selected: boolean;
 }

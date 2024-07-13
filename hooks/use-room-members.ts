@@ -11,7 +11,7 @@ import { useFirestore, useFirestoreCollection } from "reactfire";
 
 import { RoomContext, useRoomContext } from "../context/room-context";
 import { NestRole, Role } from "./use-roles";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
 import { NestError } from "@/lib/utils";
 import { z } from "zod";
@@ -298,4 +298,83 @@ export const useNestMembersByRole = (roomId?: string) => {
   });
 
   return membersQuery;
+};
+
+export const useAccessUpdate = (userId: string) => {
+  const queryClient = useQueryClient();
+  const { selectedRoom } = useRoomContext();
+
+  const accessMutation = useMutation({
+    mutationFn: async (accessGranted: boolean) => {
+      const res = await fetch(
+        `http://148.225.50.130:3000/rooms/${selectedRoom}/update-member-access`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await firebaseAuth.currentUser?.getIdToken()}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            canAccess: accessGranted,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        } else {
+          throw new Error("Failed to update member access");
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["user", userId]);
+      queryClient.invalidateQueries(["members", selectedRoom]);
+    },
+  });
+
+  return accessMutation;
+};
+
+export const useRoleUpdate = (userId: string) => {
+  const { selectedRoom } = useRoomContext();
+  const queryClient = useQueryClient();
+  const roleMutation = useMutation({
+    mutationFn: async (roleId: string) => {
+      const res = await fetch(
+        `http://148.225.50.130:3000/rooms/${selectedRoom}/update-member-role`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await firebaseAuth.currentUser?.getIdToken()}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            roleId,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        } else {
+          throw new Error("Failed to update member role");
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["user", userId]);
+      queryClient.invalidateQueries(["members", selectedRoom]);
+    },
+  });
+
+  return roleMutation;
 };

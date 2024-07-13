@@ -344,13 +344,13 @@ export const useNestUser = (userId?: string) => {
 
       const userParse = NestUser.safeParse(await res.json());
 
-      if (userParse.success) {
-        return userParse.data;
-      } else {
+      if (!userParse.success) {
         console.error(userParse);
 
         throw new Error("Failed to parse user data");
       }
+
+      return userParse.data;
     },
     refetchInterval: 20000,
     retryDelay: 5000,

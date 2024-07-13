@@ -17,7 +17,7 @@ import { useRoles } from "./use-roles";
 
 import { RoomContext, useRoomContext } from "../context/room-context";
 import { useCallback, useContext } from "react";
-import { useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
 import { NestError } from "@/lib/utils";
 
@@ -225,6 +225,7 @@ export const useRequestHelpers = (request?: Request) => {
 };
 
 export const NestRequestStatus = z.enum(["pending", "approved", "rejected"]);
+export type NestRequestStatus = z.infer<typeof NestRequestStatus>;
 
 export const PlainNestRequest = z.object({
   id: z.string(),
@@ -266,14 +267,15 @@ export const PopulatedNestRequest = z.object({
 
 export type PopulatedNestRequest = z.infer<typeof PopulatedNestRequest>;
 
-export const useNestRoomRequests = (roomId: string) => {
+export const useNestRoomRequests = (roomId?: string) => {
   const authUser = firebaseAuth.currentUser;
+  const { selectedRoom } = useRoomContext();
 
   const requestsQuery = useQuery({
-    queryKey: ["requests", roomId],
+    queryKey: ["requests", roomId ?? selectedRoom],
     queryFn: async () => {
       const res = await fetch(
-        `http://192.168.100.24:3010/rooms/${roomId}/requests`,
+        `http://148.225.50.130:3000/rooms/${roomId ?? selectedRoom}/requests`,
         {
           headers: {
             Authorization: `Bearer ${await authUser?.getIdToken()}`,
@@ -341,7 +343,86 @@ export const useNestUserRequests = (userId: string) => {
 
       return requestsParse.data;
     },
+    refetchInterval: 120000,
   });
 
   return requestsQuery;
+};
+
+export const useNestRequestHelpers = (request: PopulatedNestRequest) => {
+  const authUser = firebaseAuth.currentUser;
+  const queryClient = useQueryClient();
+
+  const approval = useMutation({
+    mutationFn: async () => {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to approve request",
+      });
+
+      if (!auth.success) {
+        throw new Error("Authentication failed");
+      }
+
+      const res = await fetch(
+        `http://148.225.50.130:3000/requests/${request.id}/approve`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await authUser?.getIdToken()}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while approving request");
+      }
+
+      queryClient.invalidateQueries(["requests", request.room.id]);
+    },
+  });
+
+  const rejection = useMutation({
+    mutationFn: async () => {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to reject request",
+      });
+
+      if (!auth.success) {
+        throw new Error("Authentication failed");
+      }
+
+      const res = await fetch(
+        `http://148.225.50.130:3000/requests/${request.id}/reject`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await authUser?.getIdToken()}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while rejecting request");
+      }
+
+      queryClient.invalidateQueries(["requests", request.room.id]);
+    },
+  });
+
+  return {
+    approveRequest: approval.mutate,
+    rejectRequest: rejection.mutate,
+  };
 };

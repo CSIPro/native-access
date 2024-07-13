@@ -11,13 +11,13 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { RequestItem } from "@/components/requests/request-item";
 import { RoomPicker } from "@/components/room-picker/room-picker";
 
-import { useRoomRequests } from "@/hooks/use-requests";
+import { useNestRoomRequests } from "@/hooks/use-requests";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 
 export default function RequestsPage() {
-  const { status: reqStatus, data: requests } = useRoomRequests();
+  const requests = useNestRoomRequests("08d21870-dd16-4c3f-8635-7575962997bd");
   const tabsHeight = useBottomTabBarHeight() + 8;
   const colorScheme = useColorScheme();
 
@@ -28,7 +28,7 @@ export default function RequestsPage() {
     ? colors.default.black[400]
     : colors.default.white[100];
 
-  if (reqStatus === "loading") {
+  if (requests.status === "loading") {
     return (
       <View style={[styles.centered]}>
         <ActivityIndicator size="large" color={tint} />
@@ -36,7 +36,7 @@ export default function RequestsPage() {
     );
   }
 
-  if (reqStatus === "error") {
+  if (requests.status === "error") {
     return (
       <View style={[styles.centered]}>
         <Text style={[styles.errorText, { color: textColor }]}>
@@ -61,7 +61,7 @@ export default function RequestsPage() {
         <RoomPicker />
       </View>
       <FlatList
-        data={requests}
+        data={requests.data}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{
           flexGrow: 1,

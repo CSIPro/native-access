@@ -15,6 +15,8 @@ import { MaterialIcon } from "../icons/material";
 import { useUserData } from "../../hooks/use-user-data";
 import { useRoles } from "../../hooks/use-roles";
 import { TextButton } from "../ui/text-button";
+import { useUserContext } from "@/context/user-context";
+import { useRoleContext } from "@/context/role-context";
 
 interface Props {
   isPending?: boolean;
@@ -35,31 +37,11 @@ export const RequestDetails: FC<Props> = ({
   onApprove,
   onReject,
 }) => {
-  const colorScheme = useColorScheme();
-  const { data: userData } = useUserData();
-  const { data: roles } = useRoles();
-
-  const isLight = colorScheme === "light";
+  const user = useUserContext();
 
   const canHandleRequests =
-    userData.isRoot ||
-    (userData.id !== userId &&
-      roles?.find((role) => role.id === userData?.role?.roleId)
-        ?.canHandleRequests);
-
-  const approveBg = isLight
-    ? colors.default.tint.translucid[100]
-    : colors.default.tint.translucid[100];
-  const approveText = isLight
-    ? colors.default.tint[400]
-    : colors.default.tint[100];
-
-  const rejectBg = isLight
-    ? colors.default.secondary.translucid[100]
-    : colors.default.secondary.translucid[100];
-  const rejectText = isLight
-    ? colors.default.secondary[400]
-    : colors.default.secondary[100];
+    user.user.isRoot ||
+    (user.user.id !== userId && user.membership.role.canHandleRequests);
 
   return (
     <Modal visible={open} onClose={onClose}>

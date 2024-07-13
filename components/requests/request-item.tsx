@@ -1,11 +1,11 @@
 import { FC, useState } from "react";
 import {
-  RequestStatusEnum,
-  type Request,
   useRequestHelpers,
+  PopulatedNestRequest,
+  NestRequestStatus,
+  useNestRequestHelpers,
 } from "../../hooks/use-requests";
 import {
-  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
@@ -25,23 +25,17 @@ import {
   RequestDetailsStatus,
   RequestDetailsUser,
 } from "./request-details";
+import { formatUserName } from "@/lib/utils";
 
 interface Props {
-  request: Request;
+  request: PopulatedNestRequest;
 }
 
 export const RequestItem: FC<Props> = ({ request }) => {
   const [openDetails, setOpenDetails] = useState(false);
 
   const colorScheme = useColorScheme();
-  const { approveRequest, rejectRequest } = useRequestHelpers(request);
-  const { status: userStatus, data: userData } = useUserDataWithId(
-    request.userId
-  );
-  const { status: adminStatus, data: adminData } = useUserDataWithId(
-    request.adminId
-  );
-  const { status: roomStatus, data: roomData } = useRoom(request.roomId);
+  const { approveRequest, rejectRequest } = useNestRequestHelpers(request);
 
   const isLight = colorScheme === "light";
 
@@ -62,34 +56,8 @@ export const RequestItem: FC<Props> = ({ request }) => {
     handleCloseDetails();
   };
 
-  if (
-    userStatus === "loading" ||
-    adminStatus === "loading" ||
-    roomStatus === "loading"
-  ) {
-    return (
-      <View style={[styles.centered]}>
-        <ActivityIndicator size="large" color={tint} />
-      </View>
-    );
-  }
-
-  if (
-    userStatus === "error" ||
-    adminStatus === "error" ||
-    roomStatus === "error"
-  ) {
-    return (
-      <View style={[styles.centered]}>
-        <Text style={[styles.errorText, { color: textColor }]}>
-          There's a problem with this request
-        </Text>
-      </View>
-    );
-  }
-
-  const variants: Record<RequestStatusEnum, Object> = {
-    [RequestStatusEnum.enum.pending]: {
+  const variants: Record<NestRequestStatus, Object> = {
+    [NestRequestStatus.enum.pending]: {
       backgroundColor: isLight
         ? colors.default.tintAccent[400]
         : colors.default.tintAccent.translucid[200],
@@ -98,7 +66,7 @@ export const RequestItem: FC<Props> = ({ request }) => {
         ? colors.default.tintAccent[600]
         : colors.default.tintAccent[300],
     },
-    [RequestStatusEnum.enum.approved]: {
+    [NestRequestStatus.enum.approved]: {
       backgroundColor: isLight
         ? colors.default.tint.translucid[800]
         : colors.default.tint.translucid[200],
@@ -107,7 +75,7 @@ export const RequestItem: FC<Props> = ({ request }) => {
         ? colors.default.tint[600]
         : colors.default.tint[300],
     },
-    [RequestStatusEnum.enum.rejected]: {
+    [NestRequestStatus.enum.rejected]: {
       backgroundColor: isLight
         ? colors.default.secondary.translucid[700]
         : colors.default.secondary.translucid[200],
@@ -124,44 +92,46 @@ export const RequestItem: FC<Props> = ({ request }) => {
         onPress={() => setOpenDetails(true)}
         style={[
           styles.item,
-          variants[request.status ?? RequestStatusEnum.enum.pending],
+          variants[request.status ?? NestRequestStatus.enum.pending],
         ]}
       >
         <View style={[styles.namesWrapper]}>
           <Text numberOfLines={1} style={[styles.itemText]}>
-            {userData?.name ?? "Unknown"}
+            {formatUserName(request.user)}
           </Text>
           <Text numberOfLines={1} style={[styles.itemText, styles.roomName]}>
-            {roomData?.name ?? "Unknown"}
+            {request.room.name ?? "Unknown"}
           </Text>
         </View>
         <View style={[styles.statusWrapper]}>
           <Text numberOfLines={1} style={[styles.itemText, styles.status]}>
-            {RequestStatusEnum.enum[request.status]}
+            {NestRequestStatus.enum[request.status]}
           </Text>
           <Text numberOfLines={1} style={[styles.itemText, styles.date]}>
-            {formatDistanceToNow(request.createdAt.toDate())} ago
+            {formatDistanceToNow(new Date(request.createdAt))} ago
           </Text>
         </View>
       </Pressable>
       <RequestDetails
-        isPending={request.status === RequestStatusEnum.enum.pending}
-        userId={request.userId}
+        isPending={request.status === NestRequestStatus.enum.pending}
+        userId={request.user.id}
         open={openDetails}
         onClose={handleCloseDetails}
         onApprove={handleApprove}
         onReject={handleReject}
       >
-        <RequestDetailsUser>{userData?.name}</RequestDetailsUser>
-        <RequestDetailsRoom>{roomData?.name}</RequestDetailsRoom>
-        {!!request.adminId && (
-          <RequestDetailsAdmin>{adminData?.name}</RequestDetailsAdmin>
+        <RequestDetailsUser>{formatUserName(request.user)}</RequestDetailsUser>
+        <RequestDetailsRoom>{request.room.name}</RequestDetailsRoom>
+        {!!request.admin && (
+          <RequestDetailsAdmin>
+            {formatUserName(request.admin)}
+          </RequestDetailsAdmin>
         )}
         <RequestDetailsStatus>
-          {RequestStatusEnum.enum[request.status]}
+          {NestRequestStatus.enum[request.status]}
         </RequestDetailsStatus>
         <RequestDetailsDate>
-          {format(request.createdAt.toDate(), "MMM dd, yyyy 'at' HH:mm")}
+          {format(new Date(request.createdAt), "MMM dd, yyyy 'at' HH:mm")}
         </RequestDetailsDate>
       </RequestDetails>
     </>

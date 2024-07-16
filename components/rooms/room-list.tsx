@@ -1,7 +1,7 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { useRoomContext } from "@/context/room-context";
-import { Room } from "@/hooks/use-rooms";
+import { NestRoom, Room } from "@/hooks/use-rooms";
 import {
   ActivityIndicator,
   FlatList,
@@ -12,12 +12,17 @@ import {
   useColorScheme,
 } from "react-native";
 import { RoomItem } from "./room-item";
+import { useMemberships } from "@/hooks/use-membership";
+import { useUserContext } from "@/context/user-context";
 
 export const RoomList = () => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
 
-  const { status, rooms, userRooms } = useRoomContext();
+  const { user } = useUserContext();
+
+  const { rooms } = useRoomContext();
+  const { status, data } = useMemberships(user.id);
 
   const tintColor = isLight
     ? colors.default.tint[400]
@@ -38,12 +43,16 @@ export const RoomList = () => {
   if (status === "error") {
     return (
       <View style={[styles.centered]}>
-        <Text style={[styles.text, { color: textColor }]}>
-          Error fetching rooms
+        <Text style={[styles.text, { color: textColor, textAlign: "center" }]}>
+          Something went wrong while obtaining your memberships
         </Text>
       </View>
     );
   }
+
+  const userRooms = rooms.filter((room) =>
+    data.some((membership) => membership.room.id === room.id)
+  );
 
   const availableRooms = rooms.filter(
     (room) => !userRooms.some((r) => r.id === room.id)
@@ -62,7 +71,7 @@ export const RoomList = () => {
 
       return acc;
     },
-    { Available: [] as Room[], Joined: [] as Room[] }
+    { Available: [] as Array<NestRoom>, Joined: [] as Array<NestRoom> }
   );
 
   const sectionedData = Object.entries(sectionedRooms)

@@ -1,6 +1,6 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { NestRoom, Room } from "@/hooks/use-rooms";
+import { NestRoom } from "@/hooks/use-rooms";
 import { FC, useEffect, useState } from "react";
 import {
   ActivityIndicator,

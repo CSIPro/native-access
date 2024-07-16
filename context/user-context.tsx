@@ -10,7 +10,7 @@ import {
 } from "@/hooks/use-user-data";
 
 import { firebaseAuth } from "@/lib/firebase-config";
-import { saveToStorage } from "@/lib/utils";
+import { NestError, saveToStorage } from "@/lib/utils";
 import { SplashScreen } from "@/components/splash/splash";
 import { Membership, useMemberships } from "@/hooks/use-membership";
 import { useRoomContext } from "./room-context";
@@ -52,9 +52,10 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }
 
       const token = await authUser.getIdToken();
-      const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+      // const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+      const apiUrl = "http://148.225.50.130:3000";
 
-      const res = await fetch(`${apiUrl}/users/update-passcode`, {
+      const res = await fetch(`${apiUrl}/users/${data?.id}/update-passcode`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,9 +69,13 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
       if (!res.ok) {
         const data = await res.json();
 
-        throw new Error(
-          data.message ?? "Something went wrong while creating the user"
-        );
+        const error = NestError.safeParse(data);
+
+        if (error.success) {
+          throw new Error(error.data.message);
+        }
+
+        throw new Error("Something went wrong while creating the user");
       }
     } catch (error) {
       console.error(error);

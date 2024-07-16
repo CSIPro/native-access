@@ -130,11 +130,7 @@ export default function Passcode() {
                 onChangeText={onChange}
                 placeholder="e.g. A1B2C3"
                 icon={
-                  <IonIcon
-                    name="md-code-working-outline"
-                    size={24}
-                    color={iconColor}
-                  />
+                  <IonIcon name="code-working" size={24} color={iconColor} />
                 }
                 errorText={errors.passcode?.message || error?.message}
                 secureTextEntry={!showPasscode}

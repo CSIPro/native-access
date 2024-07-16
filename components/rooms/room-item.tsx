@@ -1,8 +1,7 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { Room } from "@/hooks/use-rooms";
-import { LinearGradient } from "expo-linear-gradient";
-import { FC, useState } from "react";
+import { NestRoom, Room } from "@/hooks/use-rooms";
+import { FC, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -11,17 +10,16 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { IonIcon } from "../icons/ion";
-import { useMutation } from "react-query";
 import {
   RequestStatusEnum,
-  useRequestHelpers,
+  useNestRequestHelpers,
   useUserRequests,
 } from "@/hooks/use-requests";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { router } from "expo-router";
 import { TextButton } from "../ui/text-button";
 import { formatRoomName } from "@/lib/utils";
+import { BrandingHeaderHighlight } from "../ui/branding-header";
 
 type DialogContent = {
   title: string;
@@ -30,7 +28,7 @@ type DialogContent = {
 };
 
 interface Props {
-  room: Room;
+  room: NestRoom;
   isAvailable?: boolean;
 }
 
@@ -38,47 +36,36 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
   const [dialogContent, setDialogContent] = useState<DialogContent>();
 
   const { status: requestsStatus, data: userRequests } = useUserRequests();
-  const { createRequest } = useRequestHelpers();
-  const mutation = useMutation({
-    mutationFn: () => {
-      if (
-        userRequests.some(
-          (req) =>
-            req.roomId === room.id &&
-            req.status === RequestStatusEnum.enum.pending
-        )
-      ) {
-        throw new Error("You already have a pending request for this room");
-      }
+  const { createRequest } = useNestRequestHelpers();
 
-      return createRequest(room.id);
-    },
-    onError: (error) => {
-      setDialogContent({
-        title: "Error",
-        message: error instanceof Error ? error.message : error.toString(),
-        status: "error",
-      });
-    },
-    onSuccess: () => {
-      setDialogContent({
-        title: "Request sent",
-        message:
-          "Your request has been sent; you can check its status on the Requests screen!",
-        status: "success",
-      });
-    },
-  });
+  useEffect(() => {
+    switch (createRequest.status) {
+      case "success":
+        setDialogContent({
+          title: "Request sent",
+          message: "Your request has been sent successfully",
+          status: "success",
+        });
+        break;
+
+      case "error":
+        setDialogContent({
+          title: "Request error",
+          message:
+            createRequest.error instanceof Error
+              ? createRequest.error.message
+              : "An unexpected error occurred",
+          status: "error",
+        });
+        break;
+    }
+  }, [createRequest.status, createRequest.error, setDialogContent]);
 
   const isLight = useColorScheme() === "light";
 
   const startColor = isLight
     ? colors.default.tint[400]
     : colors.default.tint[400];
-
-  const endColor = isLight
-    ? colors.default.white[100]
-    : colors.default.black[400];
 
   const defaultText = isLight
     ? colors.default.black[400]
@@ -95,42 +82,30 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
 
   return (
     <>
-      <LinearGradient
-        colors={[startColor, endColor]}
-        start={{ x: 1, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        locations={[0, 0.4]}
-        style={[styles.outerWrapper]}
-      >
-        <LinearGradient
-          colors={[startColor, endColor]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          locations={[0.4, 1]}
-          style={[styles.wrapper]}
-        >
-          <Text numberOfLines={1} style={[styles.text]}>
-            {formatRoomName(room)}
-          </Text>
-          <View style={[styles.actionWrapper]}>
-            {requestsStatus === "loading" || mutation.status === "loading" ? (
-              <ActivityIndicator
-                size="small"
-                color={isLight ? startColor : colors.default.tint[200]}
-              />
-            ) : (
-              canRequest && (
-                <Pressable onPress={() => mutation.mutate()}>
-                  <IonIcon
-                    name="add-circle"
-                    color={isLight ? startColor : colors.default.tint[200]}
-                  />
-                </Pressable>
-              )
-            )}
-          </View>
-        </LinearGradient>
-      </LinearGradient>
+      <View style={[styles.wrapper]}>
+        <Text numberOfLines={1} style={[styles.text]}>
+          {formatRoomName(room)}
+        </Text>
+        <View style={[styles.actionWrapper]}>
+          {requestsStatus === "loading" ||
+          createRequest.status === "loading" ? (
+            <ActivityIndicator
+              size="small"
+              color={isLight ? startColor : colors.default.tint[200]}
+            />
+          ) : canRequest ? (
+            <Pressable onPress={() => createRequest.mutate(room.id)}>
+              <BrandingHeaderHighlight textStyle={[{ fontSize: 12 }]}>
+                Request
+              </BrandingHeaderHighlight>
+            </Pressable>
+          ) : (
+            <BrandingHeaderHighlight textStyle={[{ fontSize: 12 }]}>
+              Joined
+            </BrandingHeaderHighlight>
+          )}
+        </View>
+      </View>
       <Modal visible={!!dialogContent} onClose={() => setDialogContent(null)}>
         <ModalHeader>{dialogContent?.title}</ModalHeader>
         <ModalBody>
@@ -164,11 +139,6 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
 };
 
 const styles = StyleSheet.create({
-  outerWrapper: {
-    width: "100%",
-    borderRadius: 8,
-    padding: 2,
-  },
   wrapper: {
     width: "100%",
     flexDirection: "row",
@@ -176,6 +146,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     borderRadius: 6,
+    backgroundColor: colors.default.tint.translucid[200],
+    borderWidth: 2,
+    borderColor: colors.default.tint[300],
   },
   text: {
     fontFamily: fonts.interMedium,
@@ -183,8 +156,7 @@ const styles = StyleSheet.create({
     color: colors.default.white[100],
   },
   actionWrapper: {
-    width: 32,
-    aspectRatio: 1,
+    height: 32,
     justifyContent: "center",
     alignItems: "center",
   },

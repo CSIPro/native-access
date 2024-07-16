@@ -349,7 +349,7 @@ export const useNestUserRequests = (userId: string) => {
   return requestsQuery;
 };
 
-export const useNestRequestHelpers = (request: PopulatedNestRequest) => {
+export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
   const authUser = firebaseAuth.currentUser;
   const queryClient = useQueryClient();
 
@@ -421,8 +421,34 @@ export const useNestRequestHelpers = (request: PopulatedNestRequest) => {
     },
   });
 
+  const createRequest = useMutation({
+    mutationFn: async (roomId: string) => {
+      const res = await fetch(`http://148.225.50.130:3000/requests`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await authUser?.getIdToken()}`,
+        },
+        body: JSON.stringify({ roomId }),
+      });
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("An error occurred while creating request");
+      }
+
+      queryClient.invalidateQueries(["requests", roomId]);
+    },
+  });
+
   return {
-    approveRequest: approval.mutate,
-    rejectRequest: rejection.mutate,
+    approveRequest: approval,
+    rejectRequest: rejection,
+    createRequest: createRequest,
   };
 };

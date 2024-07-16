@@ -1,6 +1,6 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { useUserRequests } from "@/hooks/use-requests";
+import { useNestUserRequests, useUserRequests } from "@/hooks/use-requests";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,12 +10,14 @@ import {
   useColorScheme,
 } from "react-native";
 import { RequestItem } from "./request-item";
+import { useUserContext } from "@/context/user-context";
 
 export const UserRequests = () => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
 
-  const { status, data } = useUserRequests();
+  const { user } = useUserContext();
+  const { status, data } = useNestUserRequests(user.id);
 
   const tint = isLight ? colors.default.tint[400] : colors.default.tint[200];
   const textColor = isLight

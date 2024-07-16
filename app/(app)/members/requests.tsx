@@ -17,7 +17,7 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 
 export default function RequestsPage() {
-  const requests = useNestRoomRequests("08d21870-dd16-4c3f-8635-7575962997bd");
+  const requests = useNestRoomRequests();
   const tabsHeight = useBottomTabBarHeight() + 8;
   const colorScheme = useColorScheme();
 

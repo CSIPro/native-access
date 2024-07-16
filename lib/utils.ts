@@ -6,6 +6,7 @@ import { NestRoom, Room } from "@/hooks/use-rooms";
 import { firebaseAuth } from "./firebase-config";
 import { z } from "zod";
 import { NestUser } from "@/hooks/use-user-data";
+import { format } from "date-fns";
 
 export const NestError = z.object({
   statusCode: z.number(),
@@ -29,6 +30,15 @@ export const formatUserName = (user: Partial<NestUser>) => {
   }
 
   return "Unknown";
+};
+
+export const formatBirthday = (date: string) => {
+  const birthday = new Date(date);
+  const offset = birthday.getTimezoneOffset() * 60000;
+
+  const localDate = new Date(birthday.getTime() + offset);
+
+  return format(localDate, "MMMM dd");
 };
 
 export const generateNonce = (length: number) => {

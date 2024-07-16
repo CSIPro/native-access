@@ -30,7 +30,7 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { Member, useAccessUpdate } from "@/hooks/use-room-members";
 import { useNestUser } from "@/hooks/use-user-data";
-import { formatUserName } from "@/lib/utils";
+import { formatBirthday, formatUserName } from "@/lib/utils";
 import { useUserContext } from "@/context/user-context";
 
 interface Props {
@@ -146,7 +146,7 @@ export const MemberItem: FC<Props> = ({ member }) => {
           </MemberCardName>
           <MemberCardUniSonId>{memberData.unisonId}</MemberCardUniSonId>
           <MemberCardBirthday>
-            {format(new Date(memberData.dateOfBirth), "MMMM dd")}
+            {formatBirthday(memberData.dateOfBirth)}
           </MemberCardBirthday>
           <MemberCardRole
             canManageRoles={canManageRoles}

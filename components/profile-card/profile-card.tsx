@@ -9,11 +9,16 @@ import { useUser } from "reactfire";
 import colors from "../../constants/colors";
 import fonts from "../../constants/fonts";
 import { Image } from "expo-image";
-import { AccessUser, useUserData } from "../../hooks/use-user-data";
+import {
+  AccessUser,
+  useNestUser,
+  useUserData,
+} from "../../hooks/use-user-data";
 import { IonIcon } from "../icons/ion";
 import { MaterialIcon } from "../icons/material";
 import { FAIcon } from "../icons/font-awesome";
 import format from "date-fns/format";
+import { formatBirthday, formatUserName } from "@/lib/utils";
 
 const googleLogo = require("@/assets/auth/google-g.png");
 const githubLogo = require("@/assets/auth/github-mark.png");
@@ -22,7 +27,7 @@ const githubLogoWhite = require("@/assets/auth/github-mark-white.png");
 export const ProfileCard = () => {
   const colorScheme = useColorScheme();
   const { status: authUserStatus, data: authUserData } = useUser();
-  const { status: userDataStatus, data: userData } = useUserData();
+  const { status: userDataStatus, data: userData } = useNestUser();
 
   const isLight = colorScheme === "light";
 
@@ -74,7 +79,6 @@ export const ProfileCard = () => {
     );
   }
 
-  const userAccessData = userData as AccessUser;
   const hasGoogle = authUserData.providerData.some(
     (provider) => provider.providerId === "google.com"
   );
@@ -119,7 +123,7 @@ export const ProfileCard = () => {
                 },
               ]}
             >
-              {userAccessData.name}
+              {formatUserName(userData)}
             </Text>
             <Text
               style={[
@@ -131,7 +135,7 @@ export const ProfileCard = () => {
                 },
               ]}
             >
-              {userAccessData.unisonId}
+              {userData.unisonId}
             </Text>
           </View>
         </View>
@@ -156,7 +160,7 @@ export const ProfileCard = () => {
               },
             ]}
           >
-            {userAccessData.csiId}
+            {userData.csiId}
             {" \u2022 "}
             <Text
               style={[
@@ -216,7 +220,7 @@ export const ProfileCard = () => {
               },
             ]}
           >
-            {format(userAccessData.dateOfBirth.toDate(), "MMMM dd")}
+            {formatBirthday(userData.dateOfBirth)}
           </Text>
         </View>
         <View style={[styles.row]}>

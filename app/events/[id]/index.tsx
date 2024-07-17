@@ -9,6 +9,7 @@ import { TextButton } from "@/components/ui/text-button";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { useEvent } from "@/hooks/events/use-events";
+import { formatRoomName } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
@@ -57,8 +58,9 @@ export default function EventDetails() {
     );
   }
 
-  const formattedDate = format(data.date, "PPP", { locale: es });
-  const formattedTime = format(data.date, "p", { locale: es });
+  const eventStart = new Date(data.event.eventStart);
+  const formattedDate = format(eventStart, "PPP", { locale: es });
+  const formattedTime = format(eventStart, "p", { locale: es });
 
   return (
     <ScrollView
@@ -68,8 +70,8 @@ export default function EventDetails() {
       ]}
     >
       <Stack.Screen options={headerOptions} />
-      <Text style={[styles.text, styles.title]}>{data.title}</Text>
-      <Text style={[styles.text]}>{data.description}</Text>
+      <Text style={[styles.text, styles.title]}>{data.event.name}</Text>
+      <Text style={[styles.text]}>{data.event.description}</Text>
       <View style={[styles.infoContainer]}>
         <View style={[styles.infoSubtitleContainer]}>
           <Text style={[styles.text, styles.infoSubtitle]}>Lugar y fecha</Text>
@@ -94,14 +96,14 @@ export default function EventDetails() {
             size={24}
             color={colors.default.white[100]}
           />
-          <Text style={[styles.text]}>{data.location}</Text>
+          <Text style={[styles.text]}>{formatRoomName(data.event.room)}</Text>
         </View>
         <View style={[styles.infoSubtitleContainer]}>
           <Text style={[styles.text, styles.infoSubtitle]}>Presentadores</Text>
         </View>
         <FlatList
           scrollEnabled={false}
-          data={data.presenters}
+          data={data.event.participants}
           renderItem={(item) => (
             <View style={[styles.infoItemContainer]}>
               <IonIcon
@@ -161,9 +163,9 @@ export default function EventDetails() {
       <FlatList
         data={data.attendees}
         scrollEnabled={false}
-        renderItem={(item) => (
+        renderItem={({ item }) => (
           <View style={[styles.infoItemContainer]}>
-            <Text style={[styles.text]}>{item.item}</Text>
+            <Text style={[styles.text]}>{item.unisonId}</Text>
           </View>
         )}
         contentContainerStyle={[styles.atendeesContainer]}

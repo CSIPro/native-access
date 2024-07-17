@@ -30,7 +30,7 @@ export const EventsList: FC<Props> = ({ past = false }) => {
 };
 
 const ActiveEventsList = () => {
-  const { status, data, error, refetch } = useEvents();
+  const { status, data, refetch } = useEvents();
 
   if (status === "loading") {
     return (
@@ -63,14 +63,14 @@ const ActiveEventsList = () => {
     <View style={[styles.container]}>
       <FlatList
         horizontal
-        keyExtractor={(item) => `Past event ${item.id}`}
+        keyExtractor={(item) => `Incoming event ${item.id}`}
         data={data}
         renderItem={({ item, index }) => (
           <EventItem eventId={item.id}>
-            <EventItemTitle>{item.title}</EventItemTitle>
-            <EventItemDate date={item.date} />
-            <EventItemType>{eventItemTypes[item.type]}</EventItemType>
-            <EventItemPresenters presenters={item.presenters} />
+            <EventItemTitle>{item.name}</EventItemTitle>
+            <EventItemDate date={new Date(item.eventStart)} />
+            <EventItemType>{eventItemTypes[item.eventType]}</EventItemType>
+            <EventItemPresenters presenters={item.participants ?? []} />
             <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>
         )}
@@ -82,7 +82,7 @@ const ActiveEventsList = () => {
 };
 
 const PastEventsList = () => {
-  const { status, data, error, refetch } = usePastEvents();
+  const { status, data, refetch } = useEvents({ past: true });
 
   if (status === "loading") {
     return (
@@ -119,10 +119,10 @@ const PastEventsList = () => {
         data={data}
         renderItem={({ item, index }) => (
           <EventItem eventId={item.id}>
-            <EventItemTitle>{item.title}</EventItemTitle>
-            <EventItemDate date={item.date} />
-            <EventItemType>{eventItemTypes[item.type]}</EventItemType>
-            <EventItemPresenters presenters={item.presenters} />
+            <EventItemTitle>{item.name}</EventItemTitle>
+            <EventItemDate date={new Date(item.eventStart)} />
+            <EventItemType>{eventItemTypes[item.eventType]}</EventItemType>
+            <EventItemPresenters presenters={item.participants ?? []} />
             <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>
         )}

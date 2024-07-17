@@ -98,10 +98,12 @@ export const EventItemType: FC<TypeProps> = ({
 };
 
 interface PresentersProps {
-  presenters: string[];
+  presenters?: string[];
 }
 
-export const EventItemPresenters: FC<PresentersProps> = ({ presenters }) => {
+export const EventItemPresenters: FC<PresentersProps> = ({
+  presenters = [],
+}) => {
   return (
     <FlatList
       keyExtractor={(item) => item}

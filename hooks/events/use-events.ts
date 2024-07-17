@@ -1,5 +1,9 @@
-import { sleep } from "@/lib/utils";
+import { NestError, sleep } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { z } from "zod";
+import { NestRoom } from "../use-rooms";
+import { NestUser } from "../use-user-data";
+import { firebaseAuth } from "@/lib/firebase-config";
 
 const PAST_EVENTS = [
   {
@@ -124,14 +128,100 @@ const ACTIVE_EVENTS = [
   },
 ];
 
-export const useEvents = () => {
-  const { status, data, error, refetch } = useQuery({
-    queryKey: ["events"],
-    queryFn: async () => {
-      await sleep(1500);
+export const EventAttendee = z.object({
+  id: z.string().uuid(),
+  eventId: z.string().uuid(),
+  userId: z.string().uuid().optional().nullable(),
+  unisonId: z.string().max(9).nullable(),
+  enrolled: z.string().datetime({ offset: true }).nullable(),
+  verified: z.string().datetime({ offset: true }).nullable(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+  user: NestUser.partial().nullable().optional(),
+});
 
-      return ACTIVE_EVENTS.sort((a, b) => a.date.getTime() - b.date.getTime());
+export type EventAttendee = z.infer<typeof EventAttendee>;
+
+export const EventTypes = z.enum([
+  "conference",
+  "workshop",
+  "hackathon",
+  "seminar",
+  "webinar",
+  "csipro_talks",
+  "csipro_workshop",
+  "csipro_insights",
+]);
+
+export type EventTypes = z.infer<typeof EventTypes>;
+
+export const Event = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  eventStart: z.string().datetime({ offset: true }),
+  eventEnd: z.string().datetime({ offset: true }),
+  eventType: EventTypes,
+  eventSchedule: z.object({}).nullable(),
+  participants: z.array(z.string()).nullable(),
+  spots: z.number(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+  room: NestRoom.partial(),
+  owner: NestUser.partial(),
+});
+
+export type Event = z.infer<typeof Event>;
+
+interface UseEventsProps {
+  past?: boolean;
+  limit?: number;
+}
+
+export const useEvents = ({
+  past = false,
+  limit = 20,
+}: UseEventsProps = {}) => {
+  const authUser = firebaseAuth.currentUser;
+
+  const { status, data, error, refetch } = useQuery({
+    queryKey: ["events", { past, limit }],
+    queryFn: async () => {
+      const authToken = await authUser?.getIdToken();
+
+      const res = await fetch(
+        `http://148.225.50.130:3000/events?past=${
+          past ? "true" : "false"
+        }&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const error = NestError.safeParse(await res.json());
+
+        if (error.success) {
+          throw new Error(error.data.message);
+        }
+
+        throw new Error("Couldn't fetch events");
+      }
+
+      const eventsParse = Event.array().safeParse(await res.json());
+
+      if (!eventsParse.success) {
+        console.log(eventsParse.error);
+
+        throw new Error("Couldn't parse events");
+      }
+
+      return eventsParse.data;
     },
+    refetchInterval: 30000,
+    retryDelay: 10000,
   });
 
   return {
@@ -161,31 +251,99 @@ export const usePastEvents = () => {
 };
 
 export const useEvent = (eventId: string) => {
+  const authUser = firebaseAuth.currentUser;
   const queryClient = useQueryClient();
 
   const { status, data, error, refetch } = useQuery({
     queryKey: ["event", eventId],
     queryFn: async () => {
-      await sleep(1500);
+      const authToken = await authUser?.getIdToken();
 
-      return [...PAST_EVENTS, ...ACTIVE_EVENTS].find(
-        (event) => event.id === eventId
+      const eventRes = await fetch(
+        `http://148.225.50.130:3000/events/${eventId}`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }
       );
+
+      const attendeesRes = await fetch(
+        `http://148.225.50.130:3000/events/${eventId}/attendees`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }
+      );
+
+      if (!eventRes.ok) {
+        const error = NestError.safeParse(await eventRes.json());
+
+        if (error.success) {
+          throw new Error(error.data.message);
+        }
+
+        throw new Error("Couldn't fetch event");
+      }
+
+      if (!attendeesRes.ok) {
+        const error = NestError.safeParse(await attendeesRes.json());
+
+        if (error.success) {
+          throw new Error(error.data.message);
+        }
+
+        throw new Error("Couldn't fetch attendees");
+      }
+
+      const eventData = await eventRes.json();
+      const attendeesData = await attendeesRes.json();
+
+      const eventParse = Event.safeParse(eventData);
+      const attendeesParse = EventAttendee.array().safeParse(attendeesData);
+
+      if (!eventParse.success) {
+        console.log(eventParse.error);
+
+        throw new Error("Couldn't parse event");
+      }
+
+      if (!attendeesParse.success) {
+        console.log(attendeesParse.error);
+
+        throw new Error("Couldn't parse attendees");
+      }
+
+      return { event: eventParse.data, attendees: attendeesParse.data };
     },
   });
 
-  const mutation = useMutation(async (unisonId: string) => {
-    await sleep(1500);
+  const addAttendee = useMutation(async (unisonId: string) => {
+    const authToken = await authUser?.getIdToken();
 
-    const event = [...PAST_EVENTS, ...ACTIVE_EVENTS].find(
-      (event) => event.id === eventId
+    const res = await fetch(
+      `http://148.225.50.130:3000/events/${eventId}/add-attendee`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ unisonId }),
+      }
     );
 
-    if (!event) {
-      throw new Error("Event not found");
+    if (!res.ok) {
+      const error = NestError.safeParse(await res.json());
+
+      if (error.success) {
+        console.log(error.data.message);
+
+        throw new Error(error.data.message);
+      }
+
+      throw new Error("Couldn't add attendee");
     }
 
-    event.attendees.push(unisonId);
+    console.log(await res.json());
+
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", eventId]);
   });
@@ -195,6 +353,6 @@ export const useEvent = (eventId: string) => {
     data,
     error,
     refetch,
-    mutation,
+    addAttendee,
   };
 };

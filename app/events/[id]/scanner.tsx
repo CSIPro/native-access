@@ -10,7 +10,7 @@ import { TextButton } from "@/components/ui/text-button";
 
 export default function EventScanner() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { mutation } = useEvent(id);
+  const { addAttendee: mutation } = useEvent(id);
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<BarCodeScannerResult | null>(null);

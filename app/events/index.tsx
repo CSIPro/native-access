@@ -4,11 +4,13 @@ import {
   BrandingHeaderHighlight,
   BrandingHeaderTitle,
 } from "@/components/ui/branding-header";
+import { TextButton } from "@/components/ui/text-button";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
 import {
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -68,6 +70,13 @@ export default function EventsHome() {
             </BrandingHeader>
           </View>
           <EventsList past />
+          <Link href="/events/create" asChild>
+            <Pressable>
+              <View style={[styles.textButton]}>
+                <Text style={[styles.textButtonLabel]}>Create Event</Text>
+              </View>
+            </Pressable>
+          </Link>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -119,5 +128,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     gap: 6,
     borderRadius: 24,
+  },
+  textButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.default.tint.translucid[100],
+  },
+  textButtonLabel: {
+    fontFamily: fonts.poppinsMedium,
+    paddingTop: 4,
+    fontSize: 16,
+    color: colors.default.tint[100],
   },
 });

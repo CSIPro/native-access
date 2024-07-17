@@ -356,3 +356,20 @@ export const useEvent = (eventId: string) => {
     addAttendee,
   };
 };
+
+export const EventForm = z.object({
+  name: z
+    .string({ required_error: "El nombre del evento es obligatorio" })
+    .max(200, {
+      message: "El nombre del evento no puede exceder 200 caracteres",
+    }),
+  description: z.string().nullable().optional(),
+  eventStart: z.string().datetime({ offset: true }),
+  eventEnd: z.string().datetime({ offset: true }),
+  eventType: EventTypes,
+  roomId: z.string().uuid(),
+  spots: z.number(),
+  participants: z.array(z.string()),
+});
+
+export type EventForm = z.infer<typeof EventForm>;

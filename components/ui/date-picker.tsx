@@ -36,7 +36,8 @@ export const DatePicker: FC<Props> = ({
 
   const isLight = useColorScheme() === "light";
 
-  const maximumDate = new Date();
+  const baseDate = new Date();
+  const maximumDate = new Date(baseDate.getFullYear() + 100, 11, 31);
   const minimumDate = new Date(maximumDate.getFullYear() - 100, 0, 1);
 
   const handleChange = (e: DateTimePickerEvent, selectedDate?: Date) => {
@@ -73,6 +74,8 @@ export const DatePicker: FC<Props> = ({
     ? colors.default.tint[400]
     : colors.default.tint[200];
 
+  const dateFormat = props.mode === "time" ? "p" : "PPP";
+
   return (
     <Pressable onPress={showDatePicker} style={[styles.wrapper]}>
       <View style={[styles.labelWrapper]}>
@@ -80,9 +83,15 @@ export const DatePicker: FC<Props> = ({
       </View>
       <View style={[styles.inputWrapper, { backgroundColor, borderColor }]}>
         <View style={[styles.iconWrapper]}>
-          <IonIcon name="calendar" size={24} color={iconColor} />
+          <IonIcon
+            name={props.mode === "time" ? "time" : "calendar"}
+            size={24}
+            color={iconColor}
+          />
         </View>
-        <Text style={[styles.text, { color }]}>{format(value, "PPP")}</Text>
+        <Text style={[styles.text, { color }]}>
+          {format(value, dateFormat)}
+        </Text>
         {Platform.OS !== "android" && show && (
           <DateTimePicker
             value={value}

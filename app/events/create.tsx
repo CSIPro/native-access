@@ -396,13 +396,13 @@ export default function CreateEvent() {
               wrapperStyle={[{ flex: 1 }]}
               onPress={goBack}
             >
-              Back
+              Volver
             </TextButton>
             <TextButton
               wrapperStyle={[{ flex: 2, width: "100%" }]}
               onPress={handleSubmit(onSubmit)}
             >
-              Submit
+              Enviar
             </TextButton>
           </View>
         )}

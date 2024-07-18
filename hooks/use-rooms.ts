@@ -7,10 +7,9 @@ import {
   useUser,
 } from "reactfire";
 import { useCallback } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
 import { NestError } from "@/lib/utils";
-import { useRoomContext } from "@/context/room-context";
 
 export const Room = z.object({
   id: z.string(),
@@ -103,9 +102,9 @@ export const NestRoom = z.object({
   name: z.string(),
   building: z.string(),
   ownerId: z.string(),
-  macAddress: z.string(),
+  macAddress: z.string().nullable(),
   active: z.boolean(),
-  oldId: z.string(),
+  oldId: z.string().nullable(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
 });
@@ -171,7 +170,51 @@ export const useNestRoom = (roomId: string) => {
 
       return roomParse.data;
     },
+    refetchInterval: 120000,
   });
 
   return roomQuery;
+};
+
+export const RoomForm = z.object({
+  building: z.string({
+    required_error: "El edificio es obligatorio",
+  }),
+  roomNumber: z.string().optional(),
+  name: z.string({ required_error: "El nombre es obligatorio" }),
+});
+
+export type RoomForm = z.infer<typeof RoomForm>;
+
+export const useSubmitRoom = () => {
+  const queryClient = useQueryClient();
+  const authUser = firebaseAuth.currentUser;
+
+  const mutation = useMutation(async (data: RoomForm) => {
+    const authToken = await authUser?.getIdToken();
+
+    const res = await fetch("http://148.225.50.130:3000/rooms", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const errorParse = NestError.safeParse(await res.json());
+
+      if (errorParse.success) {
+        throw new Error(errorParse.data.message);
+      }
+
+      throw new Error("An error occurred while creating the room");
+    }
+
+    queryClient.invalidateQueries(["rooms"]);
+    queryClient.invalidateQueries(["memberships"]);
+  });
+
+  return mutation;
 };

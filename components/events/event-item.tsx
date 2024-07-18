@@ -150,7 +150,7 @@ export const EventItemAttendees: FC<AttendantsProps> = ({ attendants }) => {
 const styles = StyleSheet.create({
   container: {
     width: 240,
-    // height: "100%",
+    height: "100%",
     gap: 4,
     padding: 8,
     paddingBottom: 40,

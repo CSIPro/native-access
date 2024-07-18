@@ -84,8 +84,6 @@ export default function CreateEvent() {
   const dismissKeyboard = () => Keyboard.dismiss();
 
   const onSubmit = (data: EventForm) => {
-    console.log(data);
-
     const eventStart = data.eventStart;
     const eventEnd = data.eventEnd;
 

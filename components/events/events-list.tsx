@@ -49,7 +49,7 @@ const ActiveEventsList = () => {
     return (
       <View style={[styles.container]}>
         <View style={[styles.centered, { gap: 8 }]}>
-          <Text style={[styles.text]}>Couldn't fetch incoming events</Text>
+          <Text style={[styles.text]}>No fue posible obtener eventos</Text>
           <Pressable onPress={() => refetch()} style={[styles.refetchButton]}>
             <IonIcon
               name="refresh-circle"
@@ -68,7 +68,7 @@ const ActiveEventsList = () => {
         horizontal
         keyExtractor={(item) => `Incoming event ${item.id}`}
         data={data}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <EventItem eventId={item.id}>
             <EventItemTitle>{item.name}</EventItemTitle>
             <EventItemDate date={new Date(item.eventStart)} />
@@ -76,6 +76,11 @@ const ActiveEventsList = () => {
             <EventItemPresenters presenters={item.participants ?? []} />
             <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>
+        )}
+        ListEmptyComponent={() => (
+          <View style={[styles.centered]}>
+            <Text style={[styles.text]}>No se encontraron eventos</Text>
+          </View>
         )}
         contentContainerStyle={[styles.listContainer]}
         showsHorizontalScrollIndicator={false}
@@ -101,7 +106,7 @@ const PastEventsList = () => {
     return (
       <View style={[styles.container]}>
         <View style={[styles.centered, { gap: 8 }]}>
-          <Text style={[styles.text]}>Couldn't fetch incoming events</Text>
+          <Text style={[styles.text]}>No fue posible obtener eventos</Text>
           <Pressable onPress={() => refetch()} style={[styles.refetchButton]}>
             <IonIcon
               name="refresh-circle"
@@ -129,6 +134,11 @@ const PastEventsList = () => {
             <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>
         )}
+        ListEmptyComponent={() => (
+          <View style={[styles.centered]}>
+            <Text style={[styles.text]}>No se encontraron eventos</Text>
+          </View>
+        )}
         contentContainerStyle={[styles.listContainer]}
         showsHorizontalScrollIndicator={false}
       />
@@ -151,6 +161,8 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 8,
     alignItems: "stretch",
+    minWidth: "100%",
+    maxHeight: 220,
   },
   refetchButton: {
     borderRadius: 9999,

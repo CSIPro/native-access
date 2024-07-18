@@ -41,6 +41,7 @@ interface Props {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  wrapperStyle?: StyleProp<ViewStyle>;
   onPress: () => void;
 }
 
@@ -49,24 +50,25 @@ export const TextButton: FC<Props> = ({
   children,
   style,
   textStyle,
+  wrapperStyle,
   onPress,
 }) => {
   const colorScheme = useColorScheme();
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} style={[wrapperStyle]}>
       <View
         style={[
           styles.textButton,
-          style,
           variants[variant].view[colorScheme ?? "light"],
+          style,
         ]}
       >
         <Text
           style={[
             styles.text,
-            textStyle,
             variants[variant].text[colorScheme ?? "light"],
+            textStyle,
           ]}
         >
           {children}

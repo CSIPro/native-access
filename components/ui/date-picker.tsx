@@ -30,6 +30,8 @@ export const DatePicker: FC<Props> = ({
   label = "Date",
   value,
   onChange,
+  minimumDate,
+  maximumDate,
   ...props
 }) => {
   const [show, setShow] = useState(false);
@@ -37,8 +39,8 @@ export const DatePicker: FC<Props> = ({
   const isLight = useColorScheme() === "light";
 
   const baseDate = new Date();
-  const maximumDate = new Date(baseDate.getFullYear() + 100, 11, 31);
-  const minimumDate = new Date(maximumDate.getFullYear() - 100, 0, 1);
+  const maxDate = maximumDate ?? new Date(baseDate.getFullYear() + 100, 11, 31);
+  const minDate = minimumDate ?? new Date(maxDate.getFullYear() - 100, 0, 1);
 
   const handleChange = (e: DateTimePickerEvent, selectedDate?: Date) => {
     if (!selectedDate) return;
@@ -51,8 +53,8 @@ export const DatePicker: FC<Props> = ({
       DateTimePickerAndroid.open({
         value,
         onChange: handleChange,
-        minimumDate,
-        maximumDate,
+        minimumDate: minDate,
+        maximumDate: maxDate,
         ...props,
       });
     }
@@ -96,8 +98,8 @@ export const DatePicker: FC<Props> = ({
           <DateTimePicker
             value={value}
             onChange={handleChange}
-            maximumDate={maximumDate}
-            minimumDate={minimumDate}
+            maximumDate={maxDate}
+            minimumDate={minDate}
             {...props}
           />
         )}

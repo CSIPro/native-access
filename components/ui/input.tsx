@@ -2,11 +2,13 @@ import { FC, ReactNode, forwardRef, useState } from "react";
 import {
   GestureResponderEvent,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
   TextInputProps,
   View,
+  ViewStyle,
   useColorScheme,
 } from "react-native";
 import Animated, {
@@ -104,8 +106,16 @@ export const Input = forwardRef<TextInput, Props>(function (
           {...props}
           selectionColor={selectionColor}
           placeholderTextColor={placeholderColor}
-          onFocus={(_) => setFocused(true)}
-          onBlur={(_) => setFocused(false)}
+          onFocus={(e) => {
+            setFocused(true);
+
+            if (props.onFocus) props.onFocus(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+
+            if (props.onBlur) props.onBlur(e);
+          }}
           style={[styles.input, styles.text, { color }, style]}
         />
         <View style={[styles.actionsWrapper]}>{children}</View>
@@ -156,7 +166,8 @@ export const InputErrorText: FC<{ children: ReactNode }> = ({ children }) => {
 export const InputAction: FC<{
   children: ReactNode;
   onPress: (event: GestureResponderEvent) => void;
-}> = ({ onPress, children }) => {
+  style?: StyleProp<ViewStyle>;
+}> = ({ onPress, children, style }) => {
   return (
     <Pressable onPress={onPress}>
       <View
@@ -166,6 +177,7 @@ export const InputAction: FC<{
             borderRadius: 4,
             backgroundColor: colors.default.tint.translucid[400],
           },
+          style,
         ]}
       >
         {children}

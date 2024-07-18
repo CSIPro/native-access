@@ -142,18 +142,32 @@ export const EventAttendee = z.object({
 
 export type EventAttendee = z.infer<typeof EventAttendee>;
 
-export const EventTypes = z.enum([
-  "conference",
-  "workshop",
-  "hackathon",
-  "seminar",
-  "webinar",
-  "csipro_talks",
-  "csipro_workshop",
-  "csipro_insights",
-]);
+export const EventTypes = z.enum(
+  [
+    "conference",
+    "workshop",
+    "hackathon",
+    "seminar",
+    "webinar",
+    "csipro_talks",
+    "csipro_workshop",
+    "csipro_insights",
+  ],
+  { required_error: "El tipo de evento es obligatorio" }
+);
 
 export type EventTypes = z.infer<typeof EventTypes>;
+
+export const eventTypesLabels: Record<keyof typeof EventTypes.enum, string> = {
+  conference: "Conferencia",
+  workshop: "Taller",
+  hackathon: "Hackatón",
+  seminar: "Seminario",
+  webinar: "Webinario",
+  csipro_talks: "CSI PRO Talks",
+  csipro_workshop: "CSI PRO Workshop",
+  csipro_insights: "CSI PRO Insights",
+};
 
 export const Event = z.object({
   id: z.string().uuid(),
@@ -362,14 +376,66 @@ export const EventForm = z.object({
     .string({ required_error: "El nombre del evento es obligatorio" })
     .max(200, {
       message: "El nombre del evento no puede exceder 200 caracteres",
+    })
+    .min(1, {
+      message: "El nombre del evento no puede estar vacío",
     }),
   description: z.string().nullable().optional(),
-  eventStart: z.string().datetime({ offset: true }),
-  eventEnd: z.string().datetime({ offset: true }),
+  eventStart: z.date(),
+  eventEnd: z.date(),
   eventType: EventTypes,
-  roomId: z.string().uuid(),
-  spots: z.number(),
-  participants: z.array(z.string()),
+  roomId: z
+    .string({
+      required_error: "El lugar del evento es obligatorio",
+    })
+    .uuid(),
+  spots: z
+    .number({ required_error: "La disponibilidad es obligatoria" })
+    .min(1, { message: "La disponibilidad debe ser mayor a 0" }),
+  participants: z.array(
+    z.object({
+      name: z.string().max(75, {
+        message:
+          "El nombre de los participantes no debe exceder de 75 caracteres",
+      }),
+    })
+  ),
 });
 
 export type EventForm = z.infer<typeof EventForm>;
+
+export const useSubmitEvent = () => {
+  const queryClient = useQueryClient();
+  const authUser = firebaseAuth.currentUser;
+
+  const mutation = useMutation(async (data: EventForm) => {
+    const authToken = await authUser?.getIdToken();
+
+    if (!authToken) {
+      throw new Error("Ocurrió un error de autenticación");
+    }
+
+    const res = await fetch("http://148.225.50.130:3000/events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const error = NestError.safeParse(await res.json());
+
+      if (error.success) {
+        throw new Error(error.data.message);
+      }
+
+      throw new Error("No fue posible crear el evento");
+    }
+
+    queryClient.invalidateQueries(["events"]);
+  });
+
+  return mutation;
+};

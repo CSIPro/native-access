@@ -14,6 +14,7 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { useRoomContext } from "@/context/room-context";
 import {
+  Event,
   EventForm,
   EventTypes,
   eventTypesLabels,
@@ -114,7 +115,14 @@ export default function CreateEvent() {
       return;
     }
 
-    submitEvent.mutate(data);
+    const eventData: Event = {
+      ...data,
+      participants: presenters,
+      eventStart: eventStart.toISOString(),
+      eventEnd: eventEnd.toISOString(),
+    };
+
+    submitEvent.mutate(eventData);
   };
 
   const resetMutation = () => submitEvent.reset();

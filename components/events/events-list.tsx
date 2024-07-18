@@ -1,5 +1,9 @@
 import colors from "@/constants/colors";
-import { useEvents, usePastEvents } from "@/hooks/events/use-events";
+import {
+  eventTypesLabels,
+  useEvents,
+  usePastEvents,
+} from "@/hooks/events/use-events";
 import {
   ActivityIndicator,
   FlatList,
@@ -18,7 +22,6 @@ import {
   EventItemPresenters,
   EventItemTitle,
   EventItemType,
-  eventItemTypes,
 } from "./event-item";
 
 interface Props {
@@ -69,7 +72,7 @@ const ActiveEventsList = () => {
           <EventItem eventId={item.id}>
             <EventItemTitle>{item.name}</EventItemTitle>
             <EventItemDate date={new Date(item.eventStart)} />
-            <EventItemType>{eventItemTypes[item.eventType]}</EventItemType>
+            <EventItemType>{eventTypesLabels[item.eventType]}</EventItemType>
             <EventItemPresenters presenters={item.participants ?? []} />
             <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>
@@ -121,7 +124,7 @@ const PastEventsList = () => {
           <EventItem eventId={item.id}>
             <EventItemTitle>{item.name}</EventItemTitle>
             <EventItemDate date={new Date(item.eventStart)} />
-            <EventItemType>{eventItemTypes[item.eventType]}</EventItemType>
+            <EventItemType>{eventTypesLabels[item.eventType]}</EventItemType>
             <EventItemPresenters presenters={item.participants ?? []} />
             <EventItemDescription>{item.description}</EventItemDescription>
           </EventItem>

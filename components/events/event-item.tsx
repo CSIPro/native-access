@@ -71,12 +71,6 @@ interface TypeProps {
   children: ReactNode;
 }
 
-export const eventItemTypes = {
-  conference: "Conferencia",
-  workshop: "Taller",
-  course: "Curso",
-};
-
 export const EventItemType: FC<TypeProps> = ({
   children,
   textStyle,

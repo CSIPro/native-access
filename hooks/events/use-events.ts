@@ -408,7 +408,7 @@ export const useSubmitEvent = () => {
   const queryClient = useQueryClient();
   const authUser = firebaseAuth.currentUser;
 
-  const mutation = useMutation(async (data: EventForm) => {
+  const mutation = useMutation(async (data: Event) => {
     const authToken = await authUser?.getIdToken();
 
     if (!authToken) {

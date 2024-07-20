@@ -215,7 +215,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     const nonce = Buffer.from(generateNonce(16)).toString("base64");
     const uid = await getFromStorage("FIREBASE_UID");
     const expiration = currentDate.getTime() + 45 * 1000;
-    const concat = `${nonce}:${uid}:${expiration}`;
+    const concat = `${nonce}:${uid}:${expiration}:mobile`;
 
     const crypt = Buffer.from(
       await AES.encrypt(

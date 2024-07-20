@@ -84,6 +84,7 @@ export const LogsList: FC<Props> = ({
             known={!!log.user}
             accessed={log.accessed}
             wireless={log.wireless}
+            birthday={log.user?.dateOfBirth}
             style={[itemStyle]}
           >
             <LogItemTitle>{userName}</LogItemTitle>

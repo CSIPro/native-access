@@ -219,6 +219,7 @@ export const NestLog = z.object({
       id: z.string(),
       firstName: z.string(),
       lastName: z.string(),
+      dateOfBirth: z.string().date(),
     })
     .optional()
     .nullable(),

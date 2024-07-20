@@ -41,6 +41,7 @@ interface LogItemProps {
   known?: boolean;
   accessed?: boolean;
   wireless?: boolean;
+  birthday?: string;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
@@ -50,6 +51,7 @@ export const LogItem: FC<LogItemProps> = ({
   known = false,
   accessed = false,
   wireless = false,
+  birthday,
   children,
   style,
 }) => {
@@ -104,6 +106,51 @@ export const LogItem: FC<LogItemProps> = ({
     : colors.default.black[100];
 
   const canDeleteLogs = (user.isRoot || membership?.role.level >= 50) ?? false;
+
+  const baseDate = new Date();
+  const birthdayDate = birthday ? new Date(birthday) : null;
+
+  const isBirthday = birthdayDate
+    ? birthdayDate.getDate() === baseDate.getDate() &&
+      birthdayDate.getMonth() === baseDate.getMonth()
+    : false;
+
+  if (isBirthday) {
+    return (
+      <Pressable onPress={tapHandler}>
+        <LinearGradient
+          colors={[
+            "rgb(223,0,0)",
+            "rgb(214,91,0)",
+            "rgb(233,245,0)",
+            "rgb(23,255,17)",
+            "rgb(29,255,255)",
+            "rgb(5,17,255)",
+            "rgb(202,0,253)",
+          ]}
+          locations={[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 1.0]}
+          start={[0.0, 0.5]}
+          end={[0.9, 0.5]}
+          style={[{ padding: 2, borderRadius: 10 }]}
+        >
+          <View
+            style={[
+              {
+                backgroundColor: isLight
+                  ? colors.default.white[100]
+                  : colors.default.black[400],
+                borderRadius: 8,
+              },
+            ]}
+          >
+            <View style={[styles.containerTest, { backgroundColor }]}>
+              {children}
+            </View>
+          </View>
+        </LinearGradient>
+      </Pressable>
+    );
+  }
 
   return (
     <Pressable
@@ -241,6 +288,17 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     gap: 16,
     borderWidth: 2,
+  },
+  containerTest: {
+    width: "100%",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    overflow: "hidden",
+    gap: 16,
   },
   title: {
     maxWidth: "65%",

@@ -71,6 +71,14 @@ export const PibleScanner = () => {
   const sv = useSharedValue(0);
   const button = useSharedValue(0);
   const wave = useSharedValue(1);
+  const btHighlight = useSharedValue(0);
+
+  const btState =
+    bleState === State.PoweredOn
+      ? "ON"
+      : bleState === State.PoweredOff
+      ? "OFF"
+      : "ERR";
 
   useEffect(() => {
     const generateWaves = () => {
@@ -111,7 +119,7 @@ export const PibleScanner = () => {
       setParticles([]);
       const particles: Particle[] = [];
 
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 50; i++) {
         const offsetX = Math.random() * (window.width - 8) + 4;
         const offsetY = Math.random() * 30 + 76;
         const id = i * offsetX * Math.random();
@@ -167,6 +175,18 @@ export const PibleScanner = () => {
     }
   }, [autoConnect, devices]);
 
+  useEffect(() => {
+    if (btState === "ON") {
+      btHighlight.value = withTiming(1);
+    } else {
+      btHighlight.value = withRepeat(
+        withTiming(0, { duration: 600, easing: Easing.ease}),
+        0,
+        true
+      );
+    }
+  }, [btState]);
+
   const animatedItemStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(
       sv.value,
@@ -180,12 +200,20 @@ export const PibleScanner = () => {
   const isLight = useColorScheme() === "light";
   const tabsHeight = useBottomTabBarHeight() + 4;
 
-  const btState =
-    bleState === State.PoweredOn
-      ? "ON"
-      : bleState === State.PoweredOff
-      ? "OFF"
-      : "ERR";
+  const animatedBTStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      btHighlight.value,
+      [0, 1],
+      [
+        btState === "ON"
+          ? colors.default.tint.translucid[400]
+          : colors.default.secondary[400],
+        "transparent",
+      ]
+    );
+
+    return { backgroundColor };
+  });
 
   const showDevices =
     devices.length > 0 && (isScanning || isConnecting) && !autoConnect;
@@ -232,10 +260,11 @@ export const PibleScanner = () => {
       ) : (
         <View style={[{ height: 64 }]} />
       )}
-      <PibleButton progress={button} />
+      <PibleButton progress={button} btState={btState} />
       <Animated.View
         style={[styles.container, animatedItemStyle, { overflow: "hidden" }]}
       >
+        {btState === "OFF" && <View style={[styles.overlay]}></View>}
         <BlurView intensity={24} tint="dark" style={[styles.blur]}>
           <View
             style={[
@@ -323,7 +352,7 @@ export const PibleScanner = () => {
                 chevronColor={colors.default.white[100]}
               />
             </View>
-            <View
+            <Animated.View
               style={[
                 styles.actionButton,
                 {
@@ -337,6 +366,7 @@ export const PibleScanner = () => {
                   borderBottomRightRadius: 24,
                   justifyContent: "center",
                 },
+                animatedBTStyle,
               ]}
             >
               <IonIcons
@@ -353,7 +383,7 @@ export const PibleScanner = () => {
               >
                 {btState}
               </Text>
-            </View>
+            </Animated.View>
           </View>
         </View>
       </Animated.View>
@@ -402,16 +432,22 @@ const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
 
 interface PibleButtonProps {
   progress: SharedValue<number>;
+  btState: "ON" | "OFF" | "ERR";
 }
 
-const PibleButton: FC<PibleButtonProps> = ({ progress }) => {
+const PibleButton: FC<PibleButtonProps> = ({ progress, btState }) => {
   const startScan = useStore((state) => state.scan);
 
   const border = useDerivedValue(() =>
     interpolateColor(
       progress.value,
       [0, 1],
-      [colors.default.white[100], colors.default.tint[200]]
+      [
+        btState === "ON"
+          ? colors.default.white[100]
+          : colors.default.white.translucid[200],
+        colors.default.tint[200],
+      ]
     )
   );
 
@@ -430,10 +466,18 @@ const PibleButton: FC<PibleButtonProps> = ({ progress }) => {
       <Animated.View
         style={[
           styles.scanButton,
-          { borderWidth: 2, borderColor: colors.default.white[100] },
+          {
+            borderWidth: 2,
+            borderColor:
+              btState === "ON"
+                ? colors.default.white[100]
+                : colors.default.white.translucid[200],
+            overflow: "hidden",
+          },
           containerStyle,
         ]}
       >
+        {btState === "OFF" && <View style={[styles.overlay]}></View>}
         <BlurView
           intensity={24}
           tint="dark"
@@ -577,5 +621,14 @@ const styles = StyleSheet.create({
   emptyList: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.default.black.translucid[500],
+    zIndex: 10,
   },
 });

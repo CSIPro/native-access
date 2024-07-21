@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import {
   DocumentData,
   DocumentReference,
@@ -319,16 +320,17 @@ export const NestUser = z.object({
 export type NestUser = z.infer<typeof NestUser>;
 
 export const useNestUser = (userId?: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const userQuery = useQuery({
     queryKey: ["user", userId ?? authUser?.uid],
     queryFn: async () => {
-      const apiUrl = `http://148.225.50.130:3000/users/find-one/?${
+      const fullApiUrl = `${apiUrl}/users/find-one/?${
         userId ? `id=${userId}` : `authId=${authUser?.uid}`
       }`;
 
-      const res = await fetch(apiUrl, {
+      const res = await fetch(fullApiUrl, {
         headers: { Authorization: `Bearer ${await authUser?.getIdToken()}` },
       });
 

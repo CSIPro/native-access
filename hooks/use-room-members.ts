@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import {
   DocumentData,
   QuerySnapshot,
@@ -205,17 +206,16 @@ export const RoleWithMembers = z.object({
 export type RoleWithMembers = z.infer<typeof RoleWithMembers>;
 
 export const useNestMembers = (roomId?: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const { selectedRoom } = useRoomContext();
 
   const membersQuery = useQuery({
     queryKey: ["members", roomId ?? selectedRoom],
     queryFn: async () => {
-      const apiUrl = `http://148.225.50.130:3000/rooms/${
-        roomId ?? selectedRoom
-      }/members`;
+      const fullApiUrl = `${apiUrl}/rooms/${roomId ?? selectedRoom}/members`;
 
-      const res = await fetch(apiUrl, {
+      const res = await fetch(fullApiUrl, {
         headers: {
           Authorization: `Bearer ${await authUser?.getIdToken()}`,
         },
@@ -247,17 +247,18 @@ export const useNestMembers = (roomId?: string) => {
 };
 
 export const useNestMembersByRole = (roomId?: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const { selectedRoom } = useRoomContext();
 
   const membersQuery = useQuery({
     queryKey: ["members", roomId ?? selectedRoom],
     queryFn: async () => {
-      const apiUrl = `http://148.225.50.130:3000/rooms/${
+      const fullApiUrl = `${apiUrl}/rooms/${
         roomId ?? selectedRoom
       }/members?groupByRole=true`;
 
-      const res = await fetch(apiUrl, {
+      const res = await fetch(fullApiUrl, {
         headers: {
           Authorization: `Bearer ${await authUser?.getIdToken()}`,
         },
@@ -301,13 +302,14 @@ export const useNestMembersByRole = (roomId?: string) => {
 };
 
 export const useAccessUpdate = (userId: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const queryClient = useQueryClient();
   const { selectedRoom } = useRoomContext();
 
   const accessMutation = useMutation({
     mutationFn: async (accessGranted: boolean) => {
       const res = await fetch(
-        `http://148.225.50.130:3000/rooms/${selectedRoom}/update-member-access`,
+        `${apiUrl}/rooms/${selectedRoom}/update-member-access`,
         {
           method: "POST",
           headers: {
@@ -341,12 +343,14 @@ export const useAccessUpdate = (userId: string) => {
 };
 
 export const useRoleUpdate = (userId: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const { selectedRoom } = useRoomContext();
   const queryClient = useQueryClient();
+
   const roleMutation = useMutation({
     mutationFn: async (roleId: string) => {
       const res = await fetch(
-        `http://148.225.50.130:3000/rooms/${selectedRoom}/update-member-role`,
+        `${apiUrl}/rooms/${selectedRoom}/update-member-role`,
         {
           method: "POST",
           headers: {

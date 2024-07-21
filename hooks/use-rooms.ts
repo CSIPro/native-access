@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import { collection, doc } from "firebase/firestore";
 import { z } from "zod";
 import {
@@ -112,12 +113,13 @@ export const NestRoom = z.object({
 export type NestRoom = z.infer<typeof NestRoom>;
 
 export const useNestRooms = () => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const roomsQuery = useQuery({
     queryKey: ["rooms"],
     queryFn: async () => {
-      const res = await fetch("http://148.225.50.130:3000/rooms", {
+      const res = await fetch(`${apiUrl}/rooms`, {
         headers: {
           Authorization: `Bearer ${await authUser?.getIdToken()}`,
         },
@@ -147,10 +149,12 @@ export const useNestRooms = () => {
 };
 
 export const useNestRoom = (roomId: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+
   const roomQuery = useQuery({
     queryKey: ["room", roomId],
     queryFn: async () => {
-      const res = await fetch(`http://148.225.50.130:3000/rooms/${roomId}`);
+      const res = await fetch(`${apiUrl}/rooms/${roomId}`);
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());
@@ -187,13 +191,14 @@ export const RoomForm = z.object({
 export type RoomForm = z.infer<typeof RoomForm>;
 
 export const useSubmitRoom = () => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const queryClient = useQueryClient();
   const authUser = firebaseAuth.currentUser;
 
   const mutation = useMutation(async (data: RoomForm) => {
     const authToken = await authUser?.getIdToken();
 
-    const res = await fetch("http://148.225.50.130:3000/rooms", {
+    const res = await fetch(`${apiUrl}/rooms`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

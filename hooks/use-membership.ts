@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import { z } from "zod";
 
 import { NestRole } from "./use-roles";
@@ -17,6 +18,7 @@ export const Membership = z.object({
 export type Membership = z.infer<typeof Membership>;
 
 export const useMemberships = (userId?: string) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const membershipsQuery = useQuery({
@@ -26,14 +28,11 @@ export const useMemberships = (userId?: string) => {
         throw new Error("No user found");
       }
 
-      const res = await fetch(
-        `http://148.225.50.130:3000/users/${userId}/memberships`,
-        {
-          headers: {
-            Authorization: `Bearer ${await authUser?.getIdToken()}`,
-          },
-        }
-      );
+      const res = await fetch(`${apiUrl}/users/${userId}/memberships`, {
+        headers: {
+          Authorization: `Bearer ${await authUser?.getIdToken()}`,
+        },
+      });
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());

@@ -26,7 +26,7 @@ interface UserContextProps {
 const UserContext = createContext<UserContextProps | null>(null);
 
 export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const apiUrl = "http://148.225.50.130:3000";
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
 
   const { selectedRoom } = useRoomContext();
   const { status, data } = useNestUser();
@@ -93,7 +93,6 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
       }
 
       const token = await authUser.getIdToken();
-      // const apiUrl = Constants.expoConfig.extra?.authApiUrl;
 
       const res = await fetch(`${apiUrl}/users/${data?.id}/update-passcode`, {
         method: "POST",

@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import {
   Timestamp,
   collection,
@@ -6,7 +7,6 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { useContext } from "react";
 import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { z } from "zod";
 import { useRoomContext } from "../context/room-context";
@@ -228,13 +228,14 @@ export const NestLog = z.object({
 export type NestLog = z.infer<typeof NestLog>;
 
 export const useNestLogs = ({ limitTo = 40 }: { limitTo?: number } = {}) => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const { selectedRoom } = useRoomContext();
 
   const logsQuery = useQuery({
     queryKey: ["logs", selectedRoom, limitTo],
     queryFn: async () => {
       const res = await fetch(
-        `http://148.225.50.130:3000/access-logs/room/${selectedRoom}/?limit=${limitTo}`
+        `${apiUrl}/access-logs/room/${selectedRoom}/?limit=${limitTo}`
       );
 
       if (!res.ok) {

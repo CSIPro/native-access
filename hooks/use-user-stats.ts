@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import { useQuery } from "react-query";
 import { z } from "zod";
 
@@ -15,6 +16,7 @@ export const UserStats = z.object({
 export type UserStats = z.infer<typeof UserStats>;
 
 export const useUserStats = () => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const { user } = useUserContext();
 
@@ -24,7 +26,7 @@ export const useUserStats = () => {
       const fromDate = new Date(new Date().setHours(0, 0, 0, 0));
 
       const res = await fetch(
-        `http://148.225.50.130:3000/users/${user.id}/stats?from=${fromDate}`,
+        `${apiUrl}/users/${user.id}/stats?from=${fromDate}`,
         {
           headers: {
             Authorization: `Bearer ${await authUser?.getIdToken()}`,

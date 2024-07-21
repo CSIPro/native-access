@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import { useQuery } from "react-query";
 import { z } from "zod";
 
@@ -15,6 +16,7 @@ export const RoomStats = z.object({
 export type RoomStats = z.infer<typeof RoomStats>;
 
 export const useRoomStats = () => {
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const { selectedRoom } = useRoomContext();
 
   const statsQuery = useQuery({
@@ -23,7 +25,7 @@ export const useRoomStats = () => {
       const fromDate = new Date(new Date().setHours(0, 0, 0, 0));
 
       const res = await fetch(
-        `http://148.225.50.130:3000/rooms/${selectedRoom}/stats?from=${fromDate}`
+        `${apiUrl}/rooms/${selectedRoom}/stats?from=${fromDate}`
       );
 
       if (!res.ok) {

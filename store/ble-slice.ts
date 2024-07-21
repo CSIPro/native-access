@@ -29,6 +29,11 @@ export const ScanState = z.enum(["idle", "scanning", "connecting"]);
 export type ScanState = z.infer<typeof ScanState>;
 
 export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
+  const serviceUuid = Constants.expoConfig.extra?.bleServiceUuid;
+  const charUuid = Constants.expoConfig.extra?.bleCharUuid;
+  const cryptIv = Constants.expoConfig.extra?.aesIv;
+  const cryptKey = Constants.expoConfig.extra?.aesKey;
+
   const manager = new BleManager();
   const scanDuration = 12000;
   let scanTimeout: NodeJS.Timeout;
@@ -93,7 +98,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     set({ scanState: ScanState.enum.scanning });
     manager.startDeviceScan(
       // null,
-      ["4655318c-0b41-4725-9c64-44f9fb6098a2"],
+      [serviceUuid],
       { scanMode: ScanMode.Balanced },
       (error, device) => {
         if (error) {
@@ -177,8 +182,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
                 .then((crypt) => {
                   connectedDevice
                     .writeCharacteristicWithResponseForService(
-                      Constants.expoConfig.extra?.bleServiceUuid,
-                      Constants.expoConfig.extra?.bleCharUuid,
+                      serviceUuid,
+                      charUuid,
                       Buffer.from(crypt).toString("base64"),
                       "access-attempt"
                     )
@@ -220,8 +225,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     const crypt = Buffer.from(
       await AES.encrypt(
         concat,
-        Buffer.from(Constants.expoConfig.extra?.aesKey).toString("hex"),
-        Buffer.from(Constants.expoConfig.extra?.aesIv).toString("hex"),
+        Buffer.from(cryptKey).toString("hex"),
+        Buffer.from(cryptIv).toString("hex"),
         "aes-256-cbc"
       )
     ).toString("base64");

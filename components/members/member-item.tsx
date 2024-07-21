@@ -28,7 +28,7 @@ import { MaterialIcon } from "../icons/material";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { Member, useAccessUpdate } from "@/hooks/use-room-members";
+import { Member, useMemberActions } from "@/hooks/use-room-members";
 import { useNestUser } from "@/hooks/use-user-data";
 import { formatBirthday, formatUserName } from "@/lib/utils";
 import { useUserContext } from "@/context/user-context";
@@ -47,7 +47,7 @@ export const MemberItem: FC<Props> = ({ member }) => {
 
   const memberQuery = useNestUser(member.user.id);
 
-  const accessMutation = useAccessUpdate(member.user.id);
+  const { accessUpdate } = useMemberActions(member.user.id);
 
   const isLight = colorScheme === "light";
 
@@ -104,7 +104,7 @@ export const MemberItem: FC<Props> = ({ member }) => {
 
     try {
       setLocalAccess(value);
-      accessMutation.mutate(value);
+      accessUpdate.mutate(value);
     } catch (error) {
       setLocalAccess(!value);
       console.error(error);
@@ -135,6 +135,7 @@ export const MemberItem: FC<Props> = ({ member }) => {
       </MemberWrapper>
       {openDetails && (
         <MemberCard
+          memberId={member.user.id}
           open={openDetails}
           onClose={handleCloseDetails}
           kickable={canManageRoles}

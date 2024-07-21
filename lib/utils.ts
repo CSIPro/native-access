@@ -2,11 +2,12 @@ import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
 import { storageKeys } from "@/constants/storage-keys";
-import { NestRoom, Room } from "@/hooks/use-rooms";
-import { firebaseAuth } from "./firebase-config";
+import { NestRoom } from "@/hooks/use-rooms";
 import { z } from "zod";
 import { NestUser } from "@/hooks/use-user-data";
 import { format } from "date-fns";
+
+export const BASE_API_URL = Constants.expoConfig.extra?.authApiUrl;
 
 export const NestError = z.object({
   statusCode: z.number(),

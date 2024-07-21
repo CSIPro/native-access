@@ -12,12 +12,11 @@ import {
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../modal/modal";
 import { TextButton } from "../ui/text-button";
 
-import { NestRole, Role, useNestRoles, useRoles } from "@/hooks/use-roles";
-import { UserRoomRole } from "@/hooks/use-user-data";
+import { NestRole, useNestRoles } from "@/hooks/use-roles";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { useRoleUpdate } from "@/hooks/use-room-members";
+import { useMemberActions } from "@/hooks/use-room-members";
 
 interface Props {
   open: boolean;
@@ -29,7 +28,7 @@ interface Props {
 export const RolePicker: FC<Props> = ({ open, onClose, userId, roleId }) => {
   const [selectedRole, setSelectedRole] = useState(roleId);
   const { data: roles } = useNestRoles();
-  const roleMutation = useRoleUpdate(userId);
+  const { roleUpdate } = useMemberActions(userId);
 
   const handleSubmit = async () => {
     try {
@@ -39,7 +38,7 @@ export const RolePicker: FC<Props> = ({ open, onClose, userId, roleId }) => {
 
       if (!auth.success) return;
 
-      roleMutation.mutate(selectedRole);
+      roleUpdate.mutate(selectedRole);
       onClose();
     } catch (error) {
       console.error(error);

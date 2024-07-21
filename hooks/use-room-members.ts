@@ -14,7 +14,7 @@ import { RoomContext, useRoomContext } from "../context/room-context";
 import { NestRole, Role } from "./use-roles";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
-import { NestError } from "@/lib/utils";
+import { NestError, BASE_API_URL } from "@/lib/utils";
 import { z } from "zod";
 import { NestRoom } from "./use-rooms";
 import { NestUser } from "./use-user-data";
@@ -206,14 +206,15 @@ export const RoleWithMembers = z.object({
 export type RoleWithMembers = z.infer<typeof RoleWithMembers>;
 
 export const useNestMembers = (roomId?: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const { selectedRoom } = useRoomContext();
 
   const membersQuery = useQuery({
     queryKey: ["members", roomId ?? selectedRoom],
     queryFn: async () => {
-      const fullApiUrl = `${apiUrl}/rooms/${roomId ?? selectedRoom}/members`;
+      const fullApiUrl = `${BASE_API_URL}/rooms/${
+        roomId ?? selectedRoom
+      }/members`;
 
       const res = await fetch(fullApiUrl, {
         headers: {
@@ -247,14 +248,13 @@ export const useNestMembers = (roomId?: string) => {
 };
 
 export const useNestMembersByRole = (roomId?: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const { selectedRoom } = useRoomContext();
 
   const membersQuery = useQuery({
     queryKey: ["members", roomId ?? selectedRoom],
     queryFn: async () => {
-      const fullApiUrl = `${apiUrl}/rooms/${
+      const fullApiUrl = `${BASE_API_URL}/rooms/${
         roomId ?? selectedRoom
       }/members?groupByRole=true`;
 
@@ -301,15 +301,14 @@ export const useNestMembersByRole = (roomId?: string) => {
   return membersQuery;
 };
 
-export const useAccessUpdate = (userId: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+export const useMemberActions = (userId: string) => {
   const queryClient = useQueryClient();
   const { selectedRoom } = useRoomContext();
 
-  const accessMutation = useMutation({
+  const accessUpdate = useMutation({
     mutationFn: async (accessGranted: boolean) => {
       const res = await fetch(
-        `${apiUrl}/rooms/${selectedRoom}/update-member-access`,
+        `${BASE_API_URL}/rooms/${selectedRoom}/update-member-access`,
         {
           method: "POST",
           headers: {
@@ -339,18 +338,10 @@ export const useAccessUpdate = (userId: string) => {
     },
   });
 
-  return accessMutation;
-};
-
-export const useRoleUpdate = (userId: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-  const { selectedRoom } = useRoomContext();
-  const queryClient = useQueryClient();
-
-  const roleMutation = useMutation({
+  const roleUpdate = useMutation({
     mutationFn: async (roleId: string) => {
       const res = await fetch(
-        `${apiUrl}/rooms/${selectedRoom}/update-member-role`,
+        `${BASE_API_URL}/rooms/${selectedRoom}/update-member-role`,
         {
           method: "POST",
           headers: {
@@ -380,5 +371,35 @@ export const useRoleUpdate = (userId: string) => {
     },
   });
 
-  return roleMutation;
+  const kickMember = useMutation(async () => {
+    const res = await fetch(
+      `${BASE_API_URL}/rooms/${selectedRoom}/member/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${await firebaseAuth.currentUser?.getIdToken()}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const errorParse = NestError.safeParse(await res.json());
+
+      if (errorParse.success) {
+        throw new Error(errorParse.data.message);
+      } else {
+        throw new Error("Failed to kick member");
+      }
+    }
+
+    queryClient.invalidateQueries(["user", userId]);
+    queryClient.invalidateQueries(["members", selectedRoom]);
+  });
+
+  return {
+    accessUpdate,
+    roleUpdate,
+    kickMember,
+  };
 };

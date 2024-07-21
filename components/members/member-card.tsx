@@ -14,8 +14,10 @@ import { UserRoomRole } from "@/hooks/use-user-data";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { useMemberActions } from "@/hooks/use-room-members";
 
 interface Props {
+  memberId: string;
   open: boolean;
   onClose: () => void;
   children: ReactNode;
@@ -24,28 +26,31 @@ interface Props {
 
 export const MemberCard: FC<Props> = ({
   kickable = false,
+  memberId,
   open,
   onClose,
   children,
 }) => {
   const [openKickModal, setOpenKickModal] = useState(false);
+  const { kickMember } = useMemberActions(memberId);
 
   const closeKickModal = () => setOpenKickModal(false);
 
   const handleKick = async () => {
-    // try {
-    //   const auth = await LocalAuthentication.authenticateAsync({
-    //     promptMessage: "Authenticate to kick a member",
-    //     cancelLabel: "Cancel",
-    //   });
-    //   if (!auth.success) {
-    //     closeKickModal();
-    //     return;
-    //   }
-    //   await deleteDoc(doc);
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    try {
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to kick a member",
+        cancelLabel: "Cancel",
+      });
+      if (!auth.success) {
+        closeKickModal();
+        return;
+      }
+
+      kickMember.mutate();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

@@ -38,7 +38,14 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import Animated, { SlideInLeft, SlideOutRight } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  LinearTransition,
+  SlideInLeft,
+  SlideOutRight,
+} from "react-native-reanimated";
+
+const layoutAnimation = LinearTransition.duration(250).easing(Easing.ease);
 
 export default function CreateEvent() {
   const isLight = useColorScheme() === "light";
@@ -51,7 +58,6 @@ export default function CreateEvent() {
     control,
     handleSubmit,
     formState: { errors },
-    setValue,
     setError,
     watch,
   } = useForm<EventForm>({
@@ -125,9 +131,6 @@ export default function CreateEvent() {
 
   const resetMutation = () => submitEvent.reset();
 
-  const backgroundColor = isLight
-    ? colors.default.white[100]
-    : colors.default.black[400];
   const color = isLight ? colors.default.black[400] : colors.default.white[100];
   const iconColor = isLight
     ? colors.default.tint[400]
@@ -328,6 +331,7 @@ export default function CreateEvent() {
             key={field.id}
             entering={SlideInLeft}
             exiting={SlideOutRight}
+            layout={layoutAnimation}
           >
             <Controller
               control={control}
@@ -388,7 +392,7 @@ export default function CreateEvent() {
           <ActivityIndicator size="large" color={iconColor} />
         )}
         {submitEvent.status !== "loading" && (
-          <View style={[styles.rowFields]}>
+          <Animated.View layout={layoutAnimation} style={[styles.rowFields]}>
             <TextButton
               variant="secondary"
               wrapperStyle={[{ flex: 1 }]}
@@ -402,7 +406,7 @@ export default function CreateEvent() {
             >
               Enviar
             </TextButton>
-          </View>
+          </Animated.View>
         )}
         {submitEvent.status === "error" && (
           <Modal visible={true} onClose={resetMutation}>

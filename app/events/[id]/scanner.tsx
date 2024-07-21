@@ -1,4 +1,4 @@
-import { BarCodeScanner, BarCodeScannerResult } from "expo-barcode-scanner";
+import { CameraView, Camera, BarcodeScanningResult } from "expo-camera/next";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -8,15 +8,18 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { TextButton } from "@/components/ui/text-button";
 
+const dataRegex = /^\d{4,9}$/;
+
 export default function EventScanner() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { addAttendee: mutation } = useEvent(id);
+  const { addAttendee } = useEvent(id);
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [scanned, setScanned] = useState<BarCodeScannerResult | null>(null);
+  const [scanned, setScanned] = useState<BarcodeScanningResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const requestPermission = async () => {
-    const { status } = await BarCodeScanner.requestPermissionsAsync();
+    const { status } = await Camera.requestCameraPermissionsAsync();
     setHasPermission(status === "granted");
   };
 
@@ -24,16 +27,30 @@ export default function EventScanner() {
     requestPermission();
   }, []);
 
-  const handleBarCodeScanned = (result: BarCodeScannerResult) => {
+  useEffect(() => {
+    if (scanned) {
+      setError(null);
+    }
+  }, [scanned]);
+
+  const handleBarCodeScanned = (result: BarcodeScanningResult) => {
+    if (!dataRegex.test(result.data)) {
+      console.log("Invalid data", result.data);
+      setError("El código escaneado no es válido");
+
+      return;
+    }
+
     setScanned(result);
   };
 
   const handleSubmit = () => {
-    mutation.mutate(scanned?.data);
+    addAttendee.mutate(scanned?.data);
     setScanned(null);
   };
 
   const clearScanned = () => {
+    setError(null);
     setScanned(null);
   };
 
@@ -47,8 +64,8 @@ export default function EventScanner() {
       />
       <View style={[styles.viewFinder]}>
         {hasPermission ? (
-          <BarCodeScanner
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          <CameraView
+            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
             style={[StyleSheet.absoluteFillObject]}
           />
         ) : (
@@ -65,7 +82,15 @@ export default function EventScanner() {
       <View style={[styles.lowerSheet]}>
         <View style={[styles.controlsContainer]}>
           <View style={[styles.centered, { gap: 6 }]}>
-            {!scanned ? (
+            {error ? (
+              <>
+                <Text style={[styles.text, styles.error]}>Error</Text>
+                <Text style={[styles.text]}>{error}</Text>
+                <View style={[styles.actionsRow]}>
+                  <TextButton onPress={clearScanned}>Continuar</TextButton>
+                </View>
+              </>
+            ) : !scanned ? (
               <Text style={[styles.text, { textAlign: "center" }]}>
                 Escanea el código de barras de la credencial universitaria
               </Text>
@@ -76,7 +101,7 @@ export default function EventScanner() {
                   {scanned.data}
                 </Text>
                 <View style={[styles.actionsRow]}>
-                  <TextButton onPress={handleSubmit}>Agregar</TextButton>
+                  <TextButton onPress={handleSubmit}>Continuar</TextButton>
                   <TextButton variant="secondary" onPress={clearScanned}>
                     Omitir
                   </TextButton>
@@ -124,6 +149,11 @@ const styles = StyleSheet.create({
   unisonId: {
     fontFamily: fonts.interMedium,
     fontSize: 24,
+  },
+  error: {
+    fontFamily: fonts.interMedium,
+    fontSize: 20,
+    color: colors.default.secondary[400],
   },
   actionsRow: {
     flexDirection: "row",

@@ -351,8 +351,6 @@ export const useEvent = (eventId: string) => {
       throw new Error("Couldn't add attendee");
     }
 
-    console.log(await res.json());
-
     queryClient.invalidateQueries(["events"]);
     queryClient.invalidateQueries(["event", eventId]);
   });

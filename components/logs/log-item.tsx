@@ -2,7 +2,6 @@ import { format } from "date-fns";
 
 import { FC, ReactNode } from "react";
 import {
-  ActivityIndicator,
   GestureResponderEvent,
   Pressable,
   StyleProp,
@@ -13,28 +12,21 @@ import {
   useColorScheme,
 } from "react-native";
 
-import colors from "../../constants/colors";
-import fonts from "../../constants/fonts";
-import {
-  useUserDataWithId,
-  AccessUser,
-  useUserData,
-} from "../../hooks/use-user-data";
-import { Timestamp } from "firebase/firestore";
 import { useStore } from "@/store/store";
 import Animated, {
   interpolate,
+  LinearTransition,
   runOnJS,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
-import { useMutation } from "react-query";
-import { deleteLog } from "@/lib/utils";
 import { IonIcon } from "../icons/ion";
-import { useRoles } from "@/hooks/use-roles";
 import { useUserContext } from "@/context/user-context";
+import { useLogActions } from "@/hooks/use-logs";
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface LogItemProps {
   id: string;
@@ -117,38 +109,40 @@ export const LogItem: FC<LogItemProps> = ({
 
   if (isBirthday) {
     return (
-      <Pressable onPress={tapHandler}>
-        <LinearGradient
-          colors={[
-            "rgb(223,0,0)",
-            "rgb(214,91,0)",
-            "rgb(233,245,0)",
-            "rgb(23,255,17)",
-            "rgb(29,255,255)",
-            "rgb(5,17,255)",
-            "rgb(202,0,253)",
-          ]}
-          locations={[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 1.0]}
-          start={[0.0, 0.5]}
-          end={[0.9, 0.5]}
-          style={[{ padding: 2, borderRadius: 10 }]}
-        >
-          <View
-            style={[
-              {
-                backgroundColor: isLight
-                  ? colors.default.white[100]
-                  : colors.default.black[400],
-                borderRadius: 8,
-              },
+      <Animated.View layout={LinearTransition}>
+        <Pressable onPress={tapHandler}>
+          <LinearGradient
+            colors={[
+              "rgb(223,0,0)",
+              "rgb(214,91,0)",
+              "rgb(233,245,0)",
+              "rgb(23,255,17)",
+              "rgb(29,255,255)",
+              "rgb(5,17,255)",
+              "rgb(202,0,253)",
             ]}
+            locations={[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 1.0]}
+            start={[0.0, 0.5]}
+            end={[0.9, 0.5]}
+            style={[{ padding: 2, borderRadius: 10 }]}
           >
-            <View style={[styles.containerTest, { backgroundColor }]}>
-              {children}
+            <View
+              style={[
+                {
+                  backgroundColor: isLight
+                    ? colors.default.white[100]
+                    : colors.default.black[400],
+                  borderRadius: 8,
+                },
+              ]}
+            >
+              <View style={[styles.containerTest, { backgroundColor }]}>
+                {children}
+              </View>
             </View>
-          </View>
-        </LinearGradient>
-      </Pressable>
+          </LinearGradient>
+        </Pressable>
+      </Animated.View>
     );
   }
 
@@ -191,9 +185,7 @@ export const LogItemTimestamp: FC<LogItemTimestampProps> = ({ timestamp }) => {
 };
 
 const LogItemActions: FC<{ id: string }> = ({ id }) => {
-  const { mutate, isLoading, error } = useMutation<void, Error, string>(
-    deleteLog
-  );
+  const { deleteLog } = useLogActions(id);
   const selectedLog = useStore((state) => state.selectedLog);
   const authConfirmation = useStore((state) => state.deleteConfirmation);
   const confirmDeletion = useStore((state) => state.confirmDeletion);
@@ -212,10 +204,11 @@ const LogItemActions: FC<{ id: string }> = ({ id }) => {
   });
 
   const handleDelete = async (event: GestureResponderEvent) => {
-    if (!!authConfirmation && new Date().getTime() < authConfirmation) {
-      mutate(id);
-    } else if (await confirmDeletion()) {
-      mutate(id);
+    if (
+      (!!authConfirmation && new Date().getTime() < authConfirmation) ||
+      (await confirmDeletion())
+    ) {
+      deleteLog.mutate();
     }
   };
 

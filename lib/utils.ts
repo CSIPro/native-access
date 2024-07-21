@@ -73,40 +73,6 @@ export const deleteAllFromStorage = () => {
   });
 };
 
-export const deleteLog = async (id: string) => {
-  const authUser = firebaseAuth.currentUser;
-
-  if (!authUser) {
-    throw new Error("You don't seem to be logged in...");
-  }
-
-  try {
-    const token = await authUser.getIdToken();
-    const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-
-    const res = await fetch(`${apiUrl}/logs/delete`, {
-      method: "POST",
-      body: JSON.stringify({ logId: id }),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(
-        data.message ?? "Something went wrong while deleting the log"
-      );
-    }
-
-    return data;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-
 export const generatePasscode = (): string => {
   const totalLength = Math.floor(Math.random() * 4 + 4);
   const possible = "0123456789ABCD";

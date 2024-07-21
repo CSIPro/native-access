@@ -10,8 +10,9 @@ import {
 import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { z } from "zod";
 import { useRoomContext } from "../context/room-context";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { NestError } from "@/lib/utils";
+import { firebaseAuth } from "@/lib/firebase-config";
 
 export const Log = z.object({
   id: z.string(),
@@ -261,4 +262,43 @@ export const useNestLogs = ({ limitTo = 40 }: { limitTo?: number } = {}) => {
   });
 
   return logsQuery;
+};
+
+export const useLogActions = (id: string) => {
+  const queryClient = useQueryClient();
+
+  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+  const authUser = firebaseAuth.currentUser;
+
+  const deleteLog = useMutation(async () => {
+    if (!authUser) {
+      throw new Error("You don't seem to be logged in...");
+    }
+
+    const token = await authUser.getIdToken();
+
+    const res = await fetch(`${apiUrl}/access-logs/delete-log/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errorParse = NestError.safeParse(data);
+
+      if (errorParse.success) {
+        throw new Error(errorParse.data.message);
+      }
+
+      throw new Error("Something went wrong while deleting the log");
+    }
+
+    queryClient.invalidateQueries(["logs"]);
+  });
+
+  return { deleteLog };
 };

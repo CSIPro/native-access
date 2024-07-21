@@ -12,7 +12,7 @@ import {
 
 import { LogItem, LogItemTimestamp, LogItemTitle } from "./log-item";
 
-import { useLogs, useNestLogs } from "@/hooks/use-logs";
+import { useNestLogs } from "@/hooks/use-logs";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
@@ -80,6 +80,7 @@ export const LogsList: FC<Props> = ({
 
         return (
           <LogItem
+            key={log.id}
             id={log.id}
             known={!!log.user}
             accessed={log.accessed}

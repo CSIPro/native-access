@@ -411,7 +411,7 @@ export const useSubmitEvent = () => {
       throw new Error("Ocurrió un error de autenticación");
     }
 
-    const res = await fetch("${apiUrl}/events", {
+    const res = await fetch(`${apiUrl}/events`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

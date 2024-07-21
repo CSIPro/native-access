@@ -1,16 +1,10 @@
-import Constants from "expo-constants";
 import * as LocalAuthentication from "expo-local-authentication";
 import { FC, ReactNode, createContext, useContext } from "react";
 
-import {
-  AccessUser,
-  NestUser,
-  useNestUser,
-  useUserData,
-} from "@/hooks/use-user-data";
+import { NestUser, useNestUser } from "@/hooks/use-user-data";
 
 import { firebaseAuth } from "@/lib/firebase-config";
-import { NestError, saveToStorage } from "@/lib/utils";
+import { BASE_API_URL, NestError, saveToStorage } from "@/lib/utils";
 import { SplashScreen } from "@/components/splash/splash";
 import { Membership, useMemberships } from "@/hooks/use-membership";
 import { useRoomContext } from "./room-context";
@@ -26,8 +20,6 @@ interface UserContextProps {
 const UserContext = createContext<UserContextProps | null>(null);
 
 export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-
   const { selectedRoom } = useRoomContext();
   const { status, data } = useNestUser();
   const { status: membershipStatus, data: memberships } = useMemberships(
@@ -47,7 +39,7 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     const authToken = await authUser.getIdToken();
 
-    const res = await fetch(`${apiUrl}/users/${data?.id}`, {
+    const res = await fetch(`${BASE_API_URL}/users/${data?.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -94,16 +86,19 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       const token = await authUser.getIdToken();
 
-      const res = await fetch(`${apiUrl}/users/${data?.id}/update-passcode`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          passcode,
-        }),
-      });
+      const res = await fetch(
+        `${BASE_API_URL}/users/${data?.id}/update-passcode`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            passcode,
+          }),
+        }
+      );
 
       if (!res.ok) {
         const data = await res.json();

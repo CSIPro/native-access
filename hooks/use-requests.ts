@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import * as LocalAuthentication from "expo-local-authentication";
 import {
   Timestamp,
@@ -20,7 +19,7 @@ import { RoomContext, useRoomContext } from "../context/room-context";
 import { useCallback, useContext } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
-import { NestError } from "@/lib/utils";
+import { BASE_API_URL, NestError } from "@/lib/utils";
 
 enum RequestStatus {
   pending,
@@ -269,7 +268,6 @@ export const PopulatedNestRequest = z.object({
 export type PopulatedNestRequest = z.infer<typeof PopulatedNestRequest>;
 
 export const useNestRoomRequests = (roomId?: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const { selectedRoom } = useRoomContext();
 
@@ -277,7 +275,7 @@ export const useNestRoomRequests = (roomId?: string) => {
     queryKey: ["requests", roomId ?? selectedRoom],
     queryFn: async () => {
       const res = await fetch(
-        `${apiUrl}/rooms/${roomId ?? selectedRoom}/requests`,
+        `${BASE_API_URL}/rooms/${roomId ?? selectedRoom}/requests`,
         {
           headers: {
             Authorization: `Bearer ${await authUser?.getIdToken()}`,
@@ -311,13 +309,12 @@ export const useNestRoomRequests = (roomId?: string) => {
 };
 
 export const useNestUserRequests = (userId: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const requestsQuery = useQuery({
     queryKey: ["requests", userId],
     queryFn: async () => {
-      const res = await fetch(`${apiUrl}/users/${userId}/requests`, {
+      const res = await fetch(`${BASE_API_URL}/users/${userId}/requests`, {
         headers: {
           Authorization: `Bearer ${await authUser?.getIdToken()}`,
         },
@@ -350,7 +347,6 @@ export const useNestUserRequests = (userId: string) => {
 };
 
 export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const queryClient = useQueryClient();
 
@@ -364,12 +360,15 @@ export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
         throw new Error("Authentication failed");
       }
 
-      const res = await fetch(`${apiUrl}/requests/${request.id}/approve`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${await authUser?.getIdToken()}`,
-        },
-      });
+      const res = await fetch(
+        `${BASE_API_URL}/requests/${request.id}/approve`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await authUser?.getIdToken()}`,
+          },
+        }
+      );
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());
@@ -396,7 +395,7 @@ export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
         throw new Error("Authentication failed");
       }
 
-      const res = await fetch(`${apiUrl}/requests/${request.id}/reject`, {
+      const res = await fetch(`${BASE_API_URL}/requests/${request.id}/reject`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${await authUser?.getIdToken()}`,
@@ -420,7 +419,7 @@ export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
 
   const createRequest = useMutation<void, Error, string>({
     mutationFn: async (roomId: string) => {
-      const res = await fetch(`${apiUrl}/requests`, {
+      const res = await fetch(`${BASE_API_URL}/requests`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

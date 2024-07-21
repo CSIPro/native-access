@@ -1,9 +1,8 @@
-import Constants from "expo-constants";
 import { useQuery } from "react-query";
 import { z } from "zod";
 
 import { useRoomContext } from "@/context/room-context";
-import { NestError } from "@/lib/utils";
+import { BASE_API_URL, NestError } from "@/lib/utils";
 
 export const RoomStats = z.object({
   successful: z.number(),
@@ -16,7 +15,6 @@ export const RoomStats = z.object({
 export type RoomStats = z.infer<typeof RoomStats>;
 
 export const useRoomStats = () => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const { selectedRoom } = useRoomContext();
 
   const statsQuery = useQuery({
@@ -25,7 +23,7 @@ export const useRoomStats = () => {
       const fromDate = new Date(new Date().setHours(0, 0, 0, 0));
 
       const res = await fetch(
-        `${apiUrl}/rooms/${selectedRoom}/stats?from=${fromDate}`
+        `${BASE_API_URL}/rooms/${selectedRoom}/stats?from=${fromDate}`
       );
 
       if (!res.ok) {

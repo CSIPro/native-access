@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import {
   DocumentData,
   DocumentReference,
@@ -15,7 +14,7 @@ import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 import { useRoomContext } from "../context/room-context";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
-import { NestError } from "@/lib/utils";
+import { BASE_API_URL, NestError } from "@/lib/utils";
 
 export const UserRoomRole = z.object({
   id: z.string(),
@@ -320,13 +319,12 @@ export const NestUser = z.object({
 export type NestUser = z.infer<typeof NestUser>;
 
 export const useNestUser = (userId?: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const userQuery = useQuery({
     queryKey: ["user", userId ?? authUser?.uid],
     queryFn: async () => {
-      const fullApiUrl = `${apiUrl}/users/find-one/?${
+      const fullApiUrl = `${BASE_API_URL}/users/find-one/?${
         userId ? `id=${userId}` : `authId=${authUser?.uid}`
       }`;
 
@@ -443,9 +441,8 @@ export const useCreateUser = () => {
       }
 
       const token = await authUser.getIdToken();
-      const apiUrl = Constants.expoConfig.extra?.authApiUrl;
 
-      const res = await fetch(`${apiUrl}/users`, {
+      const res = await fetch(`${BASE_API_URL}/users`, {
         method: "POST",
         body: JSON.stringify({
           firstName: formData.firstName,

@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import {
   DocumentData,
   QuerySnapshot,

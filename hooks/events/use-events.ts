@@ -1,5 +1,4 @@
-import Constants from "expo-constants";
-import { NestError, sleep } from "@/lib/utils";
+import { BASE_API_URL, NestError, sleep } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { z } from "zod";
 import { NestRoom } from "../use-rooms";
@@ -197,7 +196,6 @@ export const useEvents = ({
   past = false,
   limit = 20,
 }: UseEventsProps = {}) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const { status, data, error, refetch } = useQuery({
@@ -206,7 +204,7 @@ export const useEvents = ({
       const authToken = await authUser?.getIdToken();
 
       const res = await fetch(
-        `${apiUrl}/events?past=${past ? "true" : "false"}&limit=${limit}`,
+        `${BASE_API_URL}/events?past=${past ? "true" : "false"}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -265,7 +263,6 @@ export const usePastEvents = () => {
 };
 
 export const useEvent = (eventId: string) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
   const queryClient = useQueryClient();
 
@@ -274,12 +271,12 @@ export const useEvent = (eventId: string) => {
     queryFn: async () => {
       const authToken = await authUser?.getIdToken();
 
-      const eventRes = await fetch(`${apiUrl}/events/${eventId}`, {
+      const eventRes = await fetch(`${BASE_API_URL}/events/${eventId}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
       const attendeesRes = await fetch(
-        `${apiUrl}/events/${eventId}/attendees`,
+        `${BASE_API_URL}/events/${eventId}/attendees`,
         {
           headers: { Authorization: `Bearer ${authToken}` },
         }
@@ -330,7 +327,7 @@ export const useEvent = (eventId: string) => {
   const addAttendee = useMutation(async (unisonId: string) => {
     const authToken = await authUser?.getIdToken();
 
-    const res = await fetch(`${apiUrl}/events/${eventId}/add-attendee`, {
+    const res = await fetch(`${BASE_API_URL}/events/${eventId}/add-attendee`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -398,7 +395,6 @@ export const EventForm = z.object({
 export type EventForm = z.infer<typeof EventForm>;
 
 export const useSubmitEvent = () => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const queryClient = useQueryClient();
   const authUser = firebaseAuth.currentUser;
 
@@ -409,7 +405,7 @@ export const useSubmitEvent = () => {
       throw new Error("Ocurrió un error de autenticación");
     }
 
-    const res = await fetch(`${apiUrl}/events`, {
+    const res = await fetch(`${BASE_API_URL}/events`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

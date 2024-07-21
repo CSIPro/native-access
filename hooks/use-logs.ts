@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 import {
   Timestamp,
   collection,
@@ -11,7 +10,7 @@ import { useFirestore, useFirestoreCollectionData, useUser } from "reactfire";
 import { z } from "zod";
 import { useRoomContext } from "../context/room-context";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { NestError } from "@/lib/utils";
+import { BASE_API_URL, NestError } from "@/lib/utils";
 import { firebaseAuth } from "@/lib/firebase-config";
 
 export const Log = z.object({
@@ -229,14 +228,13 @@ export const NestLog = z.object({
 export type NestLog = z.infer<typeof NestLog>;
 
 export const useNestLogs = ({ limitTo = 40 }: { limitTo?: number } = {}) => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const { selectedRoom } = useRoomContext();
 
   const logsQuery = useQuery({
     queryKey: ["logs", selectedRoom, limitTo],
     queryFn: async () => {
       const res = await fetch(
-        `${apiUrl}/access-logs/room/${selectedRoom}/?limit=${limitTo}`
+        `${BASE_API_URL}/access-logs/room/${selectedRoom}/?limit=${limitTo}`
       );
 
       if (!res.ok) {
@@ -267,7 +265,6 @@ export const useNestLogs = ({ limitTo = 40 }: { limitTo?: number } = {}) => {
 export const useLogActions = (id: string) => {
   const queryClient = useQueryClient();
 
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
   const authUser = firebaseAuth.currentUser;
 
   const deleteLog = useMutation(async () => {
@@ -277,7 +274,7 @@ export const useLogActions = (id: string) => {
 
     const token = await authUser.getIdToken();
 
-    const res = await fetch(`${apiUrl}/access-logs/delete-log/${id}`, {
+    const res = await fetch(`${BASE_API_URL}/access-logs/delete-log/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

@@ -1,5 +1,4 @@
-import Constants from "expo-constants";
-import { NestError } from "@/lib/utils";
+import { BASE_API_URL, NestError } from "@/lib/utils";
 import { collection, orderBy, query } from "firebase/firestore";
 import { useQuery } from "react-query";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
@@ -51,12 +50,10 @@ export const NestRole = z.object({
 export type NestRole = z.infer<typeof NestRole>;
 
 export const useNestRoles = () => {
-  const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-
   const rolesQuery = useQuery({
     queryKey: ["roles"],
     queryFn: async () => {
-      const res = await fetch(`${apiUrl}/roles`);
+      const res = await fetch(`${BASE_API_URL}/roles`);
 
       if (!res.ok) {
         const errorParse = NestError.safeParse(await res.json());

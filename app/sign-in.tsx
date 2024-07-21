@@ -32,6 +32,7 @@ import {
   BrandingHeaderTitle,
 } from "@/components/ui/branding-header";
 import fonts from "@/constants/fonts";
+import { BASE_API_URL } from "@/lib/utils";
 
 const accessLogo = require("../assets/access-logo.svg");
 const googleLogo = require("../assets/auth/google-g.png");
@@ -90,8 +91,7 @@ export default function SignIn() {
 
   const handleGithubSignIn = async () => {
     const clientId = Constants.expoConfig.extra?.githubClientId;
-    const apiUrl = Constants.expoConfig.extra?.authApiUrl;
-    const redirectUri = `${apiUrl}/auth/oauth/callback/native`;
+    const redirectUri = `${BASE_API_URL}/auth/oauth/callback/native`;
 
     if (!clientId) {
       throw new Error("No GitHub client ID provided");

@@ -1,5 +1,6 @@
 import { FC } from "react";
 import {
+  ActivityIndicator,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -25,6 +26,8 @@ import { useRoomContext } from "@/context/room-context";
 import { Dropdown } from "../ui/dropdown";
 import { formatRoomName } from "@/lib/utils";
 import { MaterialIcon } from "../icons/material";
+import { useMemberships } from "@/hooks/use-membership";
+import { useUserContext } from "@/context/user-context";
 
 interface Props {
   compact?: boolean;
@@ -43,14 +46,38 @@ export const RoomPicker: FC<Props> = ({
 }) => {
   const isLight = useColorScheme() === "light";
 
+  const { user } = useUserContext();
   const { selectedRoom, setSelectedRoom, rooms } = useRoomContext();
+  const { status: membershipsStatusF, data: memberships } = useMemberships(
+    user.id
+  );
+
+  if (membershipsStatusF === "loading") {
+    return (
+      <View style={[styles.centered]}>
+        <ActivityIndicator size="large" color={colors.default.tint[400]} />
+      </View>
+    );
+  }
+
+  if (membershipsStatusF === "error") {
+    return (
+      <View style={[styles.centered]}>
+        <Text style={[styles.text, { color: colors.default.black[400] }]}>
+          Error while fetching memberships
+        </Text>
+      </View>
+    );
+  }
 
   const color = isLight ? colors.default.black[400] : colors.default.white[100];
   const iconColor = isLight
     ? colors.default.tint[400]
     : colors.default.tint[200];
 
-  const items = rooms;
+  const items = rooms.filter((room) =>
+    memberships.some((m) => m.room.id === room.id)
+  );
 
   return (
     <Dropdown
@@ -76,7 +103,7 @@ export const RoomPicker: FC<Props> = ({
           style={[{ flex: 1, justifyContent: "center", alignItems: "center" }]}
         >
           <Text style={[styles.text, { textAlign: "center", color }]}>
-            You're not a member of any rooms yet
+            Aún no eres miembro de ningún salón
           </Text>
         </View>
       }
@@ -168,6 +195,11 @@ const styles = StyleSheet.create({
     width: "100%",
     borderWidth: 2,
     borderRadius: 12,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   dropdown: {
     width: "100%",

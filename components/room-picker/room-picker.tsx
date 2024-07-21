@@ -75,9 +75,9 @@ export const RoomPicker: FC<Props> = ({
     ? colors.default.tint[400]
     : colors.default.tint[200];
 
-  const items = rooms.filter((room) =>
-    memberships.some((m) => m.room.id === room.id)
-  );
+  const items = user.isRoot
+    ? rooms
+    : rooms.filter((room) => memberships.some((m) => m.room.id === room.id));
 
   return (
     <Dropdown

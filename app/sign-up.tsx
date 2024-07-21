@@ -72,7 +72,13 @@ export default function SignUp() {
   const isLight = useColorScheme() === "light";
 
   const onSubmit = async (data: SignUpForm) => {
-    await createUser.mutateAsync(data);
+    const dob = data.dateOfBirth;
+    const offsetDob = new Date(
+      data.dateOfBirth.getTime() - dob.getTimezoneOffset() * 60 * 1000
+    );
+    const normalizedDob = new Date(offsetDob.setHours(0, 0, 0, 0));
+
+    await createUser.mutateAsync({ ...data, dateOfBirth: normalizedDob });
     await createRequest.mutateAsync(data.room);
   };
 

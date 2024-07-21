@@ -416,7 +416,7 @@ export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
     },
   });
 
-  const createRequest = useMutation({
+  const createRequest = useMutation<void, Error, string>({
     mutationFn: async (roomId: string) => {
       const res = await fetch(`${apiUrl}/requests`, {
         method: "POST",

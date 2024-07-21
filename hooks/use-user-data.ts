@@ -360,3 +360,130 @@ export const useNestUser = (userId?: string) => {
 
   return userQuery;
 };
+
+export const SignUpForm = z.object({
+  firstName: z
+    .string({
+      required_error: "El nombre es obligatorio",
+    })
+    .min(3, {
+      message: "Tu nombre debe tener al menos 3 caracteres",
+    })
+    .max(50, {
+      message: "Tu nombre no puede exceder los 50 caracteres",
+    }),
+  lastName: z
+    .string({
+      required_error: "Los apellidos son obligatorios",
+    })
+    .min(3, {
+      message: "Tus apellidos deben tener al menos 3 caracteres",
+    })
+    .max(50, {
+      message: "Tus apellidos no pueden exceder los 50 caracteres",
+    }),
+  unisonId: z
+    .string({
+      required_error: "Tu expediente es obligatorio",
+    })
+    .min(4, {
+      message: "El expediente debe tener al menos 4 dígitos",
+    })
+    .max(9, {
+      message: "El expediente no puede exceder los 9 dígitos",
+    })
+    .regex(/^[0-9]{4,9}$/, {
+      message: "El expediente debe contener solo dígitos",
+    }),
+  passcode: z
+    .string({
+      required_error: "Tu contraseña es obligatoria",
+    })
+    .min(4, {
+      message: "Tu contraseña debe tener al menos 4 caracteres",
+    })
+    .max(10, {
+      message: "Tu contraseña no puede exceder los 10 caracteres",
+    })
+    .regex(/^(?=.*[\d])(?=.*[A-D])[\dA-D]{4,10}$/, {
+      message:
+        "Tu contraseña debe contener al menos un número y una letra de la A a la D",
+    }),
+  dateOfBirth: z
+    .date({
+      required_error: "Tu fecha de nacimiento es obligatoria",
+    })
+    .min(new Date(1900, 0, 1), {
+      message: "I don't think you're that old",
+    })
+    .max(new Date(), {
+      message: "Time traveler alert!",
+    }),
+  room: z.string({
+    required_error: "Debes seleccionar un salón",
+  }),
+});
+
+export type SignUpForm = z.infer<typeof SignUpForm>;
+
+const UserResponse = z.object({
+  user: NestUser.partial(),
+  message: z.string(),
+});
+
+type UserResponse = z.infer<typeof UserResponse>;
+
+export const useCreateUser = () => {
+  const authUser = firebaseAuth.currentUser;
+
+  const createUser = useMutation<UserResponse, Error, SignUpForm>(
+    async (formData: SignUpForm) => {
+      if (!authUser) {
+        throw new Error("You don't seem to be logged in...");
+      }
+
+      const token = await authUser.getIdToken();
+      const apiUrl = Constants.expoConfig.extra?.authApiUrl;
+
+      const res = await fetch(`${apiUrl}/users`, {
+        method: "POST",
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          unisonId: formData.unisonId,
+          passcode: formData.passcode,
+          dateOfBirth: formData.dateOfBirth.toISOString(),
+          roomId: formData.room,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(data);
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("Something went wrong while creating the user");
+      }
+
+      const userResParse = UserResponse.safeParse(data);
+
+      if (!userResParse.success) {
+        console.error(userResParse);
+
+        throw new Error("Failed to parse response data");
+      }
+
+      return userResParse.data;
+    }
+  );
+
+  return createUser;
+};

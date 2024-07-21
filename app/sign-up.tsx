@@ -30,23 +30,18 @@ import { TextButton } from "@/components/ui/text-button";
 
 import { useNestRooms } from "@/hooks/use-rooms";
 
-import { SignUpForm, createUser } from "@/lib/signup-utils";
 import { deleteAllFromStorage, generatePasscode } from "@/lib/utils";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { SignUpForm, useCreateUser } from "@/hooks/use-user-data";
+import { useNestRequestHelpers } from "@/hooks/use-requests";
 
 export default function SignUp() {
   const auth = useAuth();
   const router = useRouter();
-  const mutation = useMutation<void, Error, SignUpForm>({
-    mutationFn: (data: SignUpForm) => {
-      return createUser(data);
-    },
-    onSuccess: () => {
-      router.replace("/onboarding");
-    },
-  });
+  const createUser = useCreateUser();
+  const { createRequest } = useNestRequestHelpers();
 
   const [showPasscode, setShowPasscode] = useState(false);
 
@@ -58,7 +53,8 @@ export default function SignUp() {
   } = useForm<SignUpForm>({
     resolver: zodResolver(SignUpForm),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       unisonId: "",
       passcode: "",
       dateOfBirth: new Date(),
@@ -68,20 +64,16 @@ export default function SignUp() {
 
   const { status: roomsStatus, data: rooms } = useNestRooms();
 
-  const nameRef = useRef<TextInput>(null);
+  const firstNameRef = useRef<TextInput>(null);
+  const lastNameRef = useRef<TextInput>(null);
   const uniSonIdRef = useRef<TextInput>(null);
   const passcodeRef = useRef<TextInput>(null);
 
   const isLight = useColorScheme() === "light";
 
-  const onSubmit = (data: SignUpForm) => {
-    const dob = data.dateOfBirth;
-    const offsetDob = new Date(
-      data.dateOfBirth.getTime() - dob.getTimezoneOffset() * 60 * 1000
-    );
-    const normalizedDob = new Date(offsetDob.setHours(0, 0, 0, 0));
-
-    mutation.mutate({ ...data, dateOfBirth: normalizedDob });
+  const onSubmit = async (data: SignUpForm) => {
+    await createUser.mutateAsync(data);
+    await createRequest.mutateAsync(data.room);
   };
 
   const handleSignOut = () => {
@@ -102,7 +94,7 @@ export default function SignUp() {
     <ScrollView style={{ flex: 1, width: "100%", backgroundColor }}>
       <Stack.Screen
         options={{
-          headerTitle: "Sign up",
+          headerTitle: "Registro",
           headerTitleStyle: {
             fontFamily: fonts.poppinsMedium,
             color: colors.default.white[100],
@@ -114,60 +106,67 @@ export default function SignUp() {
         }}
       />
       <View style={[{ padding: 4, gap: 8 }]}>
-        <Controller
-          control={control}
-          name="name"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              ref={nameRef}
-              label="Name"
-              value={value}
-              onChangeText={onChange}
-              placeholder="e.g. Saúl Ramos"
-              icon={<IonIcon name="person" size={24} color={iconColor} />}
-              returnKeyType="next"
-              blurOnSubmit={false}
-              onSubmitEditing={() => {
-                uniSonIdRef.current?.focus();
-              }}
-              errorText={errors.name?.message}
-              autoCapitalize="words"
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="unisonId"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              ref={uniSonIdRef}
-              label="UniSon ID"
-              value={value}
-              onChangeText={onChange}
-              placeholder="e.g. 217200160"
-              icon={<MaterialIcon name="badge" size={24} color={iconColor} />}
-              returnKeyType="next"
-              blurOnSubmit={false}
-              onSubmitEditing={() => {
-                passcodeRef.current?.focus();
-              }}
-              errorText={errors.unisonId?.message}
-              inputMode="numeric"
-            />
-          )}
-        />
+        <View style={[styles.rowFields]}>
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                ref={firstNameRef}
+                label="Nombre"
+                value={value}
+                onChangeText={onChange}
+                placeholder="Saúl Alberto"
+                icon={<IonIcon name="person" size={24} color={iconColor} />}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  lastNameRef.current?.focus();
+                }}
+                errorText={errors.firstName?.message}
+                autoCapitalize="words"
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                ref={lastNameRef}
+                label="Apellidos"
+                value={value}
+                onChangeText={onChange}
+                placeholder="Ramos Laborín"
+                icon={<IonIcon name="person" size={24} color={iconColor} />}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                onSubmitEditing={() => {
+                  passcodeRef.current?.focus();
+                }}
+                errorText={errors.lastName?.message}
+                autoCapitalize="words"
+              />
+            )}
+          />
+        </View>
         <Controller
           control={control}
           name="passcode"
           render={({ field: { onChange, value } }) => (
             <Input
               ref={passcodeRef}
-              label="Passcode"
+              label="Contraseña"
               value={value}
               onChangeText={onChange}
-              placeholder="e.g. A1B2C3"
+              placeholder="A1B2C3"
               icon={<IonIcon name="code-working" size={24} color={iconColor} />}
-              helperText="Must contain numbers and letters from A to D"
+              helperText="Debe contener números y letras de la A a la D"
+              returnKeyType="next"
+              blurOnSubmit={false}
+              onSubmitEditing={() => {
+                uniSonIdRef.current?.focus();
+              }}
               errorText={errors.passcode?.message}
               secureTextEntry={!showPasscode}
             >
@@ -189,18 +188,42 @@ export default function SignUp() {
             </Input>
           )}
         />
-        <Controller
-          control={control}
-          name="dateOfBirth"
-          render={({ field: { onChange, value } }) => (
-            <View>
-              <DatePicker label="Birthday" value={value} onChange={onChange} />
-              {errors.dateOfBirth && (
-                <InputErrorText>{errors.dateOfBirth?.message}</InputErrorText>
-              )}
-            </View>
-          )}
-        />
+        <View style={[styles.rowFields]}>
+          <Controller
+            control={control}
+            name="unisonId"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                ref={uniSonIdRef}
+                label="Expediente"
+                value={value}
+                onChangeText={onChange}
+                placeholder="e.g. 217200160"
+                icon={<MaterialIcon name="badge" size={24} color={iconColor} />}
+                errorText={errors.unisonId?.message}
+                inputMode="numeric"
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="dateOfBirth"
+            render={({ field: { onChange, value } }) => (
+              <View style={[{ flex: 1 }]}>
+                <DatePicker
+                  label="Fecha de nacimiento"
+                  value={value}
+                  onChange={onChange}
+                  minimumDate={new Date(1900, 0, 1)}
+                  maximumDate={new Date()}
+                />
+                {errors.dateOfBirth && (
+                  <InputErrorText>{errors.dateOfBirth?.message}</InputErrorText>
+                )}
+              </View>
+            )}
+          />
+        </View>
         {roomsStatus === "loading" && (
           <View style={[styles.wrapper]}>
             <View style={[styles.labelWrapper]}>
@@ -226,9 +249,9 @@ export default function SignUp() {
                     })`,
                   }))}
                   onChange={onChange}
-                  sheetTitle="Pick a room"
-                  placeholder="Pick a room"
-                  label="Room"
+                  sheetTitle="Elige un salón"
+                  placeholder="Elige un salón"
+                  label="Salón"
                   value={value}
                   icon={
                     <MaterialIcon name="room" size={24} color={iconColor} />
@@ -242,31 +265,64 @@ export default function SignUp() {
           />
         )}
         <View style={[styles.controls]}>
-          {mutation.isLoading ? (
+          {createUser.isLoading || createRequest.isLoading ? (
             <ActivityIndicator size="large" color={iconColor} />
           ) : (
-            <>
-              <TextButton onPress={handleSubmit(onSubmit)}>Sign up</TextButton>
+            <View style={[styles.rowFields]}>
               <TextButton
                 variant="secondary"
                 onPress={handleSignOut}
-                style={[{ alignSelf: "center" }]}
+                wrapperStyle={[{ flex: 1, width: "100%" }]}
               >
-                Log out
+                Salir
               </TextButton>
-            </>
+              <TextButton
+                onPress={handleSubmit(onSubmit)}
+                wrapperStyle={[{ flex: 2, width: "100%" }]}
+              >
+                Enviar
+              </TextButton>
+            </View>
           )}
         </View>
-        {mutation.isError && (
-          <Modal visible={true} onClose={() => mutation.reset()}>
+        {createUser.isError && (
+          <Modal visible={true} onClose={() => createUser.reset()}>
             <ModalHeader>Error</ModalHeader>
             <ModalBody>
               <Text style={[styles.text, { color }]}>
-                {mutation.error?.message.split(": ")[1]}
+                {createUser.error?.message.split(": ")[1]}
               </Text>
             </ModalBody>
             <ModalFooter>
-              <TextButton onPress={() => mutation.reset()}>OK</TextButton>
+              <TextButton onPress={() => createUser.reset()}>OK</TextButton>
+            </ModalFooter>
+          </Modal>
+        )}
+        {createRequest.isError && (
+          <Modal visible={true} onClose={() => createRequest.reset()}>
+            <ModalHeader>Error</ModalHeader>
+            <ModalBody>
+              <Text style={[styles.text, { color }]}>
+                {createRequest.error?.message.split(": ")[1]}
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <TextButton onPress={() => createRequest.reset()}>OK</TextButton>
+            </ModalFooter>
+          </Modal>
+        )}
+        {createUser.isSuccess && createRequest.isSuccess && (
+          <Modal visible={true} onClose={() => router.replace("/onboarding")}>
+            <ModalHeader>¡Registro exitoso!</ModalHeader>
+            <ModalBody>
+              <Text style={[styles.text, { color }]}>
+                Tu registro ha sido exitoso. Ahora puedes continuar.
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <TextButton onPress={() => router.replace("/onboarding")}>
+                Iniciar
+              </TextButton>
             </ModalFooter>
           </Modal>
         )}
@@ -314,5 +370,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+  },
+  rowFields: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
   },
 });

@@ -382,6 +382,7 @@ export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
       }
 
       queryClient.invalidateQueries(["requests", request.room.id]);
+      queryClient.invalidateQueries(["members", request.room.id]);
     },
   });
 
@@ -413,6 +414,7 @@ export const useNestRequestHelpers = (request?: PopulatedNestRequest) => {
       }
 
       queryClient.invalidateQueries(["requests", request.room.id]);
+      queryClient.invalidateQueries(["members", request.room.id]);
     },
   });
 

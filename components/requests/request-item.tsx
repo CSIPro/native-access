@@ -47,12 +47,12 @@ export const RequestItem: FC<Props> = ({ request }) => {
   const handleCloseDetails = () => setOpenDetails(false);
 
   const handleApprove = () => {
-    approveRequest();
+    approveRequest.mutate();
     handleCloseDetails();
   };
 
   const handleReject = () => {
-    rejectRequest();
+    rejectRequest.mutate();
     handleCloseDetails();
   };
 

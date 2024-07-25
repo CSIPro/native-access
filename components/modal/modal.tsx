@@ -20,7 +20,7 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-export const Modal: FC<Props> = ({ visible, onClose, children }) => {
+export const Modal: FC<Props> = ({ visible, onClose, children, style }) => {
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";
@@ -45,6 +45,7 @@ export const Modal: FC<Props> = ({ visible, onClose, children }) => {
                 ? colors.default.white[100]
                 : colors.default.black[300],
             },
+            style,
           ]}
         >
           {children}

@@ -271,11 +271,7 @@ export default function SendNotification() {
         )}
       </TextButton>
       {sendNotification.error && (
-        <Modal
-          visible={true}
-          onClose={() => sendNotification.reset()}
-          style={[styles.errorModal]}
-        >
+        <Modal visible={true} onClose={() => sendNotification.reset()}>
           <ModalHeader>Error</ModalHeader>
           <ModalBody>
             <Text style={[styles.text]}>
@@ -305,9 +301,5 @@ const styles = StyleSheet.create({
   },
   checkboxWrapper: {
     paddingVertical: 4,
-  },
-  errorModal: {
-    borderWidth: 1,
-    borderColor: colors.default.secondary[400],
   },
 });

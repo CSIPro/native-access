@@ -2,9 +2,7 @@ import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { FC, useEffect, useRef, useState } from "react";
 import {
-  Pressable,
   StyleSheet,
-  Text,
   View,
   useColorScheme,
   useWindowDimensions,
@@ -14,27 +12,21 @@ import Animated, {
   Easing,
   Extrapolate,
   interpolate,
-  interpolateColor,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
 
 import { PibleScanner } from "@/components/pible/pible-scanner";
-import { DashboardItem } from "@/components/ui/dashboard/item";
-
 import {
-  useBluetoothLogs,
-  useFailedLogs,
-  useSuccessfulLogs,
-  useUnknownLogs,
-  useUserBluetoothLogs,
-  useUserFailedLogs,
-  useUserSuccessfulLogs,
-} from "@/hooks/use-logs";
+  DashboardItem,
+  DashboardItemBackground,
+  DashboardItemContent,
+  DashboardItemTitle,
+  DashboardItemValue,
+} from "@/components/ui/dashboard/item";
 
 import fonts from "@/constants/fonts";
 import colors from "@/constants/colors";
@@ -51,13 +43,13 @@ import {
   PanGestureHandler,
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import { FAIcon } from "@/components/icons/font-awesome";
 import { Link } from "expo-router";
 import { MaterialIcon } from "@/components/icons/material";
 import { useRoomStats } from "@/hooks/use-room-stats";
 import { useUserStats } from "@/hooks/use-user-stats";
 import { useUserContext } from "@/context/user-context";
 import { Image } from "expo-image";
+import { IonIcon } from "@/components/icons/ion";
 
 const hornet = require("@/assets/hornet.svg");
 
@@ -300,105 +292,65 @@ interface DashboardItemProps {
   value?: number;
 }
 
-const SuccessfulLogs: FC<DashboardItemProps> = ({ value }) => {
-  const isLight = useColorScheme() === "light";
-  const sv = useSharedValue(0);
-
-  useEffect(() => {
-    sv.value = withRepeat(withTiming(1, { duration: 500 }), 4, true);
-  }, [value]);
-
-  const animatedItem = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      sv.value,
-      [0, 1],
-      [
-        isLight
-          ? colors.default.tint.translucid[500]
-          : colors.default.tint.translucid[100],
-        colors.default.tint.translucid[400],
-      ]
-    );
-
-    return {
-      backgroundColor,
-    };
-  });
-
+const SuccessfulLogs: FC<DashboardItemProps> = ({ value = 0 }) => {
   return (
-    <Animated.View
-      style={[
-        styles.successContainer,
-        {
-          borderColor: colors.default.tint[400],
-          backgroundColor: isLight
-            ? colors.default.tint.translucid[500]
-            : colors.default.tint.translucid[100],
-        },
-        animatedItem,
-      ]}
-    >
-      <Text
-        style={[
-          styles.bubbleText,
-          {
-            color: colors.default.white[100],
-            fontSize: 72,
-            fontFamily: fonts.inter,
-          },
-        ]}
-      >
-        {value?.toString().padStart(2, "0") ?? "00"}
-      </Text>
-      <Text
-        style={[
-          styles.bubbleText,
-          {
-            color: isLight
-              ? colors.default.white[100]
-              : colors.default.white.translucid[900],
-            fontSize: 16,
-          },
-        ]}
-      >
-        Entries
-      </Text>
-    </Animated.View>
+    <DashboardItem color="tint" logs={value ?? 0} style={[{ flex: 2 }]}>
+      <DashboardItemBackground>
+        <IonIcon
+          name="shield-checkmark"
+          size={172}
+          color={colors.default.tint.translucid[600]}
+        />
+      </DashboardItemBackground>
+      <DashboardItemContent>
+        <DashboardItemValue style={[{ fontSize: 72 }]}>
+          {value.toString().padStart(2, "0")}
+        </DashboardItemValue>
+        <DashboardItemTitle style={[{ fontSize: 16 }]}>
+          Entries
+        </DashboardItemTitle>
+      </DashboardItemContent>
+    </DashboardItem>
   );
 };
 
-const BluetoothLogs: FC<DashboardItemProps> = ({ value }) => {
+const BluetoothLogs: FC<DashboardItemProps> = ({ value = 0 }) => {
   return (
-    <DashboardItem
-      icon="bluetooth"
-      title="Wireless"
-      color="bluetooth"
-      logs={value ?? 0}
-    />
+    <DashboardItem color="bluetooth" logs={value ?? 0}>
+      <DashboardItemBackground>
+        <IonIcon
+          name="bluetooth"
+          color={colors.default.bluetooth.translucid[600]}
+          size={112}
+        />
+      </DashboardItemBackground>
+      <DashboardItemContent>
+        <DashboardItemValue>
+          {value.toString().padStart(2, "0")}
+        </DashboardItemValue>
+        <DashboardItemTitle>Wireless</DashboardItemTitle>
+      </DashboardItemContent>
+    </DashboardItem>
   );
 };
 
-const UnknownLogs = () => {
-  const { logs } = useUnknownLogs();
-
+const FailedLogs: FC<DashboardItemProps> = ({ value = 0 }) => {
   return (
-    <DashboardItem
-      icon="help-circle"
-      color="tintAccent"
-      title="Unknown"
-      logs={logs?.length ?? 0}
-    />
-  );
-};
-
-const FailedLogs: FC<DashboardItemProps> = ({ value }) => {
-  return (
-    <DashboardItem
-      icon="close-circle"
-      color="secondary"
-      title="Failed"
-      logs={value ?? 0}
-    />
+    <DashboardItem color="secondary" logs={value ?? 0}>
+      <DashboardItemBackground>
+        <IonIcon
+          name="close-circle"
+          color={colors.default.secondary.translucid[600]}
+          size={112}
+        />
+      </DashboardItemBackground>
+      <DashboardItemContent>
+        <DashboardItemValue>
+          {value.toString().padStart(2, "0")}
+        </DashboardItemValue>
+        <DashboardItemTitle>Failed</DashboardItemTitle>
+      </DashboardItemContent>
+    </DashboardItem>
   );
 };
 
@@ -413,100 +365,6 @@ const PersonalStats = () => {
       </View>
       <SuccessfulLogs value={stats?.successful} />
     </View>
-  );
-};
-
-const SuccessfulPersonalLogs = () => {
-  const isLight = useColorScheme() === "light";
-  const { logs: successfulLogs } = useUserSuccessfulLogs();
-  const sv = useSharedValue(0);
-
-  useEffect(() => {
-    sv.value = withRepeat(withTiming(1, { duration: 500 }), 2, true);
-  }, [successfulLogs?.length]);
-
-  const animatedItem = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(
-      sv.value,
-      [0, 1],
-      [
-        isLight
-          ? colors.default.tint.translucid[500]
-          : colors.default.tint.translucid[100],
-        colors.default.tint.translucid[400],
-      ]
-    );
-
-    return {
-      backgroundColor,
-    };
-  });
-
-  return (
-    <Animated.View
-      style={[
-        styles.successContainer,
-        {
-          borderColor: colors.default.tint[400],
-          backgroundColor: isLight
-            ? colors.default.tint.translucid[500]
-            : colors.default.tint.translucid[100],
-        },
-        animatedItem,
-      ]}
-    >
-      <Text
-        style={[
-          styles.bubbleText,
-          {
-            color: colors.default.white[100],
-            fontSize: 72,
-            fontFamily: fonts.inter,
-          },
-        ]}
-      >
-        {successfulLogs?.length.toString().padStart(2, "0") ?? "00"}
-      </Text>
-      <Text
-        style={[
-          styles.bubbleText,
-          {
-            color: isLight
-              ? colors.default.white[100]
-              : colors.default.white.translucid[900],
-            fontSize: 16,
-          },
-        ]}
-      >
-        Entries
-      </Text>
-    </Animated.View>
-  );
-};
-
-const BluetoothPersonalLogs = () => {
-  const { logs } = useUserBluetoothLogs();
-
-  return (
-    <DashboardItem
-      icon="bluetooth"
-      title="Wireless"
-      color="bluetooth"
-      logs={logs?.length ?? 0}
-    />
-  );
-};
-
-const FailedPersonalLogs = () => {
-  const { logs } = useUserFailedLogs();
-
-  return (
-    <DashboardItem
-      icon="close-circle"
-      title="Failed"
-      color="secondary"
-      logs={logs?.length ?? 0}
-    />
   );
 };
 

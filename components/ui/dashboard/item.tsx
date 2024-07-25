@@ -1,5 +1,13 @@
-import { ComponentProps, FC, useEffect } from "react";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { FC, ReactNode, useEffect } from "react";
+import {
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+  useColorScheme,
+} from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -8,19 +16,17 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { IonIcon } from "@/components/icons/ion";
-
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 
 interface Props {
   logs: number;
-  title: string;
   color: keyof typeof colors.default;
-  icon: ComponentProps<typeof IonIcon>["name"];
+  children?: ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
+export const DashboardItem: FC<Props> = ({ logs, color, children, style }) => {
   const sv = useSharedValue(0);
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
@@ -50,8 +56,6 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
     };
   });
 
-  const iconColor = colors.default[color].translucid[600];
-
   return (
     <Animated.View
       style={[
@@ -61,51 +65,90 @@ export const DashboardItem: FC<Props> = ({ logs, title, icon, color }) => {
           borderWidth: 2,
           borderColor: colors.default[color][400],
         },
+        style,
       ]}
     >
-      <View
-        style={[
-          {
-            ...StyleSheet.absoluteFillObject,
-            height: "160%",
-            width: "175%",
-            // backgroundColor: "red",
-            // top: 12,
-            // left: 24,
-            alignItems: "center",
-            justifyContent: "center",
-          },
-        ]}
-      >
-        <IonIcon name={icon} color={iconColor} size={112} />
-      </View>
-      <View style={[styles.dataTextContainer]}>
-        <Text
-          style={[
-            styles.bubbleText,
-            {
-              fontSize: 40,
-              color: colors.default.white[100],
-            },
-          ]}
-        >
-          {logs.toString().padStart(2, "0")}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={[
-            styles.bubbleText,
-            {
-              color: isLight
-                ? colors.default.white[100]
-                : colors.default.white.translucid[900],
-            },
-          ]}
-        >
-          {title}
-        </Text>
-      </View>
+      {children}
     </Animated.View>
+  );
+};
+
+interface DashboardItemBackgroundProps {
+  children: ReactNode;
+}
+
+export const DashboardItemBackground: FC<DashboardItemBackgroundProps> = ({
+  children,
+}) => {
+  return (
+    <View
+      style={[
+        {
+          ...StyleSheet.absoluteFillObject,
+          height: "160%",
+          width: "175%",
+          alignItems: "center",
+          justifyContent: "center",
+        },
+      ]}
+    >
+      {children}
+    </View>
+  );
+};
+
+interface ItemContentProps {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export const DashboardItemContent: FC<ItemContentProps> = ({
+  children,
+  style,
+}) => {
+  return <View style={[styles.dataTextContainer, style]}>{children}</View>;
+};
+
+interface ItemTextProps {
+  children: ReactNode;
+  style?: StyleProp<TextStyle>;
+}
+
+export const DashboardItemValue: FC<ItemTextProps> = ({ children, style }) => {
+  return (
+    <Text
+      style={[
+        styles.bubbleText,
+        {
+          fontSize: 40,
+          color: colors.default.white[100],
+        },
+        style,
+      ]}
+    >
+      {children}
+    </Text>
+  );
+};
+
+export const DashboardItemTitle: FC<ItemTextProps> = ({ children, style }) => {
+  const isLight = useColorScheme() === "light";
+
+  return (
+    <Text
+      numberOfLines={1}
+      style={[
+        styles.bubbleText,
+        {
+          color: isLight
+            ? colors.default.white[100]
+            : colors.default.white.translucid[900],
+        },
+        style,
+      ]}
+    >
+      {children}
+    </Text>
   );
 };
 

@@ -11,11 +11,33 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { FC, ReactNode } from "react";
 import { LinkProps } from "expo-router/build/link/Link";
+import { useUserContext } from "@/context/user-context";
+import { useMemberships } from "@/hooks/use-membership";
+import { IonIcon } from "../icons/ion";
+import { MaterialIcon } from "../icons/material";
+import { FAIcon } from "../icons/font-awesome";
+import Animated, {
+  Easing,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 export const ProfileMenu = () => {
   const colorScheme = useColorScheme();
 
+  const { user } = useUserContext();
+  const { status, data } = useMemberships(user.id);
+
   const isLight = colorScheme === "light";
+
+  const canSendNotifications =
+    user.isRoot || data?.some((membership) => membership.role.level >= 50);
+
+  const iconColor = isLight
+    ? colors.default.tint[400]
+    : colors.default.tint[100];
 
   return (
     <View style={[styles.cardShadow]}>
@@ -29,50 +51,108 @@ export const ProfileMenu = () => {
           },
         ]}
       >
-        <MenuItem href="/(app)/profile/requests">Your requests</MenuItem>
-        <MenuItem href="/(app)/profile/rooms">Your rooms</MenuItem>
-        <MenuItem href="/(app)/profile/passcode">Your passcode</MenuItem>
-        <MenuItem href="/(app)/profile/send-notification">
-          Send notification
+        <MenuItem href="/(app)/profile/requests">
+          <MenuItemIcon>
+            <FAIcon name="wpforms" color={iconColor} size={24} />
+          </MenuItemIcon>
+          <MenuItemLabel>Your requests</MenuItemLabel>
         </MenuItem>
+        <MenuItem href="/(app)/profile/rooms">
+          <MenuItemIcon>
+            <MaterialIcon name="room" color={iconColor} size={24} />
+          </MenuItemIcon>
+          <MenuItemLabel>Your rooms</MenuItemLabel>
+        </MenuItem>
+        <MenuItem href="/(app)/profile/passcode">
+          <MenuItemIcon>
+            <IonIcon name="code-working" color={iconColor} size={24} />
+          </MenuItemIcon>
+          <MenuItemLabel>Your passcode</MenuItemLabel>
+        </MenuItem>
+        {status === "success" && canSendNotifications && (
+          <MenuItem href="/(app)/profile/send-notification">
+            <MenuItemIcon>
+              <IonIcon name="notifications" color={iconColor} size={24} />
+            </MenuItemIcon>
+            <MenuItemLabel>Send notification</MenuItemLabel>
+          </MenuItem>
+        )}
       </View>
     </View>
   );
 };
 
 const MenuItem: FC<LinkProps> = ({ href, children }) => {
+  const sv = useSharedValue(0);
+
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
+
+  const viewStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.tint.translucid[200]
+          : colors.default.tint.translucid[100],
+        isLight
+          ? colors.default.tint.translucid[300]
+          : colors.default.tint.translucid[200],
+      ]
+    );
+
+    return { backgroundColor };
+  });
+
+  const onPressIn = () => {
+    sv.value = withTiming(1, {
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
+    });
+  };
+
+  const onPressOut = () => {
+    sv.value = withTiming(0, {
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
+    });
+  };
 
   return (
     <Link href={href} asChild>
       <Pressable>
-        <View
-          style={[
-            styles.linkWrapper,
-            {
-              backgroundColor: isLight
-                ? colors.default.tint.translucid[200]
-                : colors.default.tint.translucid[100],
-            },
-          ]}
+        <Animated.View
+          style={[styles.linkWrapper, viewStyles]}
+          onTouchStart={onPressIn}
+          onTouchEnd={onPressOut}
         >
-          <Text
-            style={[
-              styles.text,
-              styles.link,
-              {
-                color: isLight
-                  ? colors.default.tint[400]
-                  : colors.default.tint[100],
-              },
-            ]}
-          >
-            {children}
-          </Text>
-        </View>
+          {children}
+        </Animated.View>
       </Pressable>
     </Link>
+  );
+};
+
+const MenuItemIcon = ({ children }: { children: ReactNode }) => {
+  return <View style={[styles.iconWrapper]}>{children}</View>;
+};
+
+const MenuItemLabel = ({ children }: { children: ReactNode }) => {
+  const isLight = useColorScheme() === "light";
+
+  return (
+    <Text
+      style={[
+        styles.text,
+        styles.link,
+        {
+          color: isLight ? colors.default.tint[400] : colors.default.tint[100],
+        },
+      ]}
+    >
+      {children}
+    </Text>
   );
 };
 
@@ -99,6 +179,16 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  iconWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    padding: 4,
+    backgroundColor: colors.default.black.translucid[200],
   },
   text: {
     paddingTop: 4,

@@ -16,7 +16,7 @@ export const Membership = z.object({
 
 export type Membership = z.infer<typeof Membership>;
 
-export const useMemberships = (userId?: string) => {
+export const useMemberships = (userId: string) => {
   const authUser = firebaseAuth.currentUser;
 
   const membershipsQuery = useQuery({

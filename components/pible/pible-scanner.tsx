@@ -180,7 +180,7 @@ export const PibleScanner = () => {
       btHighlight.value = withTiming(1);
     } else {
       btHighlight.value = withRepeat(
-        withTiming(0, { duration: 600, easing: Easing.ease}),
+        withTiming(0, { duration: 600, easing: Easing.ease }),
         0,
         true
       );
@@ -314,7 +314,7 @@ export const PibleScanner = () => {
             >
               <Checkbox
                 checked={autoConnect}
-                onChange={() => setAutoConnect(!autoConnect)}
+                onChange={(value) => setAutoConnect(value)}
                 disabled={scanState !== "idle"}
               >
                 <CheckboxLabel style={[styles.actionLabel]}>

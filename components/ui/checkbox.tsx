@@ -15,7 +15,7 @@ import { IonIcon } from "../icons/ion";
 interface CheckboxProps {
   disabled?: boolean;
   checked?: boolean;
-  onChange: () => void;
+  onChange: (value: boolean) => void;
   children: ReactNode;
 }
 
@@ -44,7 +44,7 @@ export const Checkbox: FC<CheckboxProps> = ({
   return (
     <Pressable
       style={[styles.container, disabled && styles.disabled]}
-      onPress={disabled ? null : onChange}
+      onPress={disabled ? null : onChange.bind(null, !checked)}
     >
       <View
         style={[

@@ -36,13 +36,12 @@ const variants = {
   },
 };
 
-interface Props {
+interface Props extends PressableProps {
   variant?: keyof typeof variants;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   wrapperStyle?: StyleProp<ViewStyle>;
-  onPress: () => void;
 }
 
 export const TextButton: FC<Props> = ({

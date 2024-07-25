@@ -32,6 +32,9 @@ export const ProfileMenu = () => {
         <MenuItem href="/(app)/profile/requests">Your requests</MenuItem>
         <MenuItem href="/(app)/profile/rooms">Your rooms</MenuItem>
         <MenuItem href="/(app)/profile/passcode">Your passcode</MenuItem>
+        <MenuItem href="/(app)/profile/send-notification">
+          Send notification
+        </MenuItem>
       </View>
     </View>
   );

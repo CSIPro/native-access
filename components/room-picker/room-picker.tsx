@@ -48,11 +48,11 @@ export const RoomPicker: FC<Props> = ({
 
   const { user } = useUserContext();
   const { selectedRoom, setSelectedRoom, rooms } = useRoomContext();
-  const { status: membershipsStatusF, data: memberships } = useMemberships(
+  const { status: membershipsStatus, data: memberships } = useMemberships(
     user.id
   );
 
-  if (membershipsStatusF === "loading") {
+  if (membershipsStatus === "loading") {
     return (
       <View style={[styles.centered]}>
         <ActivityIndicator size="large" color={colors.default.tint[400]} />
@@ -60,7 +60,7 @@ export const RoomPicker: FC<Props> = ({
     );
   }
 
-  if (membershipsStatusF === "error") {
+  if (membershipsStatus === "error") {
     return (
       <View style={[styles.centered]}>
         <Text style={[styles.text, { color: colors.default.black[400] }]}>

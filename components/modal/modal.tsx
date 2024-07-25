@@ -6,25 +6,26 @@ import {
   Text,
   useColorScheme,
   Pressable,
+  ViewStyle,
+  StyleProp,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import fonts from "../../constants/fonts";
-import colors from "../../constants/colors";
+
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   children: ReactNode;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Modal: FC<Props> = ({ visible, onClose, children }) => {
   const colorScheme = useColorScheme();
 
-  const palette = colors[colorScheme];
   const isLight = colorScheme === "light";
 
   return (
-    // <SafeAreaView style={[styles.centered]}>
     <NativeModal
       animationType="slide"
       transparent={true}
@@ -50,7 +51,6 @@ export const Modal: FC<Props> = ({ visible, onClose, children }) => {
         </View>
       </View>
     </NativeModal>
-    // </SafeAreaView>
   );
 };
 

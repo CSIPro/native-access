@@ -1,6 +1,7 @@
 import { Stack, useRouter } from "expo-router";
 import {
   ActivityIndicator,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -77,7 +78,7 @@ export default function Passcode() {
     : colors.default.tint[100];
 
   return (
-    <View
+    <ScrollView
       style={[
         {
           backgroundColor: isLight
@@ -100,7 +101,7 @@ export default function Passcode() {
           },
         }}
       />
-      <View style={{ flex: 1, padding: 4 }}>
+      <View style={{ flex: 1, padding: 4, gap: 8 }}>
         <Text
           style={[
             styles.text,
@@ -113,60 +114,46 @@ export default function Passcode() {
         >
           Here you can update your passcode in case you need it
         </Text>
-        <View
-          style={[
-            {
-              gap: 8,
-            },
-          ]}
-        >
-          <Controller
-            control={control}
-            name="passcode"
-            render={({ field: { onChange, value } }) => (
-              <Input
-                label="Passcode"
-                value={value}
-                onChangeText={onChange}
-                placeholder="e.g. A1B2C3"
-                icon={
-                  <IonIcon name="code-working" size={24} color={iconColor} />
-                }
-                errorText={errors.passcode?.message || error?.message}
-                secureTextEntry={!showPasscode}
+        <Controller
+          control={control}
+          name="passcode"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              label="Passcode"
+              value={value}
+              onChangeText={onChange}
+              placeholder="e.g. A1B2C3"
+              icon={<IonIcon name="code-working" size={24} color={iconColor} />}
+              errorText={errors.passcode?.message || error?.message}
+              secureTextEntry={!showPasscode}
+            >
+              <InputAction onPress={() => setShowPasscode((prev) => !prev)}>
+                <MaterialIcon
+                  name={showPasscode ? "visibility-off" : "visibility"}
+                  color={iconColor}
+                  size={24}
+                />
+              </InputAction>
+              <InputAction
+                onPress={() => {
+                  setValue("passcode", generatePasscode());
+                  setShowPasscode(true);
+                }}
               >
-                <InputAction onPress={() => setShowPasscode((prev) => !prev)}>
-                  <MaterialIcon
-                    name={showPasscode ? "visibility-off" : "visibility"}
-                    color={iconColor}
-                    size={24}
-                  />
-                </InputAction>
-                <InputAction
-                  onPress={() => {
-                    setValue("passcode", generatePasscode());
-                    setShowPasscode(true);
-                  }}
-                >
-                  <MaterialIcon
-                    name="auto-awesome"
-                    color={iconColor}
-                    size={24}
-                  />
-                </InputAction>
-              </Input>
-            )}
-          />
-          <TextButton onPress={handleSubmit(submit)}>
-            {isLoading ? (
-              <ActivityIndicator size="small" color={iconColor} />
-            ) : (
-              "Submit"
-            )}
-          </TextButton>
-        </View>
+                <MaterialIcon name="auto-awesome" color={iconColor} size={24} />
+              </InputAction>
+            </Input>
+          )}
+        />
+        <TextButton onPress={handleSubmit(submit)}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={iconColor} />
+          ) : (
+            "Submit"
+          )}
+        </TextButton>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -12,12 +12,25 @@ import {
   ViewStyle,
   useColorScheme,
 } from "react-native";
+import Animated, {
+  Easing,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 const variants = {
   default: {
     view: {
-      light: { backgroundColor: colors.default.tint.translucid[100] },
-      dark: { backgroundColor: colors.default.tint.translucid[100] },
+      light: {
+        blur: colors.default.tint.translucid[100],
+        focus: colors.default.tint.translucid[200],
+      },
+      dark: {
+        blur: colors.default.tint.translucid[100],
+        focus: colors.default.tint.translucid[200],
+      },
     },
     text: {
       light: { color: colors.default.tint[400] },
@@ -26,8 +39,14 @@ const variants = {
   },
   secondary: {
     view: {
-      light: { backgroundColor: colors.default.secondary.translucid[100] },
-      dark: { backgroundColor: colors.default.secondary.translucid[100] },
+      light: {
+        blur: colors.default.secondary.translucid[100],
+        focus: colors.default.secondary.translucid[200],
+      },
+      dark: {
+        blur: colors.default.secondary.translucid[100],
+        focus: colors.default.secondary.translucid[200],
+      },
     },
     text: {
       light: { color: colors.default.secondary[400] },
@@ -52,16 +71,43 @@ export const TextButton: FC<Props> = ({
   wrapperStyle,
   onPress,
 }) => {
+  const sv = useSharedValue(0);
   const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
+
+  const viewStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        variants[variant].view[colorScheme].blur,
+        variants[variant].view[colorScheme].focus,
+      ]
+    );
+
+    return { backgroundColor };
+  });
+
+  const onPressIn = () => {
+    sv.value = withTiming(1, {
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
+    });
+  };
+
+  const onPressOut = () => {
+    sv.value = withTiming(0, {
+      duration: 200,
+      easing: Easing.inOut(Easing.ease),
+    });
+  };
 
   return (
     <Pressable onPress={onPress} style={[wrapperStyle]}>
-      <View
-        style={[
-          styles.textButton,
-          variants[variant].view[colorScheme ?? "light"],
-          style,
-        ]}
+      <Animated.View
+        style={[styles.textButton, viewStyles, style]}
+        onTouchStart={onPressIn}
+        onTouchEnd={onPressOut}
       >
         <Text
           style={[
@@ -72,7 +118,7 @@ export const TextButton: FC<Props> = ({
         >
           {children}
         </Text>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 };

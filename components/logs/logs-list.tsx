@@ -76,7 +76,7 @@ export const LogsList: FC<Props> = ({
       renderItem={({ item: log }) => {
         const userName = log.user
           ? `${log.user.firstName} ${log.user.lastName}`
-          : "Unknown user";
+          : "Usuario desconocido";
 
         return (
           <LogItem
@@ -105,7 +105,7 @@ export const LogsList: FC<Props> = ({
               },
             ]}
           >
-            No logs found
+            No se encontraron registros de entrada
           </Text>
         </View>
       }

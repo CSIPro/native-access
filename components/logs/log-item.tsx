@@ -27,6 +27,7 @@ import { useUserContext } from "@/context/user-context";
 import { useLogActions } from "@/hooks/use-logs";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { es } from "date-fns/locale";
 
 interface LogItemProps {
   id: string;
@@ -179,7 +180,9 @@ export const LogItemTimestamp: FC<LogItemTimestampProps> = ({ timestamp }) => {
   return (
     <View style={[styles.timestampContainer]}>
       <Text style={[styles.timestamp]}>{format(date, "HH:mm:ss")}</Text>
-      <Text style={[styles.timestamp]}>{format(date, "PPP")}</Text>
+      <Text style={[styles.timestamp]}>
+        {format(date, "PPP", { locale: es })}
+      </Text>
     </View>
   );
 };

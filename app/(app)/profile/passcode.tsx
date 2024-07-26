@@ -25,16 +25,17 @@ import { generatePasscode } from "@/lib/utils";
 const PasscodeSchema = z.object({
   passcode: z
     .string({
-      required_error: "Your passcode is required",
+      required_error: "Tu código de acceso es obligatorio",
     })
     .min(4, {
-      message: "Your passcode must be at least 4 characters long",
+      message: "Tu código de acceso debe tener al menos 4 caracteres",
     })
     .max(10, {
-      message: "Your passcode must be at most 10 characters long",
+      message: "Tu código de acceso no puede tener más de 10 caracteres",
     })
     .regex(/^(?=.*[\d])(?=.*[A-D])[\dA-D]{4,10}$/, {
-      message: "Your passcode must contain numbers and letters from A to D",
+      message:
+        "Tu código de acceso debe contener al menos un número y una letra de la A a la D",
     })
     .optional(),
 });
@@ -91,7 +92,7 @@ export default function Passcode() {
     >
       <Stack.Screen
         options={{
-          headerTitle: "Update passcode",
+          headerTitle: "Código de acceso",
           headerStyle: {
             backgroundColor: colors.default.tint[400],
           },
@@ -112,17 +113,18 @@ export default function Passcode() {
             },
           ]}
         >
-          Here you can update your passcode in case you need it
+          Aquí puedes reestablecer tu código de acceso en case de que necesites
+          usar el teclado físico
         </Text>
         <Controller
           control={control}
           name="passcode"
           render={({ field: { onChange, value } }) => (
             <Input
-              label="Passcode"
+              label="Código de acceso"
               value={value}
               onChangeText={onChange}
-              placeholder="e.g. A1B2C3"
+              placeholder="A1B2C3"
               icon={<IonIcon name="code-working" size={24} color={iconColor} />}
               errorText={errors.passcode?.message || error?.message}
               secureTextEntry={!showPasscode}
@@ -149,7 +151,7 @@ export default function Passcode() {
           {isLoading ? (
             <ActivityIndicator size="small" color={iconColor} />
           ) : (
-            "Submit"
+            "Guardar"
           )}
         </TextButton>
       </View>

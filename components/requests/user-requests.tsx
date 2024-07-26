@@ -35,7 +35,9 @@ export const UserRequests = () => {
   if (status === "error") {
     return (
       <View style={[styles.main, styles.centered]}>
-        <Text style={[styles.errorText, { color: textColor }]}>Error</Text>
+        <Text style={[styles.errorText, { color: textColor }]}>
+          No fue posible obtener tus solicitudes
+        </Text>
       </View>
     );
   }
@@ -59,7 +61,7 @@ export const UserRequests = () => {
         ListEmptyComponent={
           <View style={[styles.centered]}>
             <Text style={[styles.errorText, { color: textColor }]}>
-              Quite empty here...
+              No hay solicitudes
             </Text>
           </View>
         }

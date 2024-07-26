@@ -45,13 +45,13 @@ export const RequestDetails: FC<Props> = ({
 
   return (
     <Modal visible={open} onClose={onClose}>
-      <ModalHeader>Request Details</ModalHeader>
+      <ModalHeader>Detalles de la solicitud</ModalHeader>
       <ModalBody>{children}</ModalBody>
       {isPending && canHandleRequests && (
         <ModalFooter>
-          <TextButton onPress={onApprove}>Approve</TextButton>
+          <TextButton onPress={onApprove}>Aprobar</TextButton>
           <TextButton variant="secondary" onPress={onReject}>
-            Reject
+            Rechazar
           </TextButton>
         </ModalFooter>
       )}

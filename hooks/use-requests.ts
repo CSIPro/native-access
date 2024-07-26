@@ -227,6 +227,12 @@ export const useRequestHelpers = (request?: Request) => {
 export const NestRequestStatus = z.enum(["pending", "approved", "rejected"]);
 export type NestRequestStatus = z.infer<typeof NestRequestStatus>;
 
+export const StatusLabels: Record<NestRequestStatus, string> = {
+  approved: "Aprobada",
+  pending: "Pendiente",
+  rejected: "Rechazada",
+};
+
 export const PlainNestRequest = z.object({
   id: z.string(),
   userId: z.string(),

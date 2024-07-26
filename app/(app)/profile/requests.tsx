@@ -24,7 +24,7 @@ export default function Requests() {
     >
       <Stack.Screen
         options={{
-          headerTitle: "Your requests",
+          headerTitle: "Tus solicitudes",
           headerStyle: {
             backgroundColor: colors.default.tint[400],
           },

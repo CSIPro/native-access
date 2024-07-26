@@ -1,21 +1,4 @@
 import { FC, useState } from "react";
-import {
-  useRequestHelpers,
-  PopulatedNestRequest,
-  NestRequestStatus,
-  useNestRequestHelpers,
-} from "../../hooks/use-requests";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from "react-native";
-import { useUserDataWithId } from "../../hooks/use-user-data";
-import { useRoom } from "../../hooks/use-rooms";
-import colors from "../../constants/colors";
-import fonts from "../../constants/fonts";
 import { format, formatDistanceToNow } from "date-fns/esm";
 import {
   RequestDetails,
@@ -26,6 +9,22 @@ import {
   RequestDetailsUser,
 } from "./request-details";
 import { formatUserName } from "@/lib/utils";
+import { es } from "date-fns/locale";
+import {
+  NestRequestStatus,
+  PopulatedNestRequest,
+  StatusLabels,
+  useNestRequestHelpers,
+} from "@/hooks/use-requests";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
+import colors from "@/constants/colors";
+import fonts from "@/constants/fonts";
 
 interface Props {
   request: PopulatedNestRequest;
@@ -100,15 +99,17 @@ export const RequestItem: FC<Props> = ({ request }) => {
             {formatUserName(request.user)}
           </Text>
           <Text numberOfLines={1} style={[styles.itemText, styles.roomName]}>
-            {request.room.name ?? "Unknown"}
+            {request.room.name ?? "Desconocido"}
           </Text>
         </View>
         <View style={[styles.statusWrapper]}>
           <Text numberOfLines={1} style={[styles.itemText, styles.status]}>
-            {NestRequestStatus.enum[request.status]}
+            {StatusLabels[request.status ?? NestRequestStatus.enum.pending]}
           </Text>
           <Text numberOfLines={1} style={[styles.itemText, styles.date]}>
-            {formatDistanceToNow(new Date(request.createdAt))} ago
+            {`hace ${formatDistanceToNow(new Date(request.createdAt), {
+              locale: es,
+            })}`}
           </Text>
         </View>
       </Pressable>
@@ -128,10 +129,12 @@ export const RequestItem: FC<Props> = ({ request }) => {
           </RequestDetailsAdmin>
         )}
         <RequestDetailsStatus>
-          {NestRequestStatus.enum[request.status]}
+          {StatusLabels[request.status]}
         </RequestDetailsStatus>
         <RequestDetailsDate>
-          {format(new Date(request.createdAt), "MMM dd, yyyy 'at' HH:mm")}
+          {format(new Date(request.createdAt), "PPPp", {
+            locale: es,
+          })}
         </RequestDetailsDate>
       </RequestDetails>
     </>

@@ -73,7 +73,7 @@ export const BSMHeader: FC<BSMHeaderProps> = ({
   style,
   textStyle,
   action,
-  actionLabel = "Done",
+  actionLabel = "Listo",
 }) => {
   const isLight = useColorScheme() === "light";
 

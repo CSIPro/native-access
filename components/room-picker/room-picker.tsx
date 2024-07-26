@@ -64,7 +64,7 @@ export const RoomPicker: FC<Props> = ({
     return (
       <View style={[styles.centered]}>
         <Text style={[styles.text, { color: colors.default.black[400] }]}>
-          Error while fetching memberships
+          Error al cargar tus salones
         </Text>
       </View>
     );
@@ -89,7 +89,7 @@ export const RoomPicker: FC<Props> = ({
       onChange={setSelectedRoom}
       compact={compact}
       disabled={disabled}
-      sheetTitle="Pick a room"
+      sheetTitle="Escoge un salón"
       value={selectedRoom}
       icon={
         compact ? null : (

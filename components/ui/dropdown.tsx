@@ -57,7 +57,7 @@ export const Dropdown: FC<Props> = ({
   compact = false,
   sheetTitle,
   items = [],
-  placeholder = "Pick one",
+  placeholder = "Escoge uno",
   disabled = false,
   value,
   label,

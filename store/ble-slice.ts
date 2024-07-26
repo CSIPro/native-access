@@ -97,7 +97,6 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const scanForDevices = () => {
     set({ scanState: ScanState.enum.scanning });
     manager.startDeviceScan(
-      // null,
       [serviceUuid],
       { scanMode: ScanMode.Balanced },
       (error, device) => {
@@ -171,7 +170,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
         })
         .then((connectedDevice) => {
           LocalAuthentication.authenticateAsync({
-            promptMessage: "Confirm your identity",
+            promptMessage: "Confirma tu identidad",
           })
             .then((result) => {
               if (!result.success) {

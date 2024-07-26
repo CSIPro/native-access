@@ -22,8 +22,8 @@ export const createLogsSlice: StateCreator<LogsSlice> = (set, get) => {
   const confirmDeletion = async () => {
     try {
       const authed = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Authenticate to delete the log",
-        cancelLabel: "Cancel",
+        promptMessage: "Confirma tu identidad",
+        cancelLabel: "Cancelar",
       });
 
       if (!authed.success) {

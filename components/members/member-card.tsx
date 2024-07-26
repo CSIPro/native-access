@@ -39,8 +39,8 @@ export const MemberCard: FC<Props> = ({
   const handleKick = async () => {
     try {
       const auth = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Authenticate to kick a member",
-        cancelLabel: "Cancel",
+        promptMessage: "Confirma tu identidad para continuar",
+        cancelLabel: "Cancelar",
       });
       if (!auth.success) {
         closeKickModal();
@@ -56,7 +56,7 @@ export const MemberCard: FC<Props> = ({
   return (
     <>
       <Modal visible={open} onClose={onClose}>
-        <ModalHeader>Member Details</ModalHeader>
+        <ModalHeader>Detalles de usuario</ModalHeader>
         <ModalBody>{children}</ModalBody>
         <ModalFooter>
           {kickable && (
@@ -64,10 +64,10 @@ export const MemberCard: FC<Props> = ({
               variant="secondary"
               onPress={() => setOpenKickModal(true)}
             >
-              Kick
+              Expulsar
             </TextButton>
           )}
-          <TextButton onPress={onClose}>Okay</TextButton>
+          <TextButton onPress={onClose}>Cerrar</TextButton>
         </ModalFooter>
       </Modal>
       <KickModal
@@ -186,7 +186,7 @@ export const MemberCardRole: FC<MemberCardRoleProps> = ({
             style={[{ paddingVertical: 0 }]}
             textStyle={[{ fontSize: 12 }]}
           >
-            Change
+            Cambiar
           </TextButton>
           <RolePicker
             open={openPicker}
@@ -234,7 +234,7 @@ export const MemberCardAuthorized: FC<{ authorized: boolean }> = ({
           },
         ]}
       >
-        {authorized ? "Authorized" : "Unauthorized"}
+        {authorized ? "Autorizado" : "No autorizado"}
       </Text>
     </View>
   );
@@ -256,17 +256,17 @@ const KickModal: FC<KickModalProps> = ({ open, onClose, onKick }) => {
 
   return (
     <Modal visible={open} onClose={onClose}>
-      <ModalHeader>Kick member</ModalHeader>
+      <ModalHeader>Expulsar miembro</ModalHeader>
       <ModalBody>
         <Text style={[styles.text, { color: textColor }]}>
-          Are you sure you want to kick this member?
+          ¿Seguro de que quieres expulsar a este usuario?
         </Text>
       </ModalBody>
       <ModalFooter>
         <TextButton variant="secondary" onPress={onKick}>
-          Kick
+          Expulsar
         </TextButton>
-        <TextButton onPress={onClose}>Cancel</TextButton>
+        <TextButton onPress={onClose}>Cancelar</TextButton>
       </ModalFooter>
     </Modal>
   );

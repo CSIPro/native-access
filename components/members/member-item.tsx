@@ -154,7 +154,7 @@ export const MemberItem: FC<Props> = ({ member }) => {
             roleId={member.role.id}
             userId={member.user.id}
           >
-            {member.role.name ?? "Unknown"}
+            {member.role.name ?? "Desconocido"}
           </MemberCardRole>
           <MemberCardAuthorized authorized={localAccess} />
         </MemberCard>

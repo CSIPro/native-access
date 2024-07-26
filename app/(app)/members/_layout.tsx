@@ -43,14 +43,14 @@ export default function MembersLayout() {
         <MaterialTopTabs.Screen
           name="index"
           options={{
-            title: "Members",
+            title: "Miembros",
             lazy: true,
             ...tabStyle,
           }}
         />
         <MaterialTopTabs.Screen
           name="requests"
-          options={{ title: "Requests", lazy: true, ...tabStyle }}
+          options={{ title: "Solicitudes", lazy: true, ...tabStyle }}
         />
       </MaterialTopTabs>
     </SafeAreaView>

@@ -55,26 +55,26 @@ export const ProfileMenu = () => {
           <MenuItemIcon>
             <FAIcon name="wpforms" color={iconColor} size={24} />
           </MenuItemIcon>
-          <MenuItemLabel>Your requests</MenuItemLabel>
+          <MenuItemLabel>Tus solicitudes</MenuItemLabel>
         </MenuItem>
         <MenuItem href="/(app)/profile/rooms">
           <MenuItemIcon>
             <MaterialIcon name="room" color={iconColor} size={24} />
           </MenuItemIcon>
-          <MenuItemLabel>Your rooms</MenuItemLabel>
+          <MenuItemLabel>Tus salones</MenuItemLabel>
         </MenuItem>
         <MenuItem href="/(app)/profile/passcode">
           <MenuItemIcon>
             <IonIcon name="code-working" color={iconColor} size={24} />
           </MenuItemIcon>
-          <MenuItemLabel>Your passcode</MenuItemLabel>
+          <MenuItemLabel>Código de acceso</MenuItemLabel>
         </MenuItem>
         {status === "success" && canSendNotifications && (
           <MenuItem href="/(app)/profile/send-notification">
             <MenuItemIcon>
               <IonIcon name="notifications" color={iconColor} size={24} />
             </MenuItemIcon>
-            <MenuItemLabel>Send notification</MenuItemLabel>
+            <MenuItemLabel>Notificaciones</MenuItemLabel>
           </MenuItem>
         )}
       </View>

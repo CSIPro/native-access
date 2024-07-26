@@ -73,7 +73,7 @@ export const ProfileCard = () => {
             },
           ]}
         >
-          Something went wrong while retrieving data
+          No fue posible conectar con el servidor
         </Text>
       </View>
     );

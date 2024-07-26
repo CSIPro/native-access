@@ -6,6 +6,7 @@ import { NestRoom } from "@/hooks/use-rooms";
 import { z } from "zod";
 import { NestUser } from "@/hooks/use-user-data";
 import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const BASE_API_URL = Constants.expoConfig.extra?.authApiUrl;
 
@@ -39,7 +40,7 @@ export const formatBirthday = (date: string) => {
 
   const localDate = new Date(birthday.getTime() + offset);
 
-  return format(localDate, "MMMM dd");
+  return format(localDate, "dd 'de' MMMM", { locale: es });
 };
 
 export const generateNonce = (length: number) => {

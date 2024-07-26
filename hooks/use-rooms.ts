@@ -182,6 +182,13 @@ export const RoomForm = z.object({
   }),
   roomNumber: z.string().optional(),
   name: z.string({ required_error: "El nombre es obligatorio" }),
+  macAddress: z
+    .string()
+    .regex(
+      /^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/gm,
+      "Dirección MAC inválida"
+    )
+    .optional(),
 });
 
 export type RoomForm = z.infer<typeof RoomForm>;

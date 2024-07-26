@@ -21,7 +21,7 @@ export default function Rooms() {
     <View style={[{ backgroundColor: pageBg, flex: 1, width: "100%" }]}>
       <Stack.Screen
         options={{
-          headerTitle: "Your rooms",
+          headerTitle: "Tus salones",
           headerStyle: {
             backgroundColor: colors.default.tint[400],
           },

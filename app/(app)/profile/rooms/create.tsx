@@ -43,12 +43,14 @@ export default function NewRoom() {
       building: undefined,
       name: undefined,
       roomNumber: undefined,
+      macAddress: undefined,
     },
   });
 
   const buildingRef = useRef<TextInput>(null);
   const roomNumberRef = useRef<TextInput>(null);
   const nameRef = useRef<TextInput>(null);
+  const macRef = useRef<TextInput>(null);
 
   const onSubmit = (data: RoomForm) => {
     submitRoom.mutate({
@@ -145,10 +147,28 @@ export default function NewRoom() {
               onChangeText={onChange}
               placeholder={placeholderName}
               icon={<IonIcon name="text" color={iconColor} size={24} />}
-              returnKeyType="done"
-              onSubmitEditing={() => Keyboard.dismiss()}
+              returnKeyType="next"
+              onSubmitEditing={() => macRef.current?.focus()}
               errorText={errors.name?.message}
               autoCapitalize="words"
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="macAddress"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              ref={macRef}
+              label="Dirección MAC"
+              value={value}
+              onChangeText={onChange}
+              placeholder="AB:CD:EF:12:34:56"
+              icon={<IonIcon name="text" color={iconColor} size={24} />}
+              returnKeyType="done"
+              onSubmitEditing={() => Keyboard.dismiss()}
+              errorText={errors.macAddress?.message}
+              autoCapitalize="characters"
             />
           )}
         />

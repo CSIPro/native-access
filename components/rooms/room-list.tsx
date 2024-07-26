@@ -44,7 +44,7 @@ export const RoomList = () => {
     return (
       <View style={[styles.centered]}>
         <Text style={[styles.text, { color: textColor, textAlign: "center" }]}>
-          Something went wrong while obtaining your memberships
+          Ocurrió un error al cargar tus salones
         </Text>
       </View>
     );
@@ -61,7 +61,7 @@ export const RoomList = () => {
   const sectionedRooms = rooms.reduce(
     (acc, room) => {
       const isAvailable = availableRooms.some((r) => r.id === room.id);
-      const section = isAvailable ? "Available" : "Joined";
+      const section = isAvailable ? "Disponibles" : "Ingresados";
 
       if (!acc[section]) {
         acc[section] = [];
@@ -71,7 +71,7 @@ export const RoomList = () => {
 
       return acc;
     },
-    { Available: [] as Array<NestRoom>, Joined: [] as Array<NestRoom> }
+    { Disponibles: [] as Array<NestRoom>, Ingresados: [] as Array<NestRoom> }
   );
 
   const sectionedData = Object.entries(sectionedRooms)
@@ -79,7 +79,7 @@ export const RoomList = () => {
       title,
       data,
     }))
-    .sort((a, _) => (a.title === "Available" ? 1 : -1));
+    .sort((a, _) => (a.title === "Disponibles" ? 1 : -1));
 
   return (
     <SectionList
@@ -102,7 +102,7 @@ export const RoomList = () => {
       )}
       renderItem={({ section, item, index }) => (
         <View style={[{ paddingHorizontal: 4 }]}>
-          <RoomItem room={item} isAvailable={section.title === "Available"} />
+          <RoomItem room={item} isAvailable={section.title === "Disponibles"} />
         </View>
       )}
       contentContainerStyle={{

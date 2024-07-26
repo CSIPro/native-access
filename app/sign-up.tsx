@@ -162,7 +162,7 @@ export default function SignUp() {
           render={({ field: { onChange, value } }) => (
             <Input
               ref={passcodeRef}
-              label="Contraseña"
+              label="Código de acceso"
               value={value}
               onChangeText={onChange}
               placeholder="A1B2C3"

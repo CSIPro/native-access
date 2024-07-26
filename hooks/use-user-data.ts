@@ -395,17 +395,17 @@ export const SignUpForm = z.object({
     }),
   passcode: z
     .string({
-      required_error: "Tu contraseña es obligatoria",
+      required_error: "Tu código de acceso es obligatoria",
     })
     .min(4, {
-      message: "Tu contraseña debe tener al menos 4 caracteres",
+      message: "Tu código de acceso debe tener al menos 4 caracteres",
     })
     .max(10, {
-      message: "Tu contraseña no puede exceder los 10 caracteres",
+      message: "Tu código de acceso no puede exceder los 10 caracteres",
     })
     .regex(/^(?=.*[\d])(?=.*[A-D])[\dA-D]{4,10}$/, {
       message:
-        "Tu contraseña debe contener al menos un número y una letra de la A a la D",
+        "Tu código de acceso debe contener al menos un número y una letra de la A a la D",
     }),
   dateOfBirth: z
     .date({

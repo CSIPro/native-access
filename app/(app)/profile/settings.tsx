@@ -24,7 +24,7 @@ export default function Settings() {
     >
       <Stack.Screen
         options={{
-          headerTitle: "Settings",
+          headerTitle: "Configuración",
           headerStyle: {
             backgroundColor: colors.default.tint[400],
           },

@@ -27,17 +27,18 @@ export const ThemePicker = () => {
   return (
     <View style={[{ padding: 4 }]}>
       <Card>
-        <CardHeader>Theme</CardHeader>
+        <CardHeader>Tema</CardHeader>
         <CardBody>
           <RadioGroup value={theme} onChange={setTheme}>
-            <RadioButton value="light">Light</RadioButton>
-            <RadioButton value="dark">Dark</RadioButton>
-            <RadioButton value="system">Follow system</RadioButton>
+            <RadioButton value="light">Claro</RadioButton>
+            <RadioButton value="dark">Oscuro</RadioButton>
+            <RadioButton value="system">Según el sistema</RadioButton>
           </RadioGroup>
         </CardBody>
         <CardFooter style={[{ justifyContent: "flex-start" }]}>
           <Text style={[styles.text, { color: disclaimerColor, fontSize: 14 }]}>
-            You might need to restart the app for the theme to apply properly
+            Es posible que debas reiniciar la aplicación para ver los
+            cambios.
           </Text>
         </CardFooter>
       </Card>

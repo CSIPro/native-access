@@ -169,7 +169,7 @@ export default function SendNotification() {
     : colors.default.tint[200];
 
   return (
-    <ScrollView style={{ flex: 1, padding: 8, gap: 8 }}>
+    <ScrollView style={{ flex: 1, padding: 8 }}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -179,97 +179,101 @@ export default function SendNotification() {
           headerTintColor: colors.default.white[100],
         }}
       />
-      <Text style={[styles.text]}>
-        Puedes enviar notificaciones a todos los usuarios que pertenecen al
-        salón seleccionado
-      </Text>
-      <View
-        style={{
-          height: 8,
-          borderBottomWidth: 1,
-          borderColor: colors.default.tint[400],
-        }}
-      />
-      <Controller
-        control={control}
-        name="title"
-        render={({ field: { value, onChange } }) => (
-          <Input
-            ref={titleRef}
-            label="Título"
-            value={value}
-            onChangeText={onChange}
-            icon={<IonIcon name="text" color={iconColor} size={24} />}
-            placeholder="Título de la notificación"
-            returnKeyType="next"
-            onSubmitEditing={() => bodyRef.current?.focus()}
-            blurOnSubmit={false}
-            errorText={errors.title?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="body"
-        render={({ field: { value, onChange } }) => (
-          <Input
-            ref={bodyRef}
-            label="Mensaje"
-            value={value}
-            onChangeText={onChange}
-            icon={<IonIcon name="mail" color={iconColor} size={24} />}
-            placeholder="Contenido de la notificación"
-            returnKeyType="done"
-            errorText={errors.body?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="roomId"
-        render={({ field: { onChange, value } }) => (
-          <View>
-            <Dropdown
-              items={items.map((room) => ({
-                key: room.id,
-                value: room.id,
-                label: formatRoomName(room),
-              }))}
-              onChange={onChange}
-              sheetTitle="Escoge un salón"
-              placeholder="Escoge un salón"
-              label="Salón"
+      <View style={[{ flex: 1, gap: 8 }]}>
+        <Text style={[styles.text]}>
+          Puedes enviar notificaciones a todos los usuarios que pertenecen al
+          salón seleccionado
+        </Text>
+        <View
+          style={{
+            height: 8,
+            borderBottomWidth: 1,
+            borderColor: colors.default.tint[400],
+          }}
+        />
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              ref={titleRef}
+              label="Título"
               value={value}
-              icon={<MaterialIcon name="room" size={24} color={iconColor} />}
+              onChangeText={onChange}
+              icon={<IonIcon name="text" color={iconColor} size={24} />}
+              placeholder="Título de la notificación"
+              returnKeyType="next"
+              onSubmitEditing={() => bodyRef.current?.focus()}
+              blurOnSubmit={false}
+              errorText={errors.title?.message}
             />
-            {errors.roomId && (
-              <InputErrorText>{errors.roomId?.message}</InputErrorText>
-            )}
-          </View>
-        )}
-      />
-      <Controller
-        control={control}
-        name="appendAuthor"
-        render={({ field: { value } }) => (
-          <View style={styles.checkboxWrapper}>
-            <Checkbox checked={value} onChange={onChangeAppendSender}>
-              <CheckboxLabel>Incluir nombre del remitente</CheckboxLabel>
-            </Checkbox>
-          </View>
-        )}
-      />
-      <TextButton
-        onPress={
-          sendNotification.status === "loading" ? null : handleSubmit(onSubmit)
-        }
-      >
-        {sendNotification.status === "loading" ? (
-          <ActivityIndicator color={iconColor} />
-        ) : (
-          "Enviar notificación"
-        )}
-      </TextButton>
+          )}
+        />
+        <Controller
+          control={control}
+          name="body"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              ref={bodyRef}
+              label="Mensaje"
+              value={value}
+              onChangeText={onChange}
+              icon={<IonIcon name="mail" color={iconColor} size={24} />}
+              placeholder="Contenido de la notificación"
+              returnKeyType="done"
+              errorText={errors.body?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="roomId"
+          render={({ field: { onChange, value } }) => (
+            <View>
+              <Dropdown
+                items={items.map((room) => ({
+                  key: room.id,
+                  value: room.id,
+                  label: formatRoomName(room),
+                }))}
+                onChange={onChange}
+                sheetTitle="Escoge un salón"
+                placeholder="Escoge un salón"
+                label="Salón"
+                value={value}
+                icon={<MaterialIcon name="room" size={24} color={iconColor} />}
+              />
+              {errors.roomId && (
+                <InputErrorText>{errors.roomId?.message}</InputErrorText>
+              )}
+            </View>
+          )}
+        />
+        <Controller
+          control={control}
+          name="appendAuthor"
+          render={({ field: { value } }) => (
+            <View style={styles.checkboxWrapper}>
+              <Checkbox checked={value} onChange={onChangeAppendSender}>
+                <CheckboxLabel>Incluir nombre del remitente</CheckboxLabel>
+              </Checkbox>
+            </View>
+          )}
+        />
+        <TextButton
+          onPress={
+            sendNotification.status === "loading"
+              ? null
+              : handleSubmit(onSubmit)
+          }
+        >
+          {sendNotification.status === "loading" ? (
+            <ActivityIndicator color={iconColor} />
+          ) : (
+            "Enviar notificación"
+          )}
+        </TextButton>
+      </View>
       {sendNotification.error && (
         <Modal visible={true} onClose={() => sendNotification.reset()}>
           <ModalHeader>Error</ModalHeader>

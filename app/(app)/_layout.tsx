@@ -228,7 +228,7 @@ const TabsLayoutNav = () => {
         <Tabs.Screen
           name="index"
           options={{
-            title: "Home",
+            title: "Inicio",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <IonIcon name={focused ? "home" : "home-outline"} color={color} />
@@ -248,7 +248,7 @@ const TabsLayoutNav = () => {
         <Tabs.Screen
           name="members"
           options={{
-            title: "Members",
+            title: "Miembros",
             href: canSeeMembers ? "/members" : null,
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
@@ -262,7 +262,7 @@ const TabsLayoutNav = () => {
         <Tabs.Screen
           name="profile"
           options={{
-            title: "Profile",
+            title: "Perfil",
             tabBarIcon: ({ color, focused }) => (
               <View
                 style={[

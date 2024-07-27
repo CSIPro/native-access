@@ -1,5 +1,5 @@
-import { format } from "date-fns/esm";
-import { FC, ReactNode, useEffect, useState } from "react";
+import * as Haptics from "expo-haptics";
+import { FC, ReactNode, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -105,8 +105,10 @@ export const MemberItem: FC<Props> = ({ member }) => {
     try {
       setLocalAccess(value);
       accessUpdate.mutate(value);
+      Haptics.selectionAsync();
     } catch (error) {
       setLocalAccess(!value);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       console.error(error);
     }
   };
@@ -271,6 +273,7 @@ const MemberAccess: FC<MemberAccessProps> = ({
         thumbColor={
           !disabled ? colors.default.white[100] : colors.default.gray[200]
         }
+        onTouchStart={() => Haptics.selectionAsync()}
         trackColor={{
           false: disabled ? "transparent" : colors.default.secondary[200],
           true: disabled ? "transparent" : colors.default.tint[200],

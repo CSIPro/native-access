@@ -321,9 +321,9 @@ export default function CreateEvent() {
                     label: formatRoomName(room),
                   }))}
                   onChange={onChange}
-                  sheetTitle="Pick a room"
-                  placeholder="Pick a room"
-                  label="Room"
+                  sheetTitle="Escoge un salón"
+                  placeholder="Escoge un salón"
+                  label="Salón"
                   value={value}
                   icon={
                     <MaterialIcon name="room" size={24} color={iconColor} />

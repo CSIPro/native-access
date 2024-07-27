@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 
 import Constants from "expo-constants";
+import * as Haptics from "expo-haptics";
 import * as LocalAuthentication from "expo-local-authentication";
 import { PermissionsAndroid } from "react-native";
 import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
@@ -95,6 +96,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   const scanForDevices = () => {
+    Haptics.selectionAsync();
     set({ scanState: ScanState.enum.scanning });
     manager.startDeviceScan(
       [serviceUuid],
@@ -157,6 +159,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   const connect = async (device: Device) => {
+    Haptics.selectionAsync();
     set({ scanState: ScanState.enum.connecting });
 
     setTimeout(() => {
@@ -166,6 +169,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
           timeout: 6000,
         })
         .then((connectedDevice) => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
           return connectedDevice.discoverAllServicesAndCharacteristics();
         })
         .then((connectedDevice) => {
@@ -187,6 +192,9 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
                       "access-attempt"
                     )
                     .then((_) => {
+                      Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                      );
                       connectedDevice.cancelConnection();
                       stopScan();
                     })

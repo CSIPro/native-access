@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
 import IonIcons from "@expo/vector-icons/Ionicons";
@@ -19,6 +20,7 @@ import Animated, {
   StretchOutX,
   cancelAnimation,
   interpolateColor,
+  runOnJS,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
@@ -216,6 +218,11 @@ export const PibleScanner = () => {
     return { backgroundColor };
   });
 
+  const onChangeAutoConnect = (value: boolean) => {
+    Haptics.selectionAsync();
+    setAutoConnect(value);
+  };
+
   const showDevices =
     devices.length > 0 && (isScanning || isConnecting) && !autoConnect;
 
@@ -341,7 +348,7 @@ export const PibleScanner = () => {
             >
               <Checkbox
                 checked={autoConnect}
-                onChange={(value) => setAutoConnect(value)}
+                onChange={onChangeAutoConnect}
                 disabled={scanState !== "idle"}
               >
                 <CheckboxLabel style={[styles.actionLabel]}>
@@ -419,7 +426,7 @@ export const PibleScanner = () => {
 };
 
 interface ScanWaveProps {
-  progress: Animated.SharedValue<number>;
+  progress: SharedValue<number>;
 }
 
 const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
@@ -433,7 +440,7 @@ const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
   const pathDest = rect(0, -40, window.width - 2 * padding, 96);
 
   const transform = useDerivedValue(() => {
-    return [{ scale: mix(progress.value, 0.85, 6) }];
+    return [{ scale: mix(progress.value, 0, 6) }];
   });
   const blur = useDerivedValue(() => mix(progress.value, 3, 5));
   const strokeWidth = useDerivedValue(() => mix(progress.value, 8, 1));

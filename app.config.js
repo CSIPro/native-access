@@ -23,8 +23,10 @@ export default {
         usesNonExemptEncryption: false,
       },
       userInterfaceStyle: "automatic",
+      buildNumber: "1",
     },
     android: {
+      versionCode: 1,
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",

@@ -1,4 +1,5 @@
-import { Stack, router, useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useRef, useState } from "react";
 import { useAuth } from "reactfire";
@@ -12,7 +13,6 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { useMutation } from "react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { IonIcon } from "@/components/icons/ion";
@@ -176,7 +176,12 @@ export default function SignUp() {
               errorText={errors.passcode?.message}
               secureTextEntry={!showPasscode}
             >
-              <InputAction onPress={() => setShowPasscode((prev) => !prev)}>
+              <InputAction
+                onPress={() => {
+                  setShowPasscode((prev) => !prev);
+                  Haptics.selectionAsync();
+                }}
+              >
                 <MaterialIcon
                   name={showPasscode ? "visibility-off" : "visibility"}
                   color={iconColor}
@@ -186,6 +191,7 @@ export default function SignUp() {
               <InputAction
                 onPress={() => {
                   setValue("passcode", generatePasscode());
+                  Haptics.selectionAsync();
                   setShowPasscode(true);
                 }}
               >

@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -129,7 +130,12 @@ export default function Passcode() {
               errorText={errors.passcode?.message || error?.message}
               secureTextEntry={!showPasscode}
             >
-              <InputAction onPress={() => setShowPasscode((prev) => !prev)}>
+              <InputAction
+                onPress={() => {
+                  setShowPasscode((prev) => !prev);
+                  Haptics.selectionAsync();
+                }}
+              >
                 <MaterialIcon
                   name={showPasscode ? "visibility-off" : "visibility"}
                   color={iconColor}
@@ -139,6 +145,7 @@ export default function Passcode() {
               <InputAction
                 onPress={() => {
                   setValue("passcode", generatePasscode());
+                  Haptics.selectionAsync();
                   setShowPasscode(true);
                 }}
               >

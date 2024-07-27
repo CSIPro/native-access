@@ -47,7 +47,7 @@ export const RolePicker: FC<Props> = ({ open, onClose, userId, roleId }) => {
 
   return (
     <Modal visible={open} onClose={onClose}>
-      <ModalHeader>Update role</ModalHeader>
+      <ModalHeader>Cambiar rol</ModalHeader>
       <ModalBody>
         <FlatList
           data={roles}
@@ -62,10 +62,10 @@ export const RolePicker: FC<Props> = ({ open, onClose, userId, roleId }) => {
         />
       </ModalBody>
       <ModalFooter>
-        <TextButton onPress={handleSubmit}>Submit</TextButton>
         <TextButton variant="secondary" onPress={onClose}>
-          Cancel
+          Cancelar
         </TextButton>
+        <TextButton onPress={handleSubmit}>Confirmar</TextButton>
       </ModalFooter>
     </Modal>
   );

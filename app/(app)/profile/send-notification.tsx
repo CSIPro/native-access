@@ -180,7 +180,16 @@ export default function SendNotification() {
         }}
       />
       <View style={[{ flex: 1, gap: 8 }]}>
-        <Text style={[styles.text, ]}>
+        <Text
+          style={[
+            styles.text,
+            {
+              color: isLight
+                ? colors.default.black[400]
+                : colors.default.white[100],
+            },
+          ]}
+        >
           Puedes enviar notificaciones a todos los usuarios que pertenecen al
           salón seleccionado
         </Text>

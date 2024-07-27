@@ -152,7 +152,7 @@ export default function CreateEvent() {
         options={{
           headerStyle: { backgroundColor: colors.default.tint[400] },
           headerTintColor: colors.default.white[100],
-          headerTitle: "Create Event",
+          headerTitle: "Crear evento",
           headerTitleStyle: { fontFamily: fonts.poppinsMedium },
         }}
       />

@@ -1,4 +1,5 @@
 import { EventsList } from "@/components/events/events-list";
+import { IonIcon } from "@/components/icons/ion";
 import {
   BrandingHeader,
   BrandingHeaderHighlight,
@@ -72,11 +73,17 @@ export default function EventsHome() {
           </View>
           <EventsList past />
           <Link href="/events/create" asChild>
-            <Pressable>
-              <View style={[styles.textButton]}>
-                <Text style={[styles.textButtonLabel]}>Create Event</Text>
-              </View>
-            </Pressable>
+            <TextButton
+              icon={
+                <IonIcon
+                  name="add"
+                  size={24}
+                  color={colors.default.tint[100]}
+                />
+              }
+            >
+              Crear evento
+            </TextButton>
           </Link>
         </ScrollView>
       </View>

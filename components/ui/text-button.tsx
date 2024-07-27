@@ -1,6 +1,6 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
-import { FC, ReactNode } from "react";
+import { FC, forwardRef, ReactNode } from "react";
 import {
   Pressable,
   PressableProps,
@@ -61,16 +61,22 @@ interface Props extends PressableProps {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   wrapperStyle?: StyleProp<ViewStyle>;
+  icon?: ReactNode;
 }
 
-export const TextButton: FC<Props> = ({
-  variant = "default",
-  children,
-  style,
-  textStyle,
-  wrapperStyle,
-  onPress,
-}) => {
+export const TextButton = forwardRef<View, Props>(function (
+  {
+    variant = "default",
+    children,
+    style,
+    textStyle,
+    wrapperStyle,
+    onPress,
+    icon: Icon,
+    ...props
+  },
+  ref
+) {
   const sv = useSharedValue(0);
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
@@ -103,12 +109,31 @@ export const TextButton: FC<Props> = ({
   };
 
   return (
-    <Pressable onPress={onPress} style={[wrapperStyle]}>
+    <Pressable ref={ref} onPress={onPress} style={[wrapperStyle]}>
       <Animated.View
-        style={[styles.textButton, viewStyles, style]}
+        style={[
+          styles.textButton,
+          viewStyles,
+          { paddingHorizontal: Icon ? 8 : 16 },
+          style,
+        ]}
         onTouchStart={onPressIn}
         onTouchEnd={onPressOut}
       >
+        {Icon ? (
+          <View
+            style={[
+              styles.iconWrapper,
+              {
+                backgroundColor: isLight
+                  ? colors.default.tint.translucid[200]
+                  : colors.default.black.translucid[200],
+              },
+            ]}
+          >
+            {Icon}
+          </View>
+        ) : null}
         <Text
           style={[
             styles.text,
@@ -121,15 +146,24 @@ export const TextButton: FC<Props> = ({
       </Animated.View>
     </Pressable>
   );
-};
+});
 
 const styles = StyleSheet.create({
+  iconWrapper: {
+    width: 32,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    padding: 4,
+  },
   textButton: {
+    flexDirection: "row",
     paddingVertical: 4,
     paddingHorizontal: 16,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
+    gap: 4,
   },
   text: {
     fontFamily: fonts.poppinsMedium,

@@ -117,10 +117,10 @@ export default function Settings() {
           </Text>
         </ModalBody>
         <ModalFooter>
-          <TextButton variant="secondary" onPress={cancelSignOut}>
-            Cancelar
+          <TextButton variant="secondary" onPress={confirmSignOut}>
+            Confirmar
           </TextButton>
-          <TextButton onPress={confirmSignOut}>Confirmar</TextButton>
+          <TextButton onPress={cancelSignOut}>Cancelar</TextButton>
         </ModalFooter>
       </Modal>
     </ScrollView>

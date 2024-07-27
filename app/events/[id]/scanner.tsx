@@ -1,4 +1,5 @@
 import { CameraView, Camera, BarcodeScanningResult } from "expo-camera/next";
+import * as Haptics from "expo-haptics";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -45,7 +46,8 @@ export default function EventScanner() {
   };
 
   const handleSubmit = () => {
-    addAttendee.mutate(scanned?.data);
+    addAttendee.mutate(scanned!.data);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setScanned(null);
   };
 

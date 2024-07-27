@@ -1,4 +1,5 @@
 import { Audio } from "expo-av";
+import * as Haptics from "expo-haptics";
 import { StatusBar } from "expo-status-bar";
 import { FC, useEffect, useRef, useState } from "react";
 import {
@@ -10,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   Easing,
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -98,6 +99,7 @@ export default function Home() {
 
     if (translationY.value > 350 && !shouldPlaySound.current) {
       shouldPlaySound.current = true;
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
   };
 
@@ -120,7 +122,7 @@ export default function Home() {
           translationY.value,
           [0, 350, 800],
           [0, 40, 72],
-          Extrapolate.CLAMP
+          Extrapolation.CLAMP
         ),
       },
     ],

@@ -82,7 +82,16 @@ export const RoomItem: FC<Props> = ({ room, isAvailable = false }) => {
 
   return (
     <>
-      <View style={[styles.wrapper]}>
+      <View
+        style={[
+          styles.wrapper,
+          {
+            backgroundColor: isLight
+              ? colors.default.tint.translucid[500]
+              : colors.default.tint.translucid[200],
+          },
+        ]}
+      >
         <Text numberOfLines={1} style={[styles.text]}>
           {formatRoomName(room)}
         </Text>

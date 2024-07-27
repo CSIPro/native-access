@@ -148,7 +148,7 @@ const TabsLayoutNav = () => {
             ? colors.default.tint[400]
             : colors.default.tint[100],
           tabBarActiveBackgroundColor: isLight
-            ? colors.default.tint.translucid[100]
+            ? colors.default.tint.translucid[200]
             : colors.default.tint.translucid[50],
           tabBarItemStyle: {
             borderRadius: 10,
@@ -173,7 +173,9 @@ const TabsLayoutNav = () => {
                 {
                   ...StyleSheet.absoluteFillObject,
                   overflow: "hidden",
-                  backgroundColor: colors.default.black.translucid[800],
+                  backgroundColor: isLight
+                    ? colors.default.white.translucid[600]
+                    : colors.default.black.translucid[800],
                   borderColor: colors.default.tint[400],
                   borderWidth: 2,
                   borderRadius: 14,
@@ -184,7 +186,9 @@ const TabsLayoutNav = () => {
                 style={[
                   {
                     ...StyleSheet.absoluteFillObject,
-                    backgroundColor: colors.default.tint.translucid[200],
+                    backgroundColor: isLight
+                      ? colors.default.tint.translucid[300]
+                      : colors.default.tint.translucid[200],
                   },
                 ]}
               />

@@ -61,7 +61,7 @@ export default function Settings() {
               <Link
                 {...props}
                 href="/(app)/profile/settings"
-                style={[{ padding: 4 }]}
+                style={[{ padding: 4, paddingLeft: 8 }]}
               >
                 <IonIcon
                   name="settings-outline"

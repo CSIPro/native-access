@@ -60,6 +60,7 @@ export default function EventScanner() {
         options={{
           headerTitle: "Escáner",
           headerStyle: { backgroundColor: colors.default.tint[400] },
+          headerTintColor: colors.default.white[100],
         }}
       />
       <View style={[styles.viewFinder]}>

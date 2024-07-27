@@ -31,7 +31,10 @@ export default function Rooms() {
           },
           headerRight: user.isRoot
             ? () => (
-                <Link href="/(app)/profile/rooms/create">
+                <Link
+                  href="/(app)/profile/rooms/create"
+                  style={[{ padding: 4, paddingLeft: 8 }]}
+                >
                   <IonIcon
                     name="add"
                     color={colors.default.white[100]}

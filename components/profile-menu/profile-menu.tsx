@@ -135,7 +135,22 @@ const MenuItem: FC<LinkProps> = ({ href, children }) => {
 };
 
 const MenuItemIcon = ({ children }: { children: ReactNode }) => {
-  return <View style={[styles.iconWrapper]}>{children}</View>;
+  const isLight = useColorScheme() === "light";
+
+  return (
+    <View
+      style={[
+        styles.iconWrapper,
+        {
+          backgroundColor: isLight
+            ? colors.default.tint.translucid[200]
+            : colors.default.black.translucid[200],
+        },
+      ]}
+    >
+      {children}
+    </View>
+  );
 };
 
 const MenuItemLabel = ({ children }: { children: ReactNode }) => {
@@ -184,11 +199,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconWrapper: {
+    width: 32,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 4,
     padding: 4,
-    backgroundColor: colors.default.black.translucid[200],
   },
   text: {
     paddingTop: 4,

@@ -76,7 +76,16 @@ export default function NewRoom() {
       : "CSI PRO";
 
   return (
-    <ScrollView style={[styles.wrapper]}>
+    <ScrollView
+      style={[
+        styles.wrapper,
+        {
+          backgroundColor: isLight
+            ? colors.default.white[100]
+            : colors.default.black[400],
+        },
+      ]}
+    >
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor: colors.default.tint[400] },
@@ -226,7 +235,6 @@ export default function NewRoom() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: colors.default.black[400],
   },
   formWrapper: {
     flex: 1,

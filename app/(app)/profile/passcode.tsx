@@ -113,7 +113,7 @@ export default function Passcode() {
             },
           ]}
         >
-          Aquí puedes reestablecer tu código de acceso en case de que necesites
+          Aquí puedes reestablecer tu código de acceso en caso de que necesites
           usar el teclado físico
         </Text>
         <Controller

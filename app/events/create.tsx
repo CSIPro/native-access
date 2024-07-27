@@ -24,6 +24,7 @@ import { useNestRooms } from "@/hooks/use-rooms";
 import { formatRoomName } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Stack, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import {
@@ -137,7 +138,16 @@ export default function CreateEvent() {
     : colors.default.tint[200];
 
   return (
-    <Animated.ScrollView style={[styles.wrapper]}>
+    <Animated.ScrollView
+      style={[
+        styles.wrapper,
+        {
+          backgroundColor: isLight
+            ? colors.default.white[100]
+            : colors.default.black[400],
+        },
+      ]}
+    >
       <Stack.Screen
         options={{
           headerStyle: { backgroundColor: colors.default.tint[400] },
@@ -436,6 +446,7 @@ export default function CreateEvent() {
         )}
         <View style={[{ height: window.height * 0.35 }]} />
       </View>
+      <StatusBar style="light" />
     </Animated.ScrollView>
   );
 }
@@ -443,7 +454,6 @@ export default function CreateEvent() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: colors.default.black[400],
   },
   formWrapper: {
     flex: 1,

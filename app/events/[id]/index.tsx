@@ -13,6 +13,7 @@ import { formatRoomName } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import {
   ActivityIndicator,
   FlatList,
@@ -21,6 +22,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useColorScheme,
   useWindowDimensions,
 } from "react-native";
 
@@ -32,6 +34,7 @@ const headerOptions = {
 };
 
 export default function EventDetails() {
+  const isLight = useColorScheme() === "light";
   const window = useWindowDimensions();
 
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -62,17 +65,34 @@ export default function EventDetails() {
   const formattedDate = format(eventStart, "PPP", { locale: es });
   const formattedTime = format(eventStart, "p", { locale: es });
 
+  const textColor = isLight
+    ? colors.default.black[400]
+    : colors.default.white[100];
+
+  const cardBackground = isLight
+    ? colors.default.tint.translucid[300]
+    : colors.default.tint.translucid[100];
+
   return (
     <ScrollView
       contentContainerStyle={[
         styles.container,
-        { paddingBottom: window.height * 0.4 },
+        {
+          backgroundColor: isLight
+            ? colors.default.white[100]
+            : colors.default.black[400],
+          paddingBottom: window.height * 0.4,
+        },
       ]}
     >
       <Stack.Screen options={headerOptions} />
-      <Text style={[styles.text, styles.title]}>{data.event.name}</Text>
-      <Text style={[styles.text]}>{data.event.description}</Text>
-      <View style={[styles.infoContainer]}>
+      <Text style={[styles.text, styles.title, { color: textColor }]}>
+        {data.event.name}
+      </Text>
+      <Text style={[styles.text, { color: textColor }]}>
+        {data.event.description}
+      </Text>
+      <View style={[styles.infoContainer, { backgroundColor: cardBackground }]}>
         <View style={[styles.infoSubtitleContainer]}>
           <Text style={[styles.text, styles.infoSubtitle]}>Lugar y fecha</Text>
         </View>
@@ -168,13 +188,17 @@ export default function EventDetails() {
             <Text style={[styles.text]}>{item.unisonId}</Text>
           </View>
         )}
-        contentContainerStyle={[styles.atendeesContainer]}
+        contentContainerStyle={[
+          styles.atendeesContainer,
+          { backgroundColor: cardBackground },
+        ]}
         ListEmptyComponent={
           <View style={[styles.centered]}>
             <Text style={[styles.text]}>No se han registrado asistentes</Text>
           </View>
         }
       />
+      <StatusBar style="light" />
     </ScrollView>
   );
 }
@@ -190,7 +214,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    backgroundColor: colors.default.black[400],
     padding: 8,
     gap: 6,
   },
@@ -203,7 +226,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.default.tint[400],
     borderRadius: 8,
-    backgroundColor: colors.default.tint.translucid[100],
     padding: 4,
     gap: 4,
   },
@@ -251,7 +273,6 @@ const styles = StyleSheet.create({
   atendeesContainer: {
     width: "100%",
     minHeight: 200,
-    backgroundColor: colors.default.tint.translucid[100],
     borderRadius: 8,
     padding: 4,
     gap: 4,

@@ -9,6 +9,7 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import {
   Pressable,
   ScrollView,
@@ -79,6 +80,7 @@ export default function EventsHome() {
           </Link>
         </ScrollView>
       </View>
+      <StatusBar style="light" />
     </SafeAreaView>
   );
 }

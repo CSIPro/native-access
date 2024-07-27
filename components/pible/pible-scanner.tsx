@@ -197,7 +197,8 @@ export const PibleScanner = () => {
     return { backgroundColor };
   });
 
-  const isLight = useColorScheme() === "light";
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
   const tabsHeight = useBottomTabBarHeight() + 4;
 
   const animatedBTStyle = useAnimatedStyle(() => {
@@ -233,12 +234,25 @@ export const PibleScanner = () => {
             },
           ]}
         >
-          <BlurView intensity={24} tint="dark" style={[styles.blur]}>
+          <BlurView
+            intensity={24}
+            tint={colorScheme}
+            style={[
+              styles.blur,
+              {
+                backgroundColor: isLight
+                  ? colors.default.white.translucid[600]
+                  : colors.default.black.translucid[800],
+              },
+            ]}
+          >
             <View
               style={[
                 {
                   ...StyleSheet.absoluteFillObject,
-                  backgroundColor: colors.default.tint.translucid[200],
+                  backgroundColor: isLight
+                    ? colors.default.tint.translucid[300]
+                    : colors.default.tint.translucid[200],
                 },
               ]}
             />
@@ -265,12 +279,25 @@ export const PibleScanner = () => {
         style={[styles.container, animatedItemStyle, { overflow: "hidden" }]}
       >
         {btState === "OFF" && <View style={[styles.overlay]}></View>}
-        <BlurView intensity={24} tint="dark" style={[styles.blur]}>
+        <BlurView
+          intensity={24}
+          tint={colorScheme}
+          style={[
+            styles.blur,
+            {
+              backgroundColor: isLight
+                ? colors.default.white.translucid[600]
+                : colors.default.black.translucid[800],
+            },
+          ]}
+        >
           <View
             style={[
               {
                 ...StyleSheet.absoluteFillObject,
-                backgroundColor: colors.default.tint.translucid[200],
+                backgroundColor: isLight
+                  ? colors.default.tint.translucid[300]
+                  : colors.default.tint.translucid[200],
               },
             ]}
           />
@@ -436,6 +463,8 @@ interface PibleButtonProps {
 }
 
 const PibleButton: FC<PibleButtonProps> = ({ progress, btState }) => {
+  const colorScheme = useColorScheme();
+  const isLight = colorScheme === "light";
   const startScan = useStore((state) => state.scan);
 
   const border = useDerivedValue(() =>
@@ -480,13 +509,15 @@ const PibleButton: FC<PibleButtonProps> = ({ progress, btState }) => {
         {btState === "OFF" && <View style={[styles.overlay]}></View>}
         <BlurView
           intensity={24}
-          tint="dark"
+          tint={colorScheme}
           style={[
             styles.blur,
             {
               borderRadius: 9999,
               borderWidth: 0,
-              backgroundColor: colors.default.black.translucid[300],
+              backgroundColor: isLight
+                ? colors.default.white.translucid[100]
+                : colors.default.black.translucid[300],
             },
           ]}
         >
@@ -494,7 +525,9 @@ const PibleButton: FC<PibleButtonProps> = ({ progress, btState }) => {
             style={[
               {
                 ...StyleSheet.absoluteFillObject,
-                backgroundColor: colors.default.tint.translucid[200],
+                backgroundColor: isLight
+                  ? colors.default.tint.translucid[300]
+                  : colors.default.tint.translucid[200],
               },
             ]}
           />
@@ -534,7 +567,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 32,
     borderColor: colors.default.tint[400],
-    backgroundColor: colors.default.black.translucid[600],
   },
   scanButtonWrapper: {
     position: "absolute",

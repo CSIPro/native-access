@@ -180,7 +180,7 @@ export default function SendNotification() {
         }}
       />
       <View style={[{ flex: 1, gap: 8 }]}>
-        <Text style={[styles.text]}>
+        <Text style={[styles.text, ]}>
           Puedes enviar notificaciones a todos los usuarios que pertenecen al
           salón seleccionado
         </Text>
@@ -300,7 +300,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: fonts.inter,
-    color: colors.default.white[100],
     fontSize: 16,
   },
   checkboxWrapper: {

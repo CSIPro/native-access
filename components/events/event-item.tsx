@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TextStyle,
+  useColorScheme,
   View,
   ViewStyle,
 } from "react-native";
@@ -25,10 +26,24 @@ interface EventItemProps {
 }
 
 export const EventItem: FC<EventItemProps> = ({ eventId, children, style }) => {
+  const isLight = useColorScheme() === "light";
+
   return (
     <Link href={`events/${eventId}`} asChild>
       <Pressable>
-        <View style={[styles.container, style]}>{children}</View>
+        <View
+          style={[
+            styles.container,
+            {
+              backgroundColor: isLight
+                ? colors.default.tint.translucid[400]
+                : colors.default.tint.translucid[100],
+            },
+            style,
+          ]}
+        >
+          {children}
+        </View>
       </Pressable>
     </Link>
   );
@@ -157,7 +172,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     borderColor: colors.default.tint[400],
-    backgroundColor: colors.default.tint.translucid[100],
     overflow: "hidden",
   },
   title: {

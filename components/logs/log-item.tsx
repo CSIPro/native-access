@@ -28,6 +28,7 @@ import { useLogActions } from "@/hooks/use-logs";
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { es } from "date-fns/locale";
+import { dateWithoutOffset } from "@/lib/utils";
 
 interface LogItemProps {
   id: string;
@@ -101,7 +102,7 @@ export const LogItem: FC<LogItemProps> = ({
   const canDeleteLogs = (user.isRoot || membership?.role.level >= 50) ?? false;
 
   const baseDate = new Date();
-  const birthdayDate = birthday ? new Date(birthday) : null;
+  const birthdayDate = birthday ? dateWithoutOffset(new Date(birthday)) : null;
 
   const isBirthday = birthdayDate
     ? birthdayDate.getDate() === baseDate.getDate() &&

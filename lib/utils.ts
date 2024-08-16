@@ -43,6 +43,12 @@ export const formatBirthday = (date: string) => {
   return format(localDate, "dd 'de' MMMM", { locale: es });
 };
 
+export const dateWithoutOffset = (date: Date) => {
+  const offset = date.getTimezoneOffset() * 60000;
+
+  return new Date(date.getTime() + offset);
+};
+
 export const generateNonce = (length: number) => {
   const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

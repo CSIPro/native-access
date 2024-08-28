@@ -172,7 +172,7 @@ export const PibleScanner = () => {
           if (device) {
             connect(device);
           }
-        }, 750);
+        }, 900);
       }
     }
   }, [autoConnect, devices]);

@@ -24,6 +24,7 @@ export interface BleSlice {
   onClosePasscodeModal: () => void;
   autoConnect: boolean;
   setAutoConnect: (autoConnect: boolean) => void;
+  authExpiration?: number;
 }
 
 export const ScanState = z.enum(["idle", "scanning", "connecting"]);
@@ -49,6 +50,18 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
       get().setAutoConnect(value);
     }
   });
+
+  getFromStorage("BLE_AUTH_EXPIRATION").then((authExpiration) => {
+    if (!!authExpiration) {
+      const value = parseInt(authExpiration, 10);
+      set({ authExpiration: value });
+    }
+  });
+
+  const saveAuthExpiration = (expiration: number) => {
+    set({ authExpiration: expiration });
+    saveToStorage("BLE_AUTH_EXPIRATION", expiration.toString());
+  };
 
   const startScan = async () => {
     await PermissionsAndroid.request(
@@ -174,52 +187,31 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
           return connectedDevice.discoverAllServicesAndCharacteristics();
         })
         .then((connectedDevice) => {
+          const currentDate = new Date().getTime();
+
+          if (get().authExpiration && currentDate < get().authExpiration) {
+            sendToken(connectedDevice);
+
+            return;
+          }
+
           LocalAuthentication.authenticateAsync({
             promptMessage: "Confirma tu identidad",
-          })
-            .then((result) => {
-              if (!result.success) {
-                throw new Error("Authentication failed.");
-              }
+          }).then((result) => {
+            if (!result.success) {
+              throw new Error("Authentication failed.");
+            }
 
-              encryptData()
-                .then((crypt) => {
-                  connectedDevice
-                    .writeCharacteristicWithResponseForService(
-                      serviceUuid,
-                      charUuid,
-                      Buffer.from(crypt).toString("base64"),
-                      "access-attempt"
-                    )
-                    .then((_) => {
-                      Haptics.notificationAsync(
-                        Haptics.NotificationFeedbackType.Success
-                      );
-                      connectedDevice.cancelConnection();
-                      stopScan();
-                    })
-                    .catch((error) => {
-                      console.log(error);
-                      startScan();
-                    });
-                })
-                .catch((error) => {
-                  console.log(error);
-                  startScan();
-                });
-            })
-            .catch((error) => {
-              console.log(error);
-              connectedDevice.cancelConnection();
-              stopScan();
-              set({ scanState: ScanState.enum.idle });
-            });
+            saveAuthExpiration(new Date().getTime() + 3600 * 1000 * 6);
+
+            sendToken(connectedDevice);
+          });
         })
         .catch((error) => {
           console.log(error);
           startScan();
         });
-    }, 75);
+    }, 125);
   };
 
   const encryptData = async () => {
@@ -239,6 +231,32 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     ).toString("base64");
 
     return crypt;
+  };
+
+  const sendToken = (device: Device) => {
+    encryptData()
+      .then((crypt) => {
+        device
+          .writeCharacteristicWithResponseForService(
+            serviceUuid,
+            charUuid,
+            Buffer.from(crypt).toString("base64"),
+            "access-attempt"
+          )
+          .then((_) => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            device.cancelConnection();
+            stopScan();
+          })
+          .catch((error) => {
+            console.log(error);
+            startScan();
+          });
+      })
+      .catch((error) => {
+        console.log(error);
+        startScan();
+      });
   };
 
   const setAutoConnect = (autoConnect: boolean) => {

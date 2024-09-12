@@ -183,9 +183,20 @@ export default function EventDetails() {
       <FlatList
         data={data.attendees}
         scrollEnabled={false}
+        ListHeaderComponent={() => (
+          <View style={[styles.infoSubtitleContainer]}>
+            <Text
+              style={[styles.text, styles.infoSubtitle]}
+            >{`Total: ${data.attendees.length}`}</Text>
+          </View>
+        )}
         renderItem={({ item }) => (
           <View style={[styles.infoItemContainer]}>
-            <Text style={[styles.text]}>{item.unisonId}</Text>
+            <Text style={[styles.text, styles.bold]}>{item.unisonId}</Text>
+            <Text style={[styles.text]}>-</Text>
+            <Text style={[styles.text]}>
+              {format(new Date(item.verified), "Pp")}
+            </Text>
           </View>
         )}
         contentContainerStyle={[
@@ -283,6 +294,9 @@ const styles = StyleSheet.create({
     color: colors.default.white[100],
     fontFamily: fonts.inter,
     fontSize: 16,
+  },
+  bold: {
+    fontFamily: fonts.interBold,
   },
   centerText: {
     textAlign: "center",

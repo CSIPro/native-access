@@ -7,4 +7,7 @@ export default {
   inter: "Inter",
   interMedium: "InterMedium",
   interBold: "InterBold",
+  mono: "GeistMono",
+  monoLight: "GeistMonoLight",
+  monoBold: "GeistMonoBold",
 };

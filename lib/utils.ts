@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
+import * as FileSystem from "expo-file-system";
 
 import { storageKeys } from "@/constants/storage-keys";
 import { NestRoom } from "@/hooks/use-rooms";
@@ -96,4 +97,15 @@ export const generatePasscode = (): string => {
   }
 
   return text;
+};
+
+export const requestFileWritePermission = async () => {
+  const permissions =
+    await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+  if (!permissions.granted) {
+    return { access: false, directoryUri: null };
+  }
+
+  return { access: true, directoryUri: permissions.directoryUri };
 };

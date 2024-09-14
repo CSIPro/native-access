@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   unisonId: {
-    fontFamily: fonts.interMedium,
+    fontFamily: fonts.mono,
     fontSize: 24,
   },
   error: {

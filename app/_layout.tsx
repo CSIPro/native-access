@@ -55,6 +55,9 @@ export default function RootLayout() {
     Inter: Inter_400Regular,
     InterMedium: Inter_500Medium,
     InterBold: Inter_700Bold,
+    GeistMonoBold: require("../assets/fonts/GeistMono-Bold.otf"),
+    GeistMonoLight: require("../assets/fonts/GeistMono-Light.otf"),
+    GeistMono: require("../assets/fonts/GeistMono-Regular.otf"),
   });
 
   useEffect(() => {

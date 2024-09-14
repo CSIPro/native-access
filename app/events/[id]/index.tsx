@@ -1,3 +1,4 @@
+import { FAIcon } from "@/components/icons/font-awesome";
 import { IonIcon } from "@/components/icons/ion";
 import { MaterialIcon } from "@/components/icons/material";
 import {
@@ -38,7 +39,7 @@ export default function EventDetails() {
   const window = useWindowDimensions();
 
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { status, data, error, refetch } = useEvent(id);
+  const { status, data, error, refetch, exportAttendees } = useEvent(id);
 
   if (status === "loading") {
     return (
@@ -141,7 +142,7 @@ export default function EventDetails() {
         style={[
           {
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             paddingVertical: 8,
             minHeight: 48,
           },
@@ -151,33 +152,44 @@ export default function EventDetails() {
           <BrandingHeaderTitle>EVENT</BrandingHeaderTitle>
           <BrandingHeaderHighlight>ATTENDEES</BrandingHeaderHighlight>
         </BrandingHeader>
+      </View>
+      <View
+        style={[
+          {
+            flexDirection: "row",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 4,
+          },
+        ]}
+      >
+        <TextButton
+        onPress={() => exportAttendees.mutate(id)}
+          icon={
+            <FAIcon
+              name="file-export"
+              color={colors.default.tint[300]}
+              size={20}
+            />
+          }
+          wrapperStyle={[{ flex: 1 }]}
+        >
+          Exportar
+        </TextButton>
         <Link href={`events/${id}/scanner`} asChild>
-          <Pressable>
-            <View
-              style={[
-                {
-                  padding: 4,
-                  paddingHorizontal: 8,
-                  backgroundColor: colors.default.tint.translucid[300],
-                  borderRadius: 4,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.text,
-                  {
-                    textTransform: "uppercase",
-                    fontSize: 18,
-                    fontFamily: fonts.interMedium,
-                    color: colors.default.tint[100],
-                  },
-                ]}
-              >
-                Add
-              </Text>
-            </View>
-          </Pressable>
+          <TextButton
+            icon={
+              <IonIcon
+                name="scan-circle"
+                size={20}
+                color={colors.default.tint[300]}
+              />
+            }
+            wrapperStyle={[{ flex: 1 }]}
+          >
+            Escáner
+          </TextButton>
         </Link>
       </View>
       <FlatList
@@ -192,7 +204,9 @@ export default function EventDetails() {
         )}
         renderItem={({ item }) => (
           <View style={[styles.infoItemContainer]}>
-            <Text style={[styles.text, styles.bold]}>{item.unisonId}</Text>
+            <Text style={[styles.text, styles.unisonId]}>
+              {item.unisonId.padStart(9, "0")}
+            </Text>
             <Text style={[styles.text]}>-</Text>
             <Text style={[styles.text]}>
               {format(new Date(item.verified), "Pp")}
@@ -295,8 +309,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.inter,
     fontSize: 16,
   },
-  bold: {
-    fontFamily: fonts.interBold,
+  unisonId: {
+    fontFamily: fonts.monoBold,
   },
   centerText: {
     textAlign: "center",

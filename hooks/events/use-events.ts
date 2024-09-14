@@ -1,4 +1,11 @@
-import { BASE_API_URL, NestError, sleep } from "@/lib/utils";
+import * as FileSystem from "expo-file-system";
+
+import {
+  BASE_API_URL,
+  NestError,
+  requestFileWritePermission,
+  sleep,
+} from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { z } from "zod";
 import { NestRoom } from "../use-rooms";
@@ -352,12 +359,59 @@ export const useEvent = (eventId: string) => {
     queryClient.invalidateQueries(["event", eventId]);
   });
 
+  const exportAttendees = useMutation(async (eventId: string) => {
+    const authToken = await authUser?.getIdToken();
+
+    const res = await fetch(`${BASE_API_URL}/events/${eventId}/csv`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!res.ok) {
+      const error = NestError.safeParse(await res.json());
+
+      if (error.success) {
+        console.log(error.data.message);
+
+        throw new Error(error.data.message);
+      }
+
+      throw new Error("No se pudo exportar la lista de asistentes");
+    }
+
+    if (!res.headers.get("content-type")?.includes("text/csv")) {
+      throw new Error("El archivo no es un archivo CSV");
+    }
+
+    const hasPermission = await requestFileWritePermission();
+    if (!hasPermission.access) {
+      throw new Error("No tienes permisos para escribir archivos");
+    }
+
+    const contents = await res.text();
+
+    const filePath = hasPermission.directoryUri;
+    const fileName = res.headers
+      .get("content-disposition")
+      ?.split("filename=")[1];
+
+    const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+      filePath,
+      fileName,
+      "text/csv"
+    );
+
+    await FileSystem.writeAsStringAsync(fileUri, contents);
+  });
+
   return {
     status,
     data,
     error,
     refetch,
     addAttendee,
+    exportAttendees,
   };
 };
 

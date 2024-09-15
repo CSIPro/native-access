@@ -11,6 +11,7 @@ import { z } from "zod";
 import { NestRoom } from "../use-rooms";
 import { NestUser } from "../use-user-data";
 import { firebaseAuth } from "@/lib/firebase-config";
+import { useToast } from "@/context/toast-context";
 
 const PAST_EVENTS = [
   {
@@ -272,6 +273,7 @@ export const usePastEvents = () => {
 export const useEvent = (eventId: string) => {
   const authUser = firebaseAuth.currentUser;
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const { status, data, error, refetch } = useQuery({
     queryKey: ["event", eventId],
@@ -359,51 +361,71 @@ export const useEvent = (eventId: string) => {
     queryClient.invalidateQueries(["event", eventId]);
   });
 
-  const exportAttendees = useMutation(async (eventId: string) => {
-    const authToken = await authUser?.getIdToken();
+  const exportAttendees = useMutation(
+    async (eventId: string) => {
+      const authToken = await authUser?.getIdToken();
 
-    const res = await fetch(`${BASE_API_URL}/events/${eventId}/csv`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+      const res = await fetch(`${BASE_API_URL}/events/${eventId}/csv`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
-    if (!res.ok) {
-      const error = NestError.safeParse(await res.json());
+      if (!res.ok) {
+        const error = NestError.safeParse(await res.json());
 
-      if (error.success) {
-        console.log(error.data.message);
+        if (error.success) {
+          console.log(error.data.message);
 
-        throw new Error(error.data.message);
+          throw new Error(error.data.message);
+        }
+
+        throw new Error("No se pudo exportar la lista de asistentes");
       }
 
-      throw new Error("No se pudo exportar la lista de asistentes");
+      if (!res.headers.get("content-type")?.includes("text/csv")) {
+        throw new Error("El archivo recibido no es un archivo CSV");
+      }
+
+      const hasPermission = await requestFileWritePermission();
+      if (!hasPermission.access) {
+        throw new Error("No otorgaste permiso para escribir archivos");
+      }
+
+      const contents = await res.text();
+
+      const filePath = hasPermission.directoryUri;
+      const fileName = res.headers
+        .get("content-disposition")
+        ?.split("filename=")[1];
+
+      const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+        filePath,
+        fileName,
+        "text/csv"
+      );
+
+      await FileSystem.writeAsStringAsync(fileUri, contents, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+    },
+    {
+      onSuccess: () => {
+        toast.showToast({
+          title: "Lista de asistentes exportada",
+          description: "El archivo fue guardado en la carpeta seleccionada",
+          variant: "success",
+        });
+      },
+      onError: (error: Error) => {
+        toast.showToast({
+          title: "Error al exportar lista de asistentes",
+          description: error.message,
+          variant: "error",
+        });
+      },
     }
-
-    if (!res.headers.get("content-type")?.includes("text/csv")) {
-      throw new Error("El archivo no es un archivo CSV");
-    }
-
-    const hasPermission = await requestFileWritePermission();
-    if (!hasPermission.access) {
-      throw new Error("No tienes permisos para escribir archivos");
-    }
-
-    const contents = await res.text();
-
-    const filePath = hasPermission.directoryUri;
-    const fileName = res.headers
-      .get("content-disposition")
-      ?.split("filename=")[1];
-
-    const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
-      filePath,
-      fileName,
-      "text/csv"
-    );
-
-    await FileSystem.writeAsStringAsync(fileUri, contents);
-  });
+  );
 
   return {
     status,
@@ -449,37 +471,56 @@ export const EventForm = z.object({
 export type EventForm = z.infer<typeof EventForm>;
 
 export const useSubmitEvent = () => {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const authUser = firebaseAuth.currentUser;
 
-  const mutation = useMutation(async (data: Event) => {
-    const authToken = await authUser?.getIdToken();
+  const mutation = useMutation(
+    async (data: Event) => {
+      const authToken = await authUser?.getIdToken();
 
-    if (!authToken) {
-      throw new Error("Ocurrió un error de autenticación");
-    }
-
-    const res = await fetch(`${BASE_API_URL}/events`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      const error = NestError.safeParse(await res.json());
-
-      if (error.success) {
-        throw new Error(error.data.message);
+      if (!authToken) {
+        throw new Error("Ocurrió un error de autenticación");
       }
 
-      throw new Error("No fue posible crear el evento");
-    }
+      const res = await fetch(`${BASE_API_URL}/events`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(data),
+      });
 
-    queryClient.invalidateQueries(["events"]);
-  });
+      if (!res.ok) {
+        const error = NestError.safeParse(await res.json());
+
+        if (error.success) {
+          throw new Error(error.data.message);
+        }
+
+        throw new Error("Ocurrió un problema al crear el evento");
+      }
+
+      queryClient.invalidateQueries(["events"]);
+    },
+    {
+      onSuccess: () => {
+        toast.showToast({
+          title: "Evento creado",
+          description: "El evento ha sido creado exitosamente",
+          variant: "success",
+        });
+      },
+      onError: (error: Error) => {
+        toast.showToast({
+          title: "Error al crear evento",
+          description: error.message,
+          variant: "error",
+        });
+      },
+    }
+  );
 
   return mutation;
 };

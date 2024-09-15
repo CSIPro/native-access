@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     alignItems: "stretch",
     minWidth: "100%",
-    maxHeight: 220,
+    maxHeight: 250,
   },
   refetchButton: {
     borderRadius: 9999,

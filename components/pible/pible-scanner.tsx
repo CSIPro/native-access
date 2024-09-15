@@ -49,6 +49,7 @@ import { useStore } from "@/store/store";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { useToast } from "@/context/toast-context";
 
 const accessLogo = require("@/assets/access-logo.svg");
 
@@ -69,6 +70,7 @@ export const PibleScanner = () => {
   const isScanning = scanState === "scanning";
   const isConnecting = scanState === "connecting";
   const window = useWindowDimensions();
+  const toast = useToast();
 
   const sv = useSharedValue(0);
   const button = useSharedValue(0);
@@ -170,9 +172,17 @@ export const PibleScanner = () => {
           );
 
           if (device) {
-            connect(device);
+            try {
+              connect(device);
+            } catch (error) {
+              toast.showToast({
+                title: "Error de conexión",
+                duration: 3000,
+                variant: "error",
+              });
+            }
           }
-        }, 900);
+        }, 500);
       }
     }
   }, [autoConnect, devices]);

@@ -32,6 +32,7 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { SplashScreen as Splash } from "@/components/splash/splash";
 
 import { firebaseApp, firebaseAuth, firestore } from "../lib/firebase-config";
+import { ToastProvider } from "@/context/toast-context";
 
 const queryClient = new QueryClient();
 
@@ -90,17 +91,19 @@ function RootLayoutNav() {
             <QueryClientProvider client={queryClient}>
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <BottomSheetModalProvider>
-                  <Stack initialRouteName="(app)">
-                    <Stack.Screen
-                      name="sign-in"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(app)"
-                      options={{ headerShown: false }}
-                      initialParams={{ initialRouteName: "index" }}
-                    />
-                  </Stack>
+                  <ToastProvider>
+                    <Stack initialRouteName="(app)">
+                      <Stack.Screen
+                        name="sign-in"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(app)"
+                        options={{ headerShown: false }}
+                        initialParams={{ initialRouteName: "index" }}
+                      />
+                    </Stack>
+                  </ToastProvider>
                 </BottomSheetModalProvider>
               </GestureHandlerRootView>
             </QueryClientProvider>

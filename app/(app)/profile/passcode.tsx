@@ -22,6 +22,7 @@ import { TextButton } from "@/components/ui/text-button";
 import { useState } from "react";
 import { MaterialIcon } from "@/components/icons/material";
 import { generatePasscode } from "@/lib/utils";
+import { useToast } from "@/context/toast-context";
 
 const PasscodeSchema = z.object({
   passcode: z
@@ -43,6 +44,7 @@ const PasscodeSchema = z.object({
 type PasscodeForm = z.infer<typeof PasscodeSchema>;
 
 export default function Passcode() {
+  const toast = useToast();
   const router = useRouter();
   const { submitPasscode } = useUserContext();
   const [showPasscode, setShowPasscode] = useState(false);
@@ -60,10 +62,19 @@ export default function Passcode() {
     submitPasscode,
     {
       onSuccess: () => {
+        toast.showToast({
+          title: "Código de acceso actualizado",
+          variant: "success",
+        });
         reset();
         router.back();
       },
-      onError: (error) => console.log(error),
+      onError: (error) =>
+        toast.showToast({
+          title: "Error al actualizar el código de acceso",
+          description: error.message,
+          variant: "error",
+        }),
     }
   );
   const colorScheme = useColorScheme();

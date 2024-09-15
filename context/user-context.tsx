@@ -65,15 +65,15 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const submitPasscode = async (passcode: string) => {
     if (!data) {
-      throw new Error("No user data found");
+      throw new Error("No se encontraron datos de usuario");
     }
 
     const authed = await LocalAuthentication.authenticateAsync({
-      promptMessage: "Please authenticate to continue",
+      promptMessage: "Confirma tu identidad",
     });
 
     if (!authed.success) {
-      throw new Error("Authentication failed");
+      throw new Error("Autenticación fallida");
     }
 
     passcode = passcode.toUpperCase();
@@ -81,7 +81,7 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const authUser = firebaseAuth.currentUser;
       if (!authUser) {
-        throw new Error("No user found");
+        throw new Error("No se encontraron datos de usuario");
       }
 
       const token = await authUser.getIdToken();
@@ -109,7 +109,9 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
           throw new Error(error.data.message);
         }
 
-        throw new Error("Something went wrong while creating the user");
+        throw new Error(
+          "Ocurrió un problema al actualizar el código de acceso"
+        );
       }
     } catch (error) {
       console.error(error);

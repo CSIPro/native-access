@@ -17,6 +17,7 @@ import { NestError, BASE_API_URL } from "@/lib/utils";
 import { z } from "zod";
 import { NestRoom } from "./use-rooms";
 import { NestUser } from "./use-user-data";
+import { useToast } from "@/context/toast-context";
 
 export const useRoomMembers = () => {
   const { selectedRoom } = useContext(RoomContext);
@@ -301,6 +302,7 @@ export const useNestMembersByRole = (roomId?: string) => {
 };
 
 export const useMemberActions = (userId: string) => {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const { selectedRoom } = useRoomContext();
 
@@ -365,36 +367,63 @@ export const useMemberActions = (userId: string) => {
       }
     },
     onSuccess: () => {
+      toast.showToast({
+        title: "Rol actualizado",
+        variant: "success",
+      });
+
       queryClient.invalidateQueries(["user", userId]);
       queryClient.invalidateQueries(["members", selectedRoom]);
     },
+    onError: (error) => {
+      toast.showToast({
+        title: "No fue posible actualizar el rol",
+        variant: "error",
+      });
+    },
   });
 
-  const kickMember = useMutation(async () => {
-    const res = await fetch(
-      `${BASE_API_URL}/rooms/${selectedRoom}/member/${userId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${await firebaseAuth.currentUser?.getIdToken()}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  const kickMember = useMutation(
+    async () => {
+      const res = await fetch(
+        `${BASE_API_URL}/rooms/${selectedRoom}/member/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${await firebaseAuth.currentUser?.getIdToken()}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (!res.ok) {
-      const errorParse = NestError.safeParse(await res.json());
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
 
-      if (errorParse.success) {
-        throw new Error(errorParse.data.message);
-      } else {
-        throw new Error("Failed to kick member");
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        } else {
+          throw new Error("Failed to kick member");
+        }
       }
+
+      queryClient.invalidateQueries(["user", userId]);
+      queryClient.invalidateQueries(["members", selectedRoom]);
+    },
+    {
+      onSuccess: () => {
+        toast.showToast({
+          title: "Miembro expulsado",
+          variant: "success",
+        });
+      },
+      onError: (error) => {
+        toast.showToast({
+          title: "No fue posible expulsar al miembro",
+          variant: "error",
+        });
+      },
     }
-
-    queryClient.invalidateQueries(["user", userId]);
-    queryClient.invalidateQueries(["members", selectedRoom]);
-  });
+  );
 
   return {
     accessUpdate,

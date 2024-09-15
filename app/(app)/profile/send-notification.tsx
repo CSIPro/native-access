@@ -38,6 +38,7 @@ import {
   ModalHeader,
 } from "@/components/modal/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/context/toast-context";
 
 const NotificationForm = z.object({
   title: z
@@ -96,11 +97,25 @@ const pushNotification = async (form: NotificationForm) => {
 export default function SendNotification() {
   const isLight = useColorScheme() === "light";
   const router = useRouter();
+  const toast = useToast();
 
   const sendNotification = useMutation<void, Error, NotificationForm, void>(
     pushNotification,
     {
-      onSuccess: () => router.back(),
+      onSuccess: () => {
+        toast.showToast({
+          title: "Notificación enviada",
+          variant: "success",
+        });
+        router.back();
+      },
+      onError: (error) => {
+        toast.showToast({
+          title: "Error al enviar la notificación",
+          description: error.message,
+          variant: "error",
+        });
+      },
     }
   );
   const { user } = useUserContext();

@@ -51,6 +51,7 @@ import { useUserStats } from "@/hooks/use-user-stats";
 import { useUserContext } from "@/context/user-context";
 import { Image } from "expo-image";
 import { IonIcon } from "@/components/icons/ion";
+import { useToast } from "@/context/toast-context";
 
 const hornet = require("@/assets/hornet.svg");
 
@@ -59,6 +60,7 @@ export default function Home() {
   const [sound, setSound] = useState<Audio.Sound>(null);
   const translationY = useSharedValue(0);
   const shouldPlaySound = useRef(false);
+  const toast = useToast();
 
   const tabsHeight = useBottomTabBarHeight() + 4;
   const window = useWindowDimensions();
@@ -111,6 +113,10 @@ export default function Home() {
 
     if (shouldPlaySound.current) {
       playSound();
+      toast.showToast({
+        title: "Shaw!",
+        duration: 2000,
+      })
       shouldPlaySound.current = false;
     }
   };

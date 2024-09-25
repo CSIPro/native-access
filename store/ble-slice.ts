@@ -175,8 +175,6 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     Haptics.selectionAsync();
     set({ scanState: ScanState.enum.connecting });
 
-    throw new Error("La conexión falló.");
-
     setTimeout(() => {
       device
         .connect({
@@ -210,7 +208,9 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
           });
         })
         .catch((error) => {
-          throw new Error("La conexión falló.");
+          throw new Error(error);
+          // console.log(error);
+          // startScan();
         });
     }, 125);
   };

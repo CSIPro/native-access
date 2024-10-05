@@ -19,6 +19,7 @@ import Animated, {
   StretchInX,
   StretchOutX,
   cancelAnimation,
+  interpolate,
   interpolateColor,
   runOnJS,
   useAnimatedStyle,
@@ -182,7 +183,7 @@ export const PibleScanner = () => {
               });
             }
           }
-        }, 500);
+        }, 250);
       }
     }
   }, [autoConnect, devices]);
@@ -206,7 +207,9 @@ export const PibleScanner = () => {
       [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
     );
 
-    return { backgroundColor };
+    return {
+      backgroundColor,
+    };
   });
 
   const colorScheme = useColorScheme();
@@ -248,6 +251,7 @@ export const PibleScanner = () => {
             styles.container,
             {
               height: 64,
+              overflow: "hidden",
             },
           ]}
         >
@@ -447,7 +451,7 @@ const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
   circle.addCircle((window.width - 2 * padding) / 2, 8, 40);
 
   const pathSource = circle.computeTightBounds();
-  const pathDest = rect(0, -40, window.width - 2 * padding, 96);
+  const pathDest = rect(-4, -24, window.width - 2 * padding, 96);
 
   const transform = useDerivedValue(() => {
     return [{ scale: mix(progress.value, 0, 6) }];
@@ -458,7 +462,7 @@ const ScanWave: FC<ScanWaveProps> = ({ progress }) => {
   return (
     <Group
       transform={transform}
-      origin={{ x: (window.width - 2 * padding) / 2, y: 8 }}
+      origin={{ x: (window.width - 2 * padding) / 2, y: 40 }}
     >
       <Group transform={fitbox("contain", pathSource, pathDest)}>
         <Path
@@ -483,6 +487,10 @@ const PibleButton: FC<PibleButtonProps> = ({ progress, btState }) => {
   const colorScheme = useColorScheme();
   const isLight = colorScheme === "light";
   const startScan = useStore((state) => state.scan);
+  const scanState = useStore((state) => state.scanState);
+  const sizeValue = useDerivedValue(() =>
+    scanState === "idle" ? withTiming(0) : withTiming(1)
+  );
 
   const border = useDerivedValue(() =>
     interpolateColor(
@@ -504,7 +512,15 @@ const PibleButton: FC<PibleButtonProps> = ({ progress, btState }) => {
       [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
     );
 
-    return { backgroundColor, borderColor: border.value };
+    const width = interpolate(sizeValue.value, [0, 1], [96, 48]);
+    const padding = interpolate(sizeValue.value, [0, 1], [12, 4]);
+
+    return {
+      backgroundColor,
+      borderColor: border.value,
+      width,
+      padding,
+    };
   });
 
   return (
@@ -563,7 +579,7 @@ const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
     width: "100%",
-    gap: 12,
+    gap: 4,
     paddingHorizontal: 4,
     zIndex: 10,
   },
@@ -571,6 +587,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.default.tint.translucid[200],
     padding: 8,
     borderRadius: 32,
+    borderWidth: 2,
+    borderColor: colors.default.tint[400],
     height: 64,
     flexDirection: "row",
     justifyContent: "center",
@@ -581,11 +599,13 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     alignItems: "center",
     padding: 8,
-    borderWidth: 2,
-    borderRadius: 32,
-    borderColor: colors.default.tint[400],
+    // borderWidth: 2,
+    // borderRadius: 32,
+    // borderColor: colors.default.tint[400],
   },
   scanButtonWrapper: {
+    alignItems: "center",
+    justifyContent: "flex-start",
     position: "absolute",
     zIndex: 20,
     bottom: 8,

@@ -9,7 +9,12 @@ import AES from "react-native-aes-crypto";
 import { z } from "zod";
 import { StateCreator } from "zustand";
 
-import { generateNonce, getFromStorage, saveToStorage } from "../lib/utils";
+import {
+  generateNonce,
+  getFromStorage,
+  saveToStorage,
+  sleep,
+} from "../lib/utils";
 
 export interface BleSlice {
   selectedRoom?: string;
@@ -39,6 +44,8 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const manager = new BleManager();
   const scanDuration = 12000;
   let scanTimeout: NodeJS.Timeout;
+  let connectionAttempts = 0;
+  const attemptLimit = 5;
 
   manager.onStateChange((state) => {
     set({ bluetoothState: state });
@@ -109,6 +116,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   };
 
   const scanForDevices = () => {
+    connectionAttempts = 0;
     Haptics.selectionAsync();
     set({ scanState: ScanState.enum.scanning });
     manager.startDeviceScan(
@@ -171,48 +179,99 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     }, 5000);
   };
 
-  const connect = async (device: Device) => {
+  const connectToDevice = async (device: Device) => {
     Haptics.selectionAsync();
     set({ scanState: ScanState.enum.connecting });
 
-    setTimeout(() => {
-      device
-        .connect({
-          autoConnect: false,
-          timeout: 6000,
-        })
-        .then((connectedDevice) => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    await sleep(125);
 
-          return connectedDevice.discoverAllServicesAndCharacteristics();
-        })
-        .then((connectedDevice) => {
-          const currentDate = new Date().getTime();
+    // if (connectionAttempts < attemptLimit - 1) throw new Error("Forced error.");
 
-          if (get().authExpiration && currentDate < get().authExpiration) {
-            sendToken(connectedDevice);
+    // setTimeout(async () => {
+    const connectedDevice = await device.connect({
+      autoConnect: false,
+      timeout: 6000,
+    });
 
-            return;
-          }
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    console.log("Connected to device", connectedDevice.id);
 
-          LocalAuthentication.authenticateAsync({
-            promptMessage: "Confirma tu identidad",
-          }).then((result) => {
-            if (!result.success) {
-              throw new Error("Authentication failed.");
-            }
+    await connectedDevice.discoverAllServicesAndCharacteristics();
 
-            saveAuthExpiration(new Date().getTime() + 3600 * 1000 * 6);
+    const currentDate = new Date().getTime();
 
-            sendToken(connectedDevice);
-          });
-        })
-        .catch((error) => {
-          throw new Error(error);
-          // console.log(error);
-          // startScan();
-        });
-    }, 125);
+    if (get().authExpiration && currentDate < get().authExpiration) {
+      sendToken(connectedDevice);
+
+      return;
+    }
+
+    LocalAuthentication.authenticateAsync({
+      promptMessage: "Confirma tu identidad",
+    }).then((result) => {
+      if (!result.success) {
+        throw new Error("Authentication failed.");
+      }
+
+      saveAuthExpiration(new Date().getTime() + 3600 * 1000 * 12);
+
+      sendToken(connectedDevice);
+    });
+
+    // device
+    //   .connect({
+    //     autoConnect: false,
+    //     timeout: 6000,
+    //   })
+    //   .then((connectedDevice) => {
+    //     throw new Error("Connected to device, forced error.");
+    //     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    //     console.log("Connected to device", connectedDevice.id);
+
+    //     return connectedDevice.discoverAllServicesAndCharacteristics();
+    //   })
+    //   .then((connectedDevice) => {
+    //     console.log(
+    //       "Discovered services and characteristics",
+    //       connectedDevice.id
+    //     );
+    //     const currentDate = new Date().getTime();
+
+    //     if (get().authExpiration && currentDate < get().authExpiration) {
+    //       sendToken(connectedDevice);
+
+    //       return;
+    //     }
+
+    //     LocalAuthentication.authenticateAsync({
+    //       promptMessage: "Confirma tu identidad",
+    //     }).then((result) => {
+    //       if (!result.success) {
+    //         throw new Error("Authentication failed.");
+    //       }
+
+    //       saveAuthExpiration(new Date().getTime() + 3600 * 1000 * 12);
+
+    //       sendToken(connectedDevice);
+    //     });
+    //   });
+    // }, 125);
+  };
+
+  const connect = async (device: Device) => {
+    while (connectionAttempts < attemptLimit) {
+      console.log("Attempting connection...", connectionAttempts);
+      await sleep(250 * connectionAttempts);
+
+      try {
+        await connectToDevice(device);
+
+        return;
+      } catch (error) {
+        console.log(error);
+        connectionAttempts += 1;
+      }
+    }
   };
 
   const encryptData = async () => {

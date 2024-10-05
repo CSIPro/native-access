@@ -185,16 +185,12 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
     await sleep(125);
 
-    // if (connectionAttempts < attemptLimit - 1) throw new Error("Forced error.");
-
-    // setTimeout(async () => {
     const connectedDevice = await device.connect({
       autoConnect: false,
       timeout: 6000,
     });
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    console.log("Connected to device", connectedDevice.id);
 
     await connectedDevice.discoverAllServicesAndCharacteristics();
 
@@ -217,45 +213,6 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
       sendToken(connectedDevice);
     });
-
-    // device
-    //   .connect({
-    //     autoConnect: false,
-    //     timeout: 6000,
-    //   })
-    //   .then((connectedDevice) => {
-    //     throw new Error("Connected to device, forced error.");
-    //     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    //     console.log("Connected to device", connectedDevice.id);
-
-    //     return connectedDevice.discoverAllServicesAndCharacteristics();
-    //   })
-    //   .then((connectedDevice) => {
-    //     console.log(
-    //       "Discovered services and characteristics",
-    //       connectedDevice.id
-    //     );
-    //     const currentDate = new Date().getTime();
-
-    //     if (get().authExpiration && currentDate < get().authExpiration) {
-    //       sendToken(connectedDevice);
-
-    //       return;
-    //     }
-
-    //     LocalAuthentication.authenticateAsync({
-    //       promptMessage: "Confirma tu identidad",
-    //     }).then((result) => {
-    //       if (!result.success) {
-    //         throw new Error("Authentication failed.");
-    //       }
-
-    //       saveAuthExpiration(new Date().getTime() + 3600 * 1000 * 12);
-
-    //       sendToken(connectedDevice);
-    //     });
-    //   });
-    // }, 125);
   };
 
   const connect = async (device: Device) => {

@@ -15,6 +15,7 @@ import {
   NestError,
   saveToStorage,
 } from "@/lib/utils";
+import { loadFromCache, saveToCache } from "@/lib/cache";
 
 export const Room = z.object({
   id: z.string(),
@@ -101,50 +102,25 @@ export const useUserRooms = () => {
   };
 };
 
-export const NestRoom = z.object({
-  id: z.string(),
-  roomNumber: z.string().optional().nullable(),
-  name: z.string(),
-  building: z.string(),
-  ownerId: z.string(),
-  macAddress: z.string().nullable(),
-  active: z.boolean(),
-  oldId: z.string().nullable(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-});
+export const NestRoom = z
+  .object({
+    id: z.string(),
+    roomNumber: z.string().optional().nullable(),
+    name: z.string(),
+    building: z.string(),
+    ownerId: z.string(),
+    macAddress: z.string().nullable(),
+    active: z.boolean(),
+    oldId: z.string().nullable(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .describe("NestRoom object");
 
 export type NestRoom = z.infer<typeof NestRoom>;
 
 export const useNestRooms = () => {
   const authUser = firebaseAuth.currentUser;
-
-  const saveRoomsToCache = (rooms: Array<NestRoom>) => {
-    try {
-      saveToStorage("ROOMS", JSON.stringify(rooms));
-      saveToStorage("ROOMS_LAST_FETCHED", Date.now().toString());
-    } catch (error) {
-      console.error("Error saving rooms to cache", error);
-    }
-  };
-
-  const loadRoomsFromCache = () => {
-    try {
-      const cachedRooms = getFromStorage("ROOMS");
-      const roomsParse = NestRoom.array().safeParse(
-        JSON.parse(cachedRooms || "[]")
-      );
-
-      if (!roomsParse.success) {
-        throw new Error("An error occurred while parsing cached rooms");
-      }
-
-      return roomsParse.data;
-    } catch (error) {
-      console.error("Error loading rooms from cache", error);
-      return [];
-    }
-  };
 
   const roomsQuery = useQuery({
     queryKey: ["rooms"],
@@ -173,9 +149,12 @@ export const useNestRooms = () => {
 
       return roomsParse.data;
     },
-    onSuccess: (data) => saveRoomsToCache(data),
+    onSuccess: (data) => saveToCache("ROOMS", data),
     initialData: () => {
-      return loadRoomsFromCache();
+      return loadFromCache(
+        NestRoom.array().describe("NestRoom array"),
+        "ROOMS"
+      ) as Array<NestRoom>;
     },
     staleTime: 60 * 1000,
     initialDataUpdatedAt: () => +getFromStorage("ROOMS_LAST_FETCHED"),

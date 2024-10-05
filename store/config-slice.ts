@@ -1,7 +1,7 @@
 import { StateCreator } from "zustand";
 import { z } from "zod";
 
-import { getFromStorage, saveToStorage } from "@/lib/utils";
+import { getFromStorageAsync, saveToStorageAsync } from "@/lib/utils";
 import { Appearance } from "react-native";
 
 export const Theme = z.enum(["system", "light", "dark"]);
@@ -15,7 +15,7 @@ export interface ConfigSlice {
 }
 
 export const createConfigSlice: StateCreator<ConfigSlice> = (set, get) => {
-  getFromStorage("THEME").then((theme) => {
+  getFromStorageAsync("THEME").then((theme) => {
     if (theme) {
       const themeSafeParse = Theme.safeParse(theme);
       if (themeSafeParse.success) {
@@ -24,7 +24,7 @@ export const createConfigSlice: StateCreator<ConfigSlice> = (set, get) => {
     }
   });
 
-  getFromStorage("SEEN_ONBOARDING").then((seenOnboarding) => {
+  getFromStorageAsync("SEEN_ONBOARDING").then((seenOnboarding) => {
     if (seenOnboarding) {
       const value = seenOnboarding === "true";
 
@@ -40,12 +40,12 @@ export const createConfigSlice: StateCreator<ConfigSlice> = (set, get) => {
 
     Appearance.setColorScheme(theme === "system" ? null : theme);
     set({ theme });
-    saveToStorage("THEME", theme);
+    saveToStorageAsync("THEME", theme);
   };
 
   const setSeenOnboarding = (seenOnboarding: boolean) => {
     set({ seenOnboarding });
-    saveToStorage("SEEN_ONBOARDING", seenOnboarding ? "true" : "false");
+    saveToStorageAsync("SEEN_ONBOARDING", seenOnboarding ? "true" : "false");
   };
 
   return {

@@ -11,8 +11,8 @@ import { StateCreator } from "zustand";
 
 import {
   generateNonce,
-  getFromStorage,
-  saveToStorage,
+  getFromStorageAsync,
+  saveToStorageAsync,
   sleep,
 } from "../lib/utils";
 
@@ -51,14 +51,14 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
     set({ bluetoothState: state });
   }, true);
 
-  getFromStorage("BLE_AUTO_CONNECT").then((autoConnect) => {
+  getFromStorageAsync("BLE_AUTO_CONNECT").then((autoConnect) => {
     if (!!autoConnect) {
       const value = autoConnect === "true";
       get().setAutoConnect(value);
     }
   });
 
-  getFromStorage("BLE_AUTH_EXPIRATION").then((authExpiration) => {
+  getFromStorageAsync("BLE_AUTH_EXPIRATION").then((authExpiration) => {
     if (!!authExpiration) {
       const value = parseInt(authExpiration, 10);
       set({ authExpiration: value });
@@ -67,7 +67,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
   const saveAuthExpiration = (expiration: number) => {
     set({ authExpiration: expiration });
-    saveToStorage("BLE_AUTH_EXPIRATION", expiration.toString());
+    saveToStorageAsync("BLE_AUTH_EXPIRATION", expiration.toString());
   };
 
   const startScan = async () => {
@@ -234,7 +234,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
   const encryptData = async () => {
     const currentDate = new Date();
     const nonce = Buffer.from(generateNonce(16)).toString("base64");
-    const uid = await getFromStorage("FIREBASE_UID");
+    const uid = await getFromStorageAsync("FIREBASE_UID");
     const expiration = currentDate.getTime() + 45 * 1000;
     const concat = `${nonce}:${uid}:${expiration}:mobile`;
 
@@ -278,7 +278,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
   const setAutoConnect = (autoConnect: boolean) => {
     set({ autoConnect });
-    saveToStorage("BLE_AUTO_CONNECT", autoConnect ? "true" : "false");
+    saveToStorageAsync("BLE_AUTO_CONNECT", autoConnect ? "true" : "false");
   };
 
   return {

@@ -61,14 +61,22 @@ export const generateNonce = (length: number) => {
   return text;
 };
 
-export const saveToStorage = async (
+export const saveToStorage = (key: keyof typeof storageKeys, value: string) => {
+  SecureStore.setItem(key, value);
+};
+
+export const saveToStorageAsync = async (
   key: keyof typeof storageKeys,
   value: string
 ) => {
   await SecureStore.setItemAsync(key, value);
 };
 
-export const getFromStorage = async (key: keyof typeof storageKeys) => {
+export const getFromStorage = (key: keyof typeof storageKeys) => {
+  return SecureStore.getItem(key);
+};
+
+export const getFromStorageAsync = async (key: keyof typeof storageKeys) => {
   return await SecureStore.getItemAsync(key);
 };
 

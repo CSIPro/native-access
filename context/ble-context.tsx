@@ -6,7 +6,7 @@ import AES from "react-native-aes-crypto";
 import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
 import Constants from "expo-constants";
 
-import { generateNonce, getFromStorage } from "../lib/utils";
+import { generateNonce, getFromStorageAsync } from "../lib/utils";
 
 const scanDuration = 30000;
 
@@ -147,7 +147,7 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
   };
 
   const connect = async (device: Device) => {
-    const passcode = await getFromStorage("PASSCODE");
+    const passcode = await getFromStorageAsync("PASSCODE");
 
     if (!passcode) {
       setOpenModal(true);
@@ -209,8 +209,8 @@ export const BLEContextProvider: FC<{ children: ReactNode }> = ({
 
   const encryptData = async () => {
     const nonce = Buffer.from(generateNonce(16)).toString("base64");
-    const uid = await getFromStorage("FIREBASE_UID");
-    const passcode = await getFromStorage("PASSCODE");
+    const uid = await getFromStorageAsync("FIREBASE_UID");
+    const passcode = await getFromStorageAsync("PASSCODE");
     const expiration = new Date().getTime() + 15 * 1000;
     const concat = `${nonce}:${uid}:${passcode}:${expiration}`;
 

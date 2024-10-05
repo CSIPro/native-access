@@ -6,30 +6,16 @@ import {
   useEffect,
   useState,
 } from "react";
-import { z } from "zod";
 
-import {
-  NestRoom,
-  useNestRooms,
-  useRooms,
-  useUserRooms,
-} from "../hooks/use-rooms";
-import { getFromStorage, saveToStorage } from "../lib/utils";
+import { NestRoom, useNestRooms } from "../hooks/use-rooms";
+import { getFromStorageAsync, saveToStorageAsync } from "../lib/utils";
 import { useStore } from "@/store/store";
 import { SplashScreen } from "@/components/splash/splash";
-
-const roomSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  building: z.string(),
-  room: z.string(),
-});
 
 interface RoomContextProps {
   selectedRoom?: string;
   setSelectedRoom?: (roomId: string) => void;
   rooms?: NestRoom[];
-  // userRooms?: NestRoom[];
 }
 
 export const RoomContext = createContext<RoomContextProps>({});
@@ -41,12 +27,11 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
     data: roomsData,
     error: roomsError,
   } = useNestRooms();
-  // const { status: userRoomsStatus, data: userRoomsData } = useUserRooms();
   const setBleRoom = useStore((state) => state.setSelectedRoom);
 
   useEffect(() => {
     const retrieveSelectedRoom = async () => {
-      const roomId = await getFromStorage("SELECTED_ROOM");
+      const roomId = await getFromStorageAsync("SELECTED_ROOM");
 
       if (!roomId) {
         setSelectedRoom(roomsData?.at(0)?.id);
@@ -57,7 +42,7 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     if (selectedRoom) {
-      saveToStorage("SELECTED_ROOM", selectedRoom);
+      saveToStorageAsync("SELECTED_ROOM", selectedRoom);
 
       const roomData = roomsData.find((room) => room.id === selectedRoom);
       if (roomData) {
@@ -76,15 +61,10 @@ export const RoomProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return <SplashScreen message="Unable to connect to the server" />;
   }
 
-  // const rooms = [...roomsData]?.filter((room) =>
-  //   userRoomsData.some((userRoom) => userRoom.id === room.id)
-  // );
-
   const providerValue = {
-    selectedRoom: selectedRoom || roomsData.at(0).id,
+    selectedRoom: selectedRoom || roomsData.at(0)?.id,
     setSelectedRoom,
     rooms: [...roomsData],
-    // userRooms: [...rooms],
   };
 
   return (

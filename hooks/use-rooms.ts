@@ -9,7 +9,12 @@ import {
 import { useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
-import { BASE_API_URL, NestError } from "@/lib/utils";
+import {
+  BASE_API_URL,
+  getFromStorage,
+  NestError,
+  saveToStorage,
+} from "@/lib/utils";
 
 export const Room = z.object({
   id: z.string(),
@@ -114,6 +119,32 @@ export type NestRoom = z.infer<typeof NestRoom>;
 export const useNestRooms = () => {
   const authUser = firebaseAuth.currentUser;
 
+  const saveRoomsToCache = (rooms: Array<NestRoom>) => {
+    try {
+      saveToStorage("ROOMS", JSON.stringify(rooms));
+    } catch (error) {
+      console.error("Error saving rooms to cache", error);
+    }
+  };
+
+  const loadRoomsFromCache = () => {
+    try {
+      const cachedRooms = getFromStorage("ROOMS");
+      const roomsParse = NestRoom.array().safeParse(
+        JSON.parse(cachedRooms || "[]")
+      );
+
+      if (!roomsParse.success) {
+        throw new Error("An error occurred while parsing cached rooms");
+      }
+
+      return roomsParse.data;
+    } catch (error) {
+      console.error("Error loading rooms from cache", error);
+      return [];
+    }
+  };
+
   const roomsQuery = useQuery({
     queryKey: ["rooms"],
     queryFn: async () => {
@@ -140,6 +171,10 @@ export const useNestRooms = () => {
       }
 
       return roomsParse.data;
+    },
+    onSuccess: (data) => saveRoomsToCache(data),
+    initialData: () => {
+      return loadRoomsFromCache();
     },
   });
 

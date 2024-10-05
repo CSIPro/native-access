@@ -4,7 +4,7 @@ import { FC, ReactNode, createContext, useContext } from "react";
 import { NestUser, useNestUser } from "@/hooks/use-user-data";
 
 import { firebaseAuth } from "@/lib/firebase-config";
-import { BASE_API_URL, NestError, saveToStorage } from "@/lib/utils";
+import { BASE_API_URL, NestError, saveToStorageAsync } from "@/lib/utils";
 import { SplashScreen } from "@/components/splash/splash";
 import { Membership, useMemberships } from "@/hooks/use-membership";
 import { useRoomContext } from "./room-context";
@@ -162,7 +162,7 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
     pushNotificationToken: pushNotificationToken.mutateAsync,
   };
 
-  saveToStorage("FIREBASE_UID", providerValue.user.authId);
+  saveToStorageAsync("FIREBASE_UID", providerValue.user.authId);
 
   return (
     <UserContext.Provider value={providerValue}>

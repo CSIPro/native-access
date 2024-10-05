@@ -26,8 +26,6 @@ export const loadFromCache = <T extends z.ZodTypeAny>(
   key: keyof typeof storageKeys
 ) => {
   try {
-    console.log(schema.description);
-
     const cachedData = getFromStorage(key);
     const dataParse = schema.safeParse(
       JSON.parse(

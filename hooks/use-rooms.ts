@@ -156,7 +156,7 @@ export const useNestRooms = () => {
         "ROOMS"
       ) as Array<NestRoom>;
     },
-    staleTime: 60 * 1000,
+    staleTime: 1000,
     initialDataUpdatedAt: () => +getFromStorage("ROOMS_LAST_FETCHED"),
   });
 

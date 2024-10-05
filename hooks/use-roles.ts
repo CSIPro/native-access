@@ -1,4 +1,5 @@
-import { BASE_API_URL, NestError } from "@/lib/utils";
+import { loadFromCache, saveToCache } from "@/lib/cache";
+import { BASE_API_URL, getFromStorage, NestError } from "@/lib/utils";
 import { collection, orderBy, query } from "firebase/firestore";
 import { useQuery } from "react-query";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
@@ -73,6 +74,15 @@ export const useNestRoles = () => {
 
       return rolesParse.data;
     },
+    onSuccess: (data) => saveToCache("ROLES", data),
+    initialData: () => {
+      return loadFromCache(
+        NestRole.array().describe("NestRole array"),
+        "ROLES"
+      ) as Array<NestRole>;
+    },
+    staleTime: 1000,
+    initialDataUpdatedAt: () => +getFromStorage("ROLES_LAST_FETCHED"),
   });
 
   return rolesQuery;

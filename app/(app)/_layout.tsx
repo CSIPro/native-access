@@ -106,7 +106,7 @@ const TabsLayoutNav = () => {
   }, []);
 
   if (authUserStatus === "loading") {
-    return <SplashScreen loading message="Retrieving user data..." />;
+    return <SplashScreen loading message="Retrieving user session..." />;
   }
 
   if (authUserStatus === "error") {

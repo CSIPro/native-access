@@ -14,7 +14,8 @@ import { useFirestore, useFirestoreDocData, useUser } from "reactfire";
 import { useRoomContext } from "../context/room-context";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
-import { BASE_API_URL, NestError } from "@/lib/utils";
+import { BASE_API_URL, getFromStorage, NestError } from "@/lib/utils";
+import { loadFromCache, saveToCache } from "@/lib/cache";
 
 export const UserRoomRole = z.object({
   id: z.string(),
@@ -354,6 +355,31 @@ export const useNestUser = (userId?: string) => {
     },
     refetchInterval: 20000,
     retryDelay: 5000,
+    onSuccess: (data) => {
+      if (userId) {
+        return;
+      }
+
+      saveToCache("USER", data);
+      saveToCache("USER_ID", data.id);
+    },
+    initialData: () => {
+      if (userId) {
+        return undefined;
+      }
+
+      const cachedData = loadFromCache("USER");
+
+      const userParse = NestUser.safeParse(cachedData);
+
+      if (!userParse.success) {
+        return undefined;
+      }
+
+      return userParse.data;
+    },
+    staleTime: 1000,
+    initialDataUpdatedAt: () => +getFromStorage("USER_LAST_FETCHED"),
   });
 
   return userQuery;

@@ -5,6 +5,7 @@ import { NestRoom } from "./use-rooms";
 import { useQuery } from "react-query";
 import { firebaseAuth } from "@/lib/firebase-config";
 import { BASE_API_URL, NestError } from "@/lib/utils";
+import { loadFromCache, saveToCache } from "@/lib/cache";
 
 export const Membership = z.object({
   id: z.string(),
@@ -50,6 +51,29 @@ export const useMemberships = (userId: string) => {
 
       return membershipsParse.data;
     },
+    initialData: () => {
+      if (userId !== loadFromCache("USER_ID")) {
+        return undefined;
+      }
+
+      const cachedMemberships = loadFromCache("USER_MEMBERSHIPS");
+
+      const membershipsParse = Membership.array().safeParse(cachedMemberships);
+
+      if (!membershipsParse.success) {
+        return undefined;
+      }
+
+      return membershipsParse.data;
+    },
+    onSuccess: (data) => {
+      if (userId !== loadFromCache("USER_ID")) {
+        return undefined;
+      }
+
+      saveToCache("USER_MEMBERSHIPS", data);
+    },
+    staleTime: 1000,
     refetchInterval: 20000,
   });
 

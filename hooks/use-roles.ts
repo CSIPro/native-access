@@ -76,10 +76,15 @@ export const useNestRoles = () => {
     },
     onSuccess: (data) => saveToCache("ROLES", data),
     initialData: () => {
-      return loadFromCache(
-        NestRole.array().describe("NestRole array"),
-        "ROLES"
-      ) as Array<NestRole>;
+      const cachedRoles = loadFromCache("ROLES");
+
+      const rolesParse = NestRole.array().safeParse(cachedRoles);
+
+      if (!rolesParse.success) {
+        return [];
+      }
+
+      return rolesParse.data;
     },
     staleTime: 1000,
     initialDataUpdatedAt: () => +getFromStorage("ROLES_LAST_FETCHED"),

@@ -7,39 +7,35 @@ const cacheExpirationKeys: Partial<
 > = {
   ROOMS: "ROOMS_LAST_FETCHED",
   ROLES: "ROLES_LAST_FETCHED",
+  USER: "USER_LAST_FETCHED",
+  USER_ID: "USER_ID_LAST_FETCHED",
+  USER_MEMBERSHIPS: "USER_MEMBERSHIPS_LAST_FETCHED",
 };
 
 export const saveToCache = <T>(
   key: keyof typeof storageKeys,
-  data: Array<T>
+  data: Array<T> | T
 ) => {
   try {
     saveToStorage(key, JSON.stringify(data));
     saveToStorage(cacheExpirationKeys[key], Date.now().toString());
   } catch (error) {
-    console.error("Error saving rooms to cache", error);
+    console.error("Error saving data to cache", error);
   }
 };
 
-export const loadFromCache = <T extends z.ZodTypeAny>(
-  schema: T,
-  key: keyof typeof storageKeys
-) => {
+export const loadFromCache = (key: keyof typeof storageKeys) => {
   try {
     const cachedData = getFromStorage(key);
-    const dataParse = schema.safeParse(
-      JSON.parse(
-        cachedData || schema.description?.includes("array") ? "[]" : "{}"
-      )
-    );
 
-    if (!dataParse.success) {
-      throw new Error("An error occurred while parsing cached data");
+    if (!cachedData) {
+      return undefined;
     }
 
-    return dataParse.data;
+    return JSON.parse(cachedData);
   } catch (error) {
     console.error("Error loading data from cache", error);
-    return schema.description?.includes("array") ? [] : null;
+
+    return undefined;
   }
 };

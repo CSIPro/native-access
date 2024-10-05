@@ -151,10 +151,15 @@ export const useNestRooms = () => {
     },
     onSuccess: (data) => saveToCache("ROOMS", data),
     initialData: () => {
-      return loadFromCache(
-        NestRoom.array().describe("NestRoom array"),
-        "ROOMS"
-      ) as Array<NestRoom>;
+      const cachedRooms = loadFromCache("ROOMS");
+
+      const roomsParse = NestRoom.array().safeParse(cachedRooms);
+
+      if (!roomsParse.success) {
+        return [];
+      }
+
+      return roomsParse.data;
     },
     staleTime: 1000,
     initialDataUpdatedAt: () => +getFromStorage("ROOMS_LAST_FETCHED"),

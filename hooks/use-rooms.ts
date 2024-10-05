@@ -122,6 +122,7 @@ export const useNestRooms = () => {
   const saveRoomsToCache = (rooms: Array<NestRoom>) => {
     try {
       saveToStorage("ROOMS", JSON.stringify(rooms));
+      saveToStorage("ROOMS_LAST_FETCHED", Date.now().toString());
     } catch (error) {
       console.error("Error saving rooms to cache", error);
     }
@@ -176,6 +177,8 @@ export const useNestRooms = () => {
     initialData: () => {
       return loadRoomsFromCache();
     },
+    staleTime: 60 * 1000,
+    initialDataUpdatedAt: () => +getFromStorage("ROOMS_LAST_FETCHED"),
   });
 
   return roomsQuery;

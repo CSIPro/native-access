@@ -72,7 +72,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
   const startScan = async () => {
     await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       {
         title:
           "This feature needs location permission to scan for BLE devices.",
@@ -126,6 +126,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
         if (error) {
           if (error.name === "BleError") {
             set({ scanState: ScanState.enum.idle });
+            console.log(error);
           }
 
           return;
@@ -217,7 +218,7 @@ export const createBleSlice: StateCreator<BleSlice> = (set, get) => {
 
   const connect = async (device: Device) => {
     while (connectionAttempts < attemptLimit) {
-      console.log("Attempting connection...", connectionAttempts);
+      // console.log("Attempting connection...", connectionAttempts);
       await sleep(250 * connectionAttempts);
 
       try {

@@ -27,7 +27,7 @@ export default function MembersLayout() {
     tabBarLabelStyle: {
       fontFamily: fonts.poppinsMedium,
       textTransform: "capitalize",
-      fontSize: 16,
+      fontSize: 14,
     },
     tabBarActiveTintColor: colors.default.white[100],
     tabBarIndicatorStyle: {
@@ -47,6 +47,10 @@ export default function MembersLayout() {
             lazy: true,
             ...tabStyle,
           }}
+        />
+        <MaterialTopTabs.Screen
+          name="restrictions"
+          options={{ title: "Restricciones", lazy: true, ...tabStyle }}
         />
         <MaterialTopTabs.Screen
           name="requests"

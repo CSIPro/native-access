@@ -44,7 +44,7 @@ const variantIcons = {
     <IonIcon
       name="information-circle"
       size={24}
-      color={colors.default.bluetooth[300]}
+      color={colors.default.tint[300]}
     />
   ),
 };
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: colors.default.tint.translucid[200],
+    backgroundColor: colors.default.tint.translucid[50],
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "flex-start",

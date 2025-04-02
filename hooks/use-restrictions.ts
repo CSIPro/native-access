@@ -161,12 +161,10 @@ export const useRestrictionActions = () => {
       }
 
       queryClient.invalidateQueries({
-        queryKey: [
-          "restrictions",
-          selectedRoom,
-          "restriction",
-          createdRestrictionParse.data.id,
-        ],
+        queryKey: ["restriction", createdRestrictionParse.data.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["restrictions", selectedRoom],
       });
     },
   });
@@ -202,7 +200,10 @@ export const useRestrictionActions = () => {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ["restrictions", selectedRoom, "restriction", restriction.id],
+        queryKey: ["restriction", restriction.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["restrictions", selectedRoom],
       });
     },
   });
@@ -231,7 +232,10 @@ export const useRestrictionActions = () => {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ["restrictions", selectedRoom, "restriction", restrictionId],
+        queryKey: ["restriction", restrictionId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["restrictions", selectedRoom],
       });
     },
   });

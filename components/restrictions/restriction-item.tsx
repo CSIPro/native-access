@@ -1,8 +1,15 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { PopulatedRestriction } from "@/hooks/use-restrictions";
+import { Link } from "expo-router";
 import { createContext, FC, ReactNode, useContext } from "react";
-import { StyleSheet, Text, useColorScheme, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -71,24 +78,30 @@ export const RestrictionItem: FC<Props> = ({ restriction }) => {
   const endTime = restriction.endTime.substring(0, 5);
 
   return (
-    <Animated.View style={[styles.container, viewStyles]}>
-      <RestrictionContext.Provider value={restriction}>
-        <RestrictionRoleName>{restriction.role.name}</RestrictionRoleName>
-        <RestrictionRoom>{restriction.room.name}</RestrictionRoom>
-        <View style={[styles.restrictionData]}>
-          <RestrictionDays bitmask={restriction.daysBitmask} />
-          <View style={[styles.restrictionTime]}>
-            <Animated.View style={[styles.timeslot, timeslotStyles]}>
-              <Text style={[styles.text, styles.monoText]}>{startTime}</Text>
-            </Animated.View>
-            <Text style={[styles.text, styles.monoText]}>-</Text>
-            <Animated.View style={[styles.timeslot, timeslotStyles]}>
-              <Text style={[styles.text, styles.monoText]}>{endTime}</Text>
-            </Animated.View>
-          </View>
-        </View>
-      </RestrictionContext.Provider>
-    </Animated.View>
+    <Link href={`members/restrictions/${restriction.id}/update`} asChild>
+      <Pressable style={[{ width: "100%" }]}>
+        <Animated.View style={[styles.container, viewStyles]}>
+          <RestrictionContext.Provider value={restriction}>
+            <RestrictionRoleName>{restriction.role.name}</RestrictionRoleName>
+            <RestrictionRoom>{restriction.room.name}</RestrictionRoom>
+            <View style={[styles.restrictionData]}>
+              <RestrictionDays bitmask={restriction.daysBitmask} />
+              <View style={[styles.restrictionTime]}>
+                <Animated.View style={[styles.timeslot, timeslotStyles]}>
+                  <Text style={[styles.text, styles.monoText]}>
+                    {startTime}
+                  </Text>
+                </Animated.View>
+                <Text style={[styles.text, styles.monoText]}>-</Text>
+                <Animated.View style={[styles.timeslot, timeslotStyles]}>
+                  <Text style={[styles.text, styles.monoText]}>{endTime}</Text>
+                </Animated.View>
+              </View>
+            </View>
+          </RestrictionContext.Provider>
+        </Animated.View>
+      </Pressable>
+    </Link>
   );
 };
 

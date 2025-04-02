@@ -31,27 +31,6 @@ export default function RestrictionsPage() {
     ? colors.default.black[400]
     : colors.default.white[100];
 
-  if (restrictions.status === "loading") {
-    return (
-      <View style={[styles.centered]}>
-        <ActivityIndicator size="large" color={tint} />
-        <Text style={[styles.text, styles.centeredText, { color: textColor }]}>
-          Cargando restricciones
-        </Text>
-      </View>
-    );
-  }
-
-  if (restrictions.status === "error") {
-    return (
-      <View style={[styles.centered]}>
-        <Text style={[styles.text, styles.centeredText, { color: textColor }]}>
-          Error loading requests
-        </Text>
-      </View>
-    );
-  }
-
   return (
     <View
       style={[
@@ -66,34 +45,55 @@ export default function RestrictionsPage() {
       <View style={[styles.roomPickerWrapper]}>
         <RoomPicker />
       </View>
-      <FlatList
-        data={restrictions.data}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{
-          flexGrow: 1,
-          padding: 4,
-          gap: 8,
-          paddingBottom: tabsHeight,
-        }}
-        ListHeaderComponent={
-          restrictions.data?.length > 0 ? <AddRestriction /> : null
-        }
-        renderItem={({ item: restriction }) => (
-          <RestrictionItem restriction={restriction} />
-        )}
-        ListEmptyComponent={
-          <View style={[styles.centered, { gap: 8 }]}>
-            <Text
-              style={[styles.text, styles.centeredText, { color: textColor }]}
-            >
-              No hay restricciones activas
-            </Text>
-            <Link href="/members" asChild>
-              <TextButton>Crear una</TextButton>
-            </Link>
-          </View>
-        }
-      />
+      {restrictions.status === "loading" && (
+        <View style={[styles.centered]}>
+          <ActivityIndicator size="large" color={tint} />
+          <Text
+            style={[styles.text, styles.centeredText, { color: textColor }]}
+          >
+            Cargando restricciones
+          </Text>
+        </View>
+      )}
+      {restrictions.status === "error" && (
+        <View style={[styles.centered]}>
+          <Text
+            style={[styles.text, styles.centeredText, { color: textColor }]}
+          >
+            Ocurrió un error al cargar las restricciones
+          </Text>
+        </View>
+      )}
+      {restrictions.isSuccess && (
+        <FlatList
+          data={restrictions.data}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{
+            flexGrow: 1,
+            padding: 4,
+            gap: 8,
+            paddingBottom: tabsHeight,
+          }}
+          ListHeaderComponent={
+            restrictions.data?.length > 0 ? <AddRestriction /> : null
+          }
+          renderItem={({ item: restriction }) => (
+            <RestrictionItem restriction={restriction} />
+          )}
+          ListEmptyComponent={
+            <View style={[styles.centered, { gap: 8 }]}>
+              <Text
+                style={[styles.text, styles.centeredText, { color: textColor }]}
+              >
+                No hay restricciones activas
+              </Text>
+              <Link href="/members" asChild>
+                <TextButton>Crear una</TextButton>
+              </Link>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }

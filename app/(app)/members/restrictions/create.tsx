@@ -31,6 +31,7 @@ import {
   ModalHeader,
 } from "@/components/modal/modal";
 import { format } from "date-fns";
+import { RestrictionDayButton } from "@/components/restrictions/restriction-day-button";
 
 const RestrictionForm = z.object({
   roomId: z
@@ -60,8 +61,6 @@ export default function CreateRestrictionPage() {
     control,
     handleSubmit,
     formState: { errors },
-    setError,
-    watch,
   } = useForm<RestrictionFormType>({
     resolver: zodResolver(RestrictionForm),
     defaultValues: {
@@ -111,6 +110,10 @@ export default function CreateRestrictionPage() {
     ? colors.default.black.translucid[600]
     : colors.default.gray.translucid[800];
 
+  const availableRoles = (rolesQuery.data ?? []).filter(
+    (role) => role.name !== "Admin"
+  );
+
   return (
     <Animated.ScrollView style={[styles.main, { backgroundColor }]}>
       <View style={[styles.header]}>
@@ -144,7 +147,7 @@ export default function CreateRestrictionPage() {
             render={({ field: { onChange, value } }) => (
               <View style={[styles.inputContainer]}>
                 <Dropdown
-                  items={rolesQuery.data.map((role) => ({
+                  items={availableRoles.map((role) => ({
                     key: role.id,
                     value: role.id,
                     label: role.name,
@@ -179,7 +182,9 @@ export default function CreateRestrictionPage() {
         )}
         <View style={[styles.inputContainer]}>
           <View style={[styles.inputTextContainer]}>
-            <Text style={[styles.text, { color: textColor }]}>
+            <Text
+              style={[styles.text, styles.inputLabel, { color: textColor }]}
+            >
               Días de la semana
             </Text>
           </View>
@@ -190,23 +195,22 @@ export default function CreateRestrictionPage() {
               render={({ field: { onChange, value } }) => (
                 <>
                   {value.map((_, index) => (
-                    <TextButton
+                    <RestrictionDayButton
                       key={index}
                       onPress={() => {
                         const newValue = [...value];
                         newValue[index] = !newValue[index];
                         onChange(newValue);
                       }}
-                      wrapperStyle={[{ flex: 1 }]}
-                      style={[
+                      isActive={value[index]}
+                      wrapperStyle={[
                         {
                           flex: 1,
-                          opacity: value[index] ? 1 : 0.3,
                         },
                       ]}
                     >
                       {["D", "L", "M", "X", "J", "V", "S"][index]}
-                    </TextButton>
+                    </RestrictionDayButton>
                   ))}
                 </>
               )}
@@ -353,6 +357,9 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: fonts.inter,
     fontSize: 16,
+  },
+  inputLabel: {
+    fontFamily: fonts.poppins,
   },
   title: {
     paddingTop: 4,

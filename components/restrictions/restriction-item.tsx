@@ -157,15 +157,7 @@ interface RestrictionDaysProps {
 }
 
 export const RestrictionDays: FC<RestrictionDaysProps> = ({ bitmask }) => {
-  const days = [
-    "Domingo",
-    "Lunes",
-    "Martes",
-    "Miércoles",
-    "Jueves",
-    "Viernes",
-    "Sábado",
-  ];
+  const days = ["D", "L", "M", "X", "J", "V", "S"];
 
   const selectedDays = [];
 
@@ -231,7 +223,7 @@ const DayRestriction: FC<DayRestrictionProps> = ({ day, isActive = false }) => {
         viewStyles,
       ]}
     >
-      <Text style={[styles.text, styles.monoText]}>{day.charAt(0)}</Text>
+      <Text style={[styles.text, styles.monoText]}>{day}</Text>
     </Animated.View>
   );
 };

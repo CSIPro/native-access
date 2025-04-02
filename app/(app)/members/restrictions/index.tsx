@@ -4,7 +4,6 @@ import { useRoomRestrictions } from "@/hooks/use-restrictions";
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   useColorScheme,
@@ -15,7 +14,6 @@ import fonts from "@/constants/fonts";
 import { RoomPicker } from "@/components/room-picker/room-picker";
 import { TextButton } from "@/components/ui/text-button";
 import { Link } from "expo-router";
-import { IonIcon } from "@/components/icons/ion";
 import { AddRestriction } from "@/components/restrictions/add-restriction";
 import { RestrictionItem } from "@/components/restrictions/restriction-item";
 
@@ -87,7 +85,7 @@ export default function RestrictionsPage() {
               >
                 No hay restricciones activas
               </Text>
-              <Link href="/members" asChild>
+              <Link href="members/restrictions/create" asChild>
                 <TextButton>Crear una</TextButton>
               </Link>
             </View>

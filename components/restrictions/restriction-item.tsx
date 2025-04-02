@@ -1,44 +1,94 @@
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { PopulatedRestriction } from "@/hooks/use-restrictions";
-import { FC, ReactNode } from "react";
+import { createContext, FC, ReactNode, useContext } from "react";
 import { StyleSheet, Text, useColorScheme, View } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useDerivedValue,
+} from "react-native-reanimated";
+
+const RestrictionContext = createContext<PopulatedRestriction | null>(null);
 
 interface Props {
   restriction: PopulatedRestriction;
 }
 
 export const RestrictionItem: FC<Props> = ({ restriction }) => {
+  const sv = useDerivedValue(() => (restriction.isActive ? 1 : 0));
   const isLight = useColorScheme() === "light";
 
-  const backgroundColor = isLight
-    ? colors.default.tint.translucid[400]
-    : colors.default.tint.translucid[100];
+  const viewStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.secondary.translucid[400]
+          : colors.default.secondary.translucid[100],
+        isLight
+          ? colors.default.tint.translucid[400]
+          : colors.default.tint.translucid[100],
+      ]
+    );
 
-  const borderColor = isLight
-    ? colors.default.tint[600]
-    : colors.default.tint[400];
+    const borderColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight ? colors.default.secondary[600] : colors.default.secondary[400],
+        isLight ? colors.default.tint[600] : colors.default.tint[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+      borderColor,
+    };
+  });
+
+  const timeslotStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.secondary.translucid[400]
+          : colors.default.secondary.translucid[600],
+        isLight
+          ? colors.default.tint.translucid[400]
+          : colors.default.tint.translucid[600],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
 
   const startTime = restriction.startTime.substring(0, 5);
   const endTime = restriction.endTime.substring(0, 5);
 
   return (
-    <View style={[styles.container, { backgroundColor, borderColor }]}>
-      <RestrictionRoleName>{restriction.role.name}</RestrictionRoleName>
-      <RestrictionRoom>{restriction.room.name}</RestrictionRoom>
-      <View style={[styles.restrictionData]}>
-        <RestrictionDays bitmask={restriction.daysBitmask} />
-        <View style={[styles.restrictionTime]}>
-          <View style={[styles.timeslot]}>
-            <Text style={[styles.text, styles.monoText]}>{startTime}</Text>
-          </View>
-          <Text style={[styles.text, styles.monoText]}>-</Text>
-          <View style={[styles.timeslot]}>
-            <Text style={[styles.text, styles.monoText]}>{endTime}</Text>
+    <Animated.View style={[styles.container, viewStyles]}>
+      <RestrictionContext.Provider value={restriction}>
+        <RestrictionRoleName>{restriction.role.name}</RestrictionRoleName>
+        <RestrictionRoom>{restriction.room.name}</RestrictionRoom>
+        <View style={[styles.restrictionData]}>
+          <RestrictionDays bitmask={restriction.daysBitmask} />
+          <View style={[styles.restrictionTime]}>
+            <Animated.View style={[styles.timeslot, timeslotStyles]}>
+              <Text style={[styles.text, styles.monoText]}>{startTime}</Text>
+            </Animated.View>
+            <Text style={[styles.text, styles.monoText]}>-</Text>
+            <Animated.View style={[styles.timeslot, timeslotStyles]}>
+              <Text style={[styles.text, styles.monoText]}>{endTime}</Text>
+            </Animated.View>
           </View>
         </View>
-      </View>
-    </View>
+      </RestrictionContext.Provider>
+    </Animated.View>
   );
 };
 
@@ -57,12 +107,35 @@ interface RestrictionRoomProps {
 }
 
 export const RestrictionRoom: FC<RestrictionRoomProps> = ({ children }) => {
+  const restriction = useContext(RestrictionContext);
+  const sv = useDerivedValue(() => (restriction?.isActive ? 1 : 0));
+  const isLight = useColorScheme() === "light";
+
+  const viewStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight ? colors.default.secondary[600] : colors.default.secondary[400],
+        isLight ? colors.default.tint[600] : colors.default.tint[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
+
+  if (!restriction) {
+    return null;
+  }
+
   return (
-    <View style={[styles.roomNameContainer]}>
+    <Animated.View style={[styles.roomNameContainer, viewStyles]}>
       <Text numberOfLines={1} style={[styles.text, styles.roomName]}>
         {children}
       </Text>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -104,11 +177,34 @@ interface DayRestrictionProps {
 }
 
 const DayRestriction: FC<DayRestrictionProps> = ({ day, isActive = false }) => {
+  const restriction = useContext(RestrictionContext);
+  const sv = useDerivedValue(() => (restriction?.isActive ? 1 : 0));
+  const isLight = useColorScheme() === "light";
+
+  const viewStyles = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [
+        isLight
+          ? colors.default.secondary.translucid[600]
+          : colors.default.secondary.translucid[400],
+        isLight
+          ? colors.default.tint.translucid[600]
+          : colors.default.tint.translucid[400],
+      ]
+    );
+
+    return {
+      backgroundColor,
+    };
+  });
+
   const backgroundColor = colors.default.tint.translucid[600];
   const opacity = isActive ? 1 : 0.3;
 
   return (
-    <View
+    <Animated.View
       style={[
         {
           backgroundColor,
@@ -119,10 +215,11 @@ const DayRestriction: FC<DayRestrictionProps> = ({ day, isActive = false }) => {
           alignItems: "center",
           justifyContent: "center",
         },
+        viewStyles,
       ]}
     >
       <Text style={[styles.text, styles.monoText]}>{day.charAt(0)}</Text>
-    </View>
+    </Animated.View>
   );
 };
 

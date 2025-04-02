@@ -36,6 +36,43 @@ export const PopulatedRestriction = Restriction.omit({
 
 export type PopulatedRestriction = z.infer<typeof PopulatedRestriction>;
 
+export const useRestriction = (restrictionId: string) => {
+  const authUser = firebaseAuth.currentUser;
+
+  const restrictionQuery = useQuery({
+    queryKey: ["restriction", restrictionId],
+    queryFn: async () => {
+      const res = await fetch(`${BASE_API_URL}/restrictions/${restrictionId}`, {
+        headers: {
+          Authorization: `Bearer ${await authUser?.getIdToken()}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const errorParse = NestError.safeParse(await res.json());
+
+        if (errorParse.success) {
+          throw new Error(errorParse.data.message);
+        }
+
+        throw new Error("Error al obtener la restricción");
+      }
+
+      const data = await res.json();
+      const restrictionParse = PopulatedRestriction.safeParse(data);
+
+      if (!restrictionParse.success) {
+        throw new Error("La aplicación recibió datos inválidos");
+      }
+
+      return restrictionParse.data;
+    },
+  });
+
+  return restrictionQuery;
+};
+
 export const useRoomRestrictions = (roomId?: string) => {
   const authUser = firebaseAuth.currentUser;
   const { selectedRoom } = useRoomContext();
@@ -115,8 +152,21 @@ export const useRestrictionActions = () => {
         throw new Error("Error al crear la restricción");
       }
 
+      const data = await res.json();
+
+      const createdRestrictionParse = Restriction.safeParse(data);
+
+      if (!createdRestrictionParse.success) {
+        throw new Error("La aplicación recibió datos inválidos");
+      }
+
       queryClient.invalidateQueries({
-        queryKey: ["restrictions", selectedRoom],
+        queryKey: [
+          "restrictions",
+          selectedRoom,
+          "restriction",
+          createdRestrictionParse.data.id,
+        ],
       });
     },
   });
@@ -152,7 +202,7 @@ export const useRestrictionActions = () => {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ["restrictions", selectedRoom],
+        queryKey: ["restrictions", selectedRoom, "restriction", restriction.id],
       });
     },
   });
@@ -181,7 +231,7 @@ export const useRestrictionActions = () => {
       }
 
       queryClient.invalidateQueries({
-        queryKey: ["restrictions", selectedRoom],
+        queryKey: ["restrictions", selectedRoom, "restriction", restrictionId],
       });
     },
   });

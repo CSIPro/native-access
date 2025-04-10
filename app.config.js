@@ -24,6 +24,7 @@ export default {
       },
       userInterfaceStyle: "automatic",
       buildNumber: "1",
+      bundleIdentifier: "com.csipro.nativeAccess",
     },
     android: {
       versionCode: 1,

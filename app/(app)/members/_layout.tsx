@@ -1,62 +1,67 @@
-import { withLayoutContext } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  createMaterialTopTabNavigator,
-  MaterialTopTabNavigationOptions,
-  MaterialTopTabNavigationEventMap,
-} from "@react-navigation/material-top-tabs";
-import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 
 import colors from "@/constants/colors";
-import fonts from "@/constants/fonts";
-
-const { Navigator } = createMaterialTopTabNavigator();
-
-const MaterialTopTabs = withLayoutContext<
-  MaterialTopTabNavigationOptions,
-  typeof Navigator,
-  TabNavigationState<ParamListBase>,
-  MaterialTopTabNavigationEventMap
->(Navigator);
+import { Tabs, TabSlot, TabList, TabTrigger } from "expo-router/ui";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { BlurView } from "expo-blur";
+import { StyleSheet, Text, useColorScheme, View } from "react-native";
+import { TabButton } from "@/components/member-tabs/tab-button";
 
 export default function MembersLayout() {
-  const tabStyle = {
-    tabBarStyle: {
-      backgroundColor: colors.default.tint[400],
-    },
-    tabBarLabelStyle: {
-      fontFamily: fonts.poppinsMedium,
-      textTransform: "capitalize",
-      fontSize: 14,
-    },
-    tabBarActiveTintColor: colors.default.white[100],
-    tabBarIndicatorStyle: {
-      backgroundColor: colors.default.white[100],
-    },
-  } as const;
+  const isLight = useColorScheme() === "light";
+  const tabsHeight = useBottomTabBarHeight();
 
   return (
-    <SafeAreaView
-      style={[{ flex: 1, backgroundColor: colors.default.tint[400] }]}
-    >
-      <MaterialTopTabs>
-        <MaterialTopTabs.Screen
-          name="index"
-          options={{
-            title: "Miembros",
-            lazy: true,
-            ...tabStyle,
-          }}
-        />
-        <MaterialTopTabs.Screen
-          name="restrictions"
-          options={{ title: "Restricciones", lazy: true, ...tabStyle }}
-        />
-        <MaterialTopTabs.Screen
-          name="requests"
-          options={{ title: "Solicitudes", lazy: true, ...tabStyle }}
-        />
-      </MaterialTopTabs>
-    </SafeAreaView>
+    <Tabs>
+      <TabList
+        style={{
+          position: "absolute",
+          bottom: tabsHeight + 8,
+          height: 50,
+          backgroundColor: colors.default.black.translucid[800],
+          borderRadius: 8,
+          borderWidth: 2,
+          borderColor: colors.default.tint[100],
+          left: 4,
+          right: 4,
+          justifyContent: "space-evenly",
+          zIndex: 999,
+          overflow: "hidden",
+        }}
+        asChild
+      >
+        <BlurView
+          intensity={32}
+          tint={isLight ? "light" : "dark"}
+          style={[
+            {
+              ...StyleSheet.absoluteFillObject,
+              overflow: "hidden",
+              backgroundColor: isLight
+                ? colors.default.white.translucid[600]
+                : colors.default.black.translucid[800],
+              borderColor: colors.default.tint[400],
+              borderWidth: 2,
+              borderRadius: 14,
+            },
+          ]}
+        >
+          <TabTrigger name="members" href="members" asChild>
+            <TabButton>Miembros</TabButton>
+          </TabTrigger>
+          <TabTrigger name="restrictions" href="members/restrictions" asChild>
+            <TabButton>Restricciones</TabButton>
+          </TabTrigger>
+          <TabTrigger name="requests" href="members/requests" asChild>
+            <TabButton>Solicitudes</TabButton>
+          </TabTrigger>
+        </BlurView>
+      </TabList>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: colors.default.tint[400] }}
+      >
+        <TabSlot />
+      </SafeAreaView>
+    </Tabs>
   );
 }

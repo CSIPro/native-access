@@ -1,4 +1,4 @@
-import { CameraView, Camera, BarcodeScanningResult } from "expo-camera/next";
+import { CameraView, Camera, BarcodeScanningResult } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";

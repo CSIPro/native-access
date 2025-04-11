@@ -141,6 +141,7 @@ const TabsLayoutNav = () => {
       <Tabs
         initialRouteName="index"
         screenOptions={{
+          animation: "shift",
           tabBarInactiveTintColor: isLight
             ? colors.default.black[400]
             : colors.default.white[400],
@@ -158,12 +159,14 @@ const TabsLayoutNav = () => {
             bottom: 4,
             left: 4,
             right: 4,
-            height: 72,
+            height: 64,
             borderTopWidth: 0,
             paddingTop: 4,
             paddingRight: 4,
             paddingBottom: 4,
             paddingLeft: 4,
+            alignItems: "center",
+            justifyContent: "center",
           },
           tabBarBackground: () => (
             <BlurView

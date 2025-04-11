@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   Easing,
   Extrapolation,
+  FadeInDown,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
@@ -116,7 +117,7 @@ export default function Home() {
       toast.showToast({
         title: "Shaw!",
         duration: 2000,
-      })
+      });
       shouldPlaySound.current = false;
     }
   };
@@ -276,7 +277,11 @@ export default function Home() {
           <PersonalStats />
         </Animated.ScrollView>
       </Animated.View>
-      <PibleScanner />
+      <Animated.View
+        entering={FadeInDown.duration(500).easing(Easing.out(Easing.ease))}
+      >
+        <PibleScanner />
+      </Animated.View>
       <StatusBar style="light" />
     </SafeAreaView>
   );

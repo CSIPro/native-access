@@ -65,13 +65,6 @@ export default {
         },
       ],
       [
-        "expo-barcode-scanner",
-        {
-          cameraPermission:
-            "Allow $(PRODUCT_NAME) to use your camera to scan barcodes",
-        },
-      ],
-      [
         "react-native-ble-plx",
         {
           isBackgroundEnabled: false,

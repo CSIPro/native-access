@@ -115,31 +115,16 @@ export const PibleScanner = () => {
       generateWaves();
       clearParticles();
     } else if (isConnecting) {
-      sv.value = withRepeat(withTiming(1, { duration: 2000 }), 0, true);
+      sv.value = withRepeat(
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        0,
+        true
+      );
       button.value = withTiming(1, {
         duration: 1000,
         easing: Easing.inOut(Easing.ease),
       });
 
-      setParticles([]);
-      const particles: Particle[] = [];
-
-      for (let i = 0; i < 50; i++) {
-        const offsetX = Math.random() * (window.width - 8) + 4;
-        const offsetY = Math.random() * 30 + 76;
-        const id = i * offsetX * Math.random();
-
-        const particle: Particle = {
-          id,
-          offsetX,
-          offsetY,
-          delay: Math.random() * 300 * i + 750,
-        };
-
-        particles.push(particle);
-      }
-
-      setParticles(particles);
       clearWave();
     } else {
       sv.value = withTiming(0, {
@@ -204,11 +189,18 @@ export const PibleScanner = () => {
     const backgroundColor = interpolateColor(
       sv.value,
       [0, 1],
-      [colors.default.tint.translucid[200], colors.default.tint.translucid[700]]
+      [colors.default.tint.translucid[200], colors.default.tint[400]]
+    );
+
+    const borderColor = interpolateColor(
+      sv.value,
+      [0, 1],
+      [colors.default.tint[400], colors.default.tint[100]]
     );
 
     return {
       backgroundColor,
+      borderColor,
     };
   });
 

@@ -106,9 +106,10 @@ export const RequestItem: FC<Props> = ({ request }) => {
           <Text numberOfLines={1} style={[styles.itemText, styles.status]}>
             {StatusLabels[request.status ?? NestRequestStatus.enum.pending]}
           </Text>
-          <Text numberOfLines={1} style={[styles.itemText, styles.date]}>
-            {`hace ${formatDistanceToNow(new Date(request.createdAt), {
+          <Text numberOfLines={2} style={[styles.itemText, styles.date]}>
+            {`${formatDistanceToNow(new Date(request.createdAt), {
               locale: es,
+              addSuffix: true,
             })}`}
           </Text>
         </View>
@@ -179,8 +180,10 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 12,
     textTransform: "capitalize",
+    textAlign: "right",
   },
   date: {
     fontSize: 12,
+    textAlign: "right",
   },
 });

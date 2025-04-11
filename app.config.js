@@ -10,11 +10,6 @@ export default {
     experiments: {
       tsconfigPaths: true,
     },
-    splash: {
-      image: "./assets/access-splash.png",
-      resizeMode: "contain",
-      backgroundColor: "#7145d6",
-    },
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
@@ -48,6 +43,15 @@ export default {
     plugins: [
       "expo-router",
       "@react-native-google-signin/google-signin",
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/adaptive-icon.png",
+          resizeMode: "contain",
+          backgroundColor: "#7145d6",
+          imageWidth: 300,
+        },
+      ],
       [
         "expo-secure-store",
         {

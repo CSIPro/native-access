@@ -30,7 +30,16 @@ export default function RequestsPage() {
 
   if (requests.status === "loading") {
     return (
-      <View style={[styles.centered]}>
+      <View
+        style={[
+          styles.centered,
+          {
+            backgroundColor: isLight
+              ? colors.default.white[100]
+              : colors.default.black[400],
+          },
+        ]}
+      >
         <ActivityIndicator size="large" color={tint} />
       </View>
     );
@@ -38,9 +47,18 @@ export default function RequestsPage() {
 
   if (requests.status === "error") {
     return (
-      <View style={[styles.centered]}>
+      <View
+        style={[
+          styles.centered,
+          {
+            backgroundColor: isLight
+              ? colors.default.white[100]
+              : colors.default.black[400],
+          },
+        ]}
+      >
         <Text style={[styles.errorText, { color: textColor }]}>
-          Error loading requests
+          Ocurrió un error al cargar las solicitudes
         </Text>
       </View>
     );

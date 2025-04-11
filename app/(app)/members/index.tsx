@@ -1,4 +1,10 @@
-import { StyleSheet, View, useColorScheme } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 
 import { RoleList } from "@/components/members/role-list";
 import { RoomPicker } from "@/components/room-picker/room-picker";

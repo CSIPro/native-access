@@ -13,7 +13,7 @@ import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
 import { RoomPicker } from "@/components/room-picker/room-picker";
 import { TextButton } from "@/components/ui/text-button";
-import { Link } from "expo-router";
+import { Link, Stack } from "expo-router";
 import { AddRestriction } from "@/components/restrictions/add-restriction";
 import { RestrictionItem } from "@/components/restrictions/restriction-item";
 

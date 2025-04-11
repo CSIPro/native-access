@@ -13,13 +13,13 @@ import {
   Inter_500Medium,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DarkTheme,
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { useColorScheme } from "react-native";
+import { useColorScheme, View } from "react-native";
 import {
   AuthProvider,
   FirebaseAppProvider,
@@ -47,6 +47,8 @@ Notifications.setNotificationHandler({
 });
 
 export default function RootLayout() {
+  const [appIsReady, setAppIsReady] = useState(false);
+
   const [loaded, error] = useFonts({
     PoppinsLight: Poppins_300Light,
     Poppins: Poppins_400Regular,
@@ -68,16 +70,28 @@ export default function RootLayout() {
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    setAppIsReady(true);
+  }, []);
+
+  const onLayoutRootView = useCallback(() => {
+    if (appIsReady) {
+      SplashScreen.hide();
     }
-  }, [loaded]);
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null;
+  }
 
   if (!loaded) {
     return <Splash loading message="Loading assets" />;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <RootLayoutNav />
+    </View>
+  );
 }
 
 function RootLayoutNav() {

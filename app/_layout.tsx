@@ -84,7 +84,7 @@ export default function RootLayout() {
   }
 
   if (!loaded) {
-    return <Splash loading message="Loading assets" />;
+    return <Splash loading message="Cargando..." />;
   }
 
   return (

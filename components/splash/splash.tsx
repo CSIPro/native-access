@@ -5,6 +5,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import colors from "@/constants/colors";
 import fonts from "@/constants/fonts";
+import { StatusBar } from "expo-status-bar";
+import { LinearGradient } from "expo-linear-gradient";
 
 const accessLogo = require("../../assets/access-logo.svg");
 
@@ -16,8 +18,13 @@ interface Props {
 export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.default.tint[400] }}
+      style={{ flex: 1, backgroundColor: colors.default.black[400] }}
     >
+      <LinearGradient
+        colors={[colors.default.black[400], colors.default.tint.translucid[200]]}
+        locations={[0.9, 1.0]}
+        style={{ ...StyleSheet.absoluteFillObject }}
+      />
       <View style={[styles.container]}>
         <View style={[styles.centered]}>
           <Image source={accessLogo} style={[styles.logo]} />
@@ -26,7 +33,16 @@ export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
           {loading && <ActivityIndicator size="large" color="#fff" />}
           <Text style={[styles.feedbackMessage]}>{message}</Text>
         </View>
+        <View style={[styles.branding]}>
+          <Text style={[styles.brandingText]}>from</Text>
+          <Image
+            source={require("../../assets/csipro.svg")}
+            style={[styles.brandingLogo]}
+          />
+          <Text style={[styles.brandingText]}>CSI PRO</Text>
+        </View>
       </View>
+      <StatusBar translucent />
     </SafeAreaView>
   );
 };
@@ -38,6 +54,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     width: "100%",
+    paddingBottom: 32,
   },
   centered: {
     position: "absolute",
@@ -57,12 +74,35 @@ const styles = StyleSheet.create({
     gap: 8,
     width: "100%",
     padding: 8,
-    paddingBottom: 32,
+    paddingBottom: 96,
   },
   feedbackMessage: {
     color: "#fff",
     fontFamily: fonts.poppins,
     fontSize: 16,
     textAlign: "center",
+  },
+  branding: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: colors.default.tint.translucid[200],
+    paddingVertical: 4,
+    paddingHorizontal: 16,
+    borderWidth: 2,
+    borderColor: colors.default.tint[400],
+    borderRadius: 9999,
+  },
+  brandingLogo: {
+    width: 28,
+    height: 20,
+  },
+  brandingText: {
+    color: colors.default.white[100],
+    fontFamily: fonts.poppins,
+    fontSize: 14,
+    textAlign: "center",
+    paddingTop: 4,
   },
 });

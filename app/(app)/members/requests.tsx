@@ -18,7 +18,7 @@ import fonts from "@/constants/fonts";
 
 export default function RequestsPage() {
   const requests = useNestRoomRequests();
-  const tabsHeight = useBottomTabBarHeight() + 8;
+  const tabsHeight = useBottomTabBarHeight() + 64;
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";

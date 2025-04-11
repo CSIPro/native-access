@@ -26,7 +26,7 @@ interface Props {
 export const RoleList: FC<Props> = ({ roles, userRole, isRoot }) => {
   const colorScheme = useColorScheme();
   const { status, data } = useNestMembersByRole();
-  const tabsHeight = useBottomTabBarHeight() + 8;
+  const tabsHeight = useBottomTabBarHeight() + 64;
 
   const isLight = colorScheme === "light";
 

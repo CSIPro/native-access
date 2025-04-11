@@ -19,7 +19,7 @@ import { RestrictionItem } from "@/components/restrictions/restriction-item";
 
 export default function RestrictionsPage() {
   const restrictions = useRoomRestrictions();
-  const tabsHeight = useBottomTabBarHeight() + 8;
+  const tabsHeight = useBottomTabBarHeight() + 64;
   const colorScheme = useColorScheme();
 
   const isLight = colorScheme === "light";

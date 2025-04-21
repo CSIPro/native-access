@@ -1,6 +1,13 @@
+import Constants from "expo-constants";
 import { Image } from "expo-image";
 import { FC } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import colors from "@/constants/colors";
@@ -16,12 +23,17 @@ interface Props {
 }
 
 export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
+  const isLight = useColorScheme() === "light";
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: colors.default.black[400] }}
     >
       <LinearGradient
-        colors={[colors.default.black[400], colors.default.tint.translucid[200]]}
+        colors={[
+          colors.default.black[400],
+          colors.default.tint.translucid[200],
+        ]}
         locations={[0.9, 1.0]}
         style={{ ...StyleSheet.absoluteFillObject }}
       />
@@ -41,6 +53,19 @@ export const SplashScreen: FC<Props> = ({ loading = false, message }) => {
           />
           <Text style={[styles.brandingText]}>CSI PRO</Text>
         </View>
+      </View>
+      <View style={[{ paddingBottom: 16 }]}>
+        <Text
+          style={[
+            styles.text,
+            {
+              textAlign: "center",
+              color: isLight
+                ? colors.default.black.translucid[400]
+                : colors.default.white.translucid[400],
+            },
+          ]}
+        >{`${Constants.expoConfig.name} v${Constants.expoConfig.version}`}</Text>
       </View>
       <StatusBar translucent />
     </SafeAreaView>
@@ -104,5 +129,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     paddingTop: 4,
+  },
+  text: {
+    fontFamily: fonts.inter,
+    fontSize: 12,
   },
 });

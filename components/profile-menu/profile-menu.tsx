@@ -75,6 +75,12 @@ export const ProfileMenu = () => {
           </MenuItemIcon>
           <MenuItemLabel>Código QR</MenuItemLabel>
         </MenuItem>
+        <MenuItem href="/(app)/profile/edit-profile">
+          <MenuItemIcon>
+            <IonIcon name="pencil" color={iconColor} size={24} />
+          </MenuItemIcon>
+          <MenuItemLabel>Editar perfil</MenuItemLabel>
+        </MenuItem>
         {status === "success" && canSendNotifications && (
           <MenuItem href="/(app)/profile/send-notification">
             <MenuItemIcon>

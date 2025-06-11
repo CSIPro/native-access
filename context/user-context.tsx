@@ -40,7 +40,7 @@ export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const authToken = await authUser.getIdToken();
 
     const res = await fetch(`${BASE_API_URL}/users/${data?.id}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
